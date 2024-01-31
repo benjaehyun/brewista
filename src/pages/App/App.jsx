@@ -1,17 +1,17 @@
 import {useState, useEffect} from "react";
 import { Routes, Route } from "react-router-dom";
 import { getUser } from "../../utilities/users-service";
-import './App.css';
 import AuthPage from "../AuthPage/AuthPage";
 import NavBar from "../../components/NavBar/NavBar";
 import NotFoundPage from "../NotFoundPage/NotFoundPage";
-import HomePage from "../HomePage/HomePage";
+import HomePageUnauthenticated from "../HomePage/HomePageUnauthenticated";
 import ScrollToTop from "../../utilities/scroll-to-top";
 import RecipesIndexPage from "../RecipesIndexPage/RecipesIndexPage";
 import RecipesDetailsPage from "../RecipesDetailsPage/RecipesDetailsPage";
 import SavedRecipesIndex from "../SavedRecipesIndex/SavedRecipesIndex";
 import LogInModal from "../../components/LogInModal/LogInModal";
 import { useProtectedNavigation } from "./useProtectedNavigation";
+import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -25,18 +25,22 @@ export default function App() {
 
 
   return (
-    <main className="App">
+    <main className="App text-center">
       <ScrollToTop />
       <NavBar user={user} setUser={setUser} protectedNavigate={protectedNavigate} />
       {/* <LogInModal isOpen={isLoginModalOpen} onClose={closeLoginModal} /> */}
       <LogInModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
       <Routes>
-        <Route path="/" element={<HomePage />} />
+        <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
         <Route path="/recipes" element={<RecipesIndexPage />} />
         <Route path="/recipes:id" element={<RecipesDetailsPage />} />
-        <Route path="/myrecipes" element={<SavedRecipesIndex />} />
-        {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
         <Route path="/auth" element={<AuthPage setUser={setUser} />} />
+        {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
+        {user ? 
+        <Route path="/myrecipes" element={<SavedRecipesIndex />} />
+        :
+        <Route path="/notfound" element={<NotFoundPage />} />
+        }
         <Route path="*" element={<NotFoundPage />} />
       </Routes>
     </main>

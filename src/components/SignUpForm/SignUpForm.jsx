@@ -1,63 +1,53 @@
-import { Component } from 'react'; 
+import { useState } from 'react'; 
 import { useNavigate } from 'react-router-dom';
 import {signUp} from '../../utilities/users-service'
 
-export default class SignUpForm extends Component {
-    // class fields approach for setting the state 
-    state = {
+export default function SignUpForm ({setUser}) {
+    const [formData, setFormData] = useState({
         name: '', 
         email: '', 
         password: '', 
-        confirm: '', 
-        error: ''
-    }
-    // navigate = useNavigate()
-    // 2 ways to set a method's "this" keyword correctly: JS 'bind' method in the constructor or the class fields syntax 
-    handleChange = (evt) => {
-        this.setState({
-            [evt.target.name]: evt.target.value, 
-            error: ''
-        })
+        confirm: ''
+    })
+    const [error, setError] = useState('')
+
+    const navigate = useNavigate()
+
+    function handleChange(e) {
+        setFormData({ ...formData, [e.target.name]: e.target.value})
+        setError('')
     }
 
-    handleSubmit = async (evt) => {
-        evt.preventDefault()
-        
+    async function handleSubmit(e) {
+        e.preventDefault()
         try {
-            const formData = {...this.state}
-            delete formData.error
             delete formData.confirm
-
             const user = await signUp(formData)
-            // this.props.setUser(user)
-            // this.navigate('/orders')
-            this.props.setUser(user)
+            setUser(user)
+            navigate('/')
         } catch {
-            this.setState({ error: 'Sign Up Failed - Try Again' })
+            setError('Sign up Failed - Try Again')
         }
     }
 
+    const disable = (formData.password !== formData.confirm);
 
-    //class based components need to have a render function instead of just returning the stuff that we want to render 
-    render () {
-        const disable = this.state.password !== this.state.confirm;
-        return (
-            <div>
-                <div className="form-container">
-                    <form autoComplete="off" onSubmit={this.handleSubmit}>
+    return (
+        <div>
+            <div className="form-container">
+                <form autoComplete="off" onSubmit={handleSubmit}>
                     <label>Name</label>
-                    <input type="text" name="name" value={this.state.name} onChange={this.handleChange} required />
+                    <input type="text" name="name" value={formData.name} onChange={handleChange} required />
                     <label>Email</label>
-                    <input type="email" name="email" value={this.state.email} onChange={this.handleChange} required />
+                    <input type="text" name="email" value={formData.email} onChange={handleChange} required />
                     <label>Password</label>
-                    <input type="password" name="password" value={this.state.password} onChange={this.handleChange} required />
+                    <input type="password" name="password" value={formData.password} onChange={handleChange} required />
                     <label>Confirm</label>
-                    <input type="password" name="confirm" value={this.state.confirm} onChange={this.handleChange} required />
-                    <button type="submit" disabled={disable}>SIGN UP</button>
-                    </form>
-                </div>
-                <p className="error-message">&nbsp;{this.state.error}</p>
+                    <input type="password" name="confirm" value={formData.confirm} onChange={handleChange} required />
+                    <button variant='primary' type="submit" disabled={disable}>SIGN UP</button>
+                </form>
             </div>
-        )
-    }
+            <p className="error-message">&nbsp;{error}</p>
+        </div>
+    )
 }
