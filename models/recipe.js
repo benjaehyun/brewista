@@ -16,9 +16,9 @@ const recipeSchema = new Schema ({
         ref: "Gear", 
         required: true
     }],
-    coffeeBeans: {
-        type: String,
-        required: true
+    coffeeBean: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: "CoffeeBean"
     },
     steps: [{
         type: String
