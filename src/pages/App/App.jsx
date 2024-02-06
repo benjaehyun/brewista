@@ -28,21 +28,23 @@ export default function App() {
     <main className="App text-center">
       <ScrollToTop />
       <NavBar user={user} setUser={setUser} protectedNavigate={protectedNavigate} />
+      <div className="mt-16 md:mt-[4.75rem]">
+        <LogInModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
+        <Routes>
+          <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
+          <Route path="/recipes" element={<RecipesIndexPage />} />
+          <Route path="/recipes:id" element={<RecipesDetailsPage />} />
+          <Route path="/auth" element={<AuthPage setUser={setUser} />} />
+          {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
+          {user ? 
+          <Route path="/myrecipes" element={<SavedRecipesIndex />} />
+          :
+          <Route path="/notfound" element={<NotFoundPage />} />
+          }
+          <Route path="*" element={<NotFoundPage />} />
+        </Routes>
+      </div>
       {/* <LogInModal isOpen={isLoginModalOpen} onClose={closeLoginModal} /> */}
-      <LogInModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
-      <Routes>
-        <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
-        <Route path="/recipes" element={<RecipesIndexPage />} />
-        <Route path="/recipes:id" element={<RecipesDetailsPage />} />
-        <Route path="/auth" element={<AuthPage setUser={setUser} />} />
-        {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
-        {user ? 
-        <Route path="/myrecipes" element={<SavedRecipesIndex />} />
-        :
-        <Route path="/notfound" element={<NotFoundPage />} />
-        }
-        <Route path="*" element={<NotFoundPage />} />
-      </Routes>
     </main>
   );
 }

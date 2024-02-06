@@ -35,7 +35,7 @@ export default function NavBar({ user, setUser, protectedNavigate }) {
     }, []);
 
     return (
-        <nav className={`fixed top-0 w-full z-10 ${isScrolled ? 'bg-white shadow-md' : 'bg-gray-800'} transition-colors duration-300 ease-in-out p-3  md:px-8 md:py-6`}>
+        <nav className={`fixed top-0 w-full z-10 ${isScrolled ? 'bg-white shadow-md ' : 'bg-gray-800'} transition-all duration-300 ease-in-out p-3 md:flex md:px-8 md:py-6`}>
             <div className="container mx-auto flex items-center justify-between">
                 <Link to="/" className={`text-lg font-bold ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>brewista</Link>
                 <button onClick={toggleMenu} className={`focus:outline-none md:hidden p-2 mr-2 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
