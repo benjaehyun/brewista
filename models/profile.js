@@ -17,6 +17,10 @@ const profileSchema = new Schema ({
     gear: [{
         type: mongoose.Schema.Types.ObjectId, 
         ref: "Gear"
+    }], 
+    savedRecipes: [{
+        type: mongoose.Schema.Types.ObjectId, 
+        ref: "Recipe"
     }]
 }, {
     timestamps: true

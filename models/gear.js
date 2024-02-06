@@ -13,6 +13,11 @@ const gearSchema = new Schema ({
     modifications: {
         type: String, 
         required: false
+    }, 
+    type: {
+        type: String,
+        required: true,
+        enum: ['Brewer', 'Paper', 'Grinder', 'Kettle', 'Scale', 'Other'], 
     }
 })
 
