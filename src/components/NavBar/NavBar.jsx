@@ -36,13 +36,13 @@ export default function NavBar({ user, setUser, protectedNavigate }) {
 
     return (
         <nav className={`fixed top-0 w-full z-10 ${isScrolled ? 'bg-white shadow-md ' : 'bg-gray-800'} transition-all duration-300 ease-in-out p-3 md:flex md:px-8 md:py-6`}>
-            <div className="container mx-auto flex items-center justify-between">
+            <div className=" ml-0 mr-auto flex items-center justify-between">
                 <Link to="/" className={`text-lg font-bold ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>brewista</Link>
                 <button onClick={toggleMenu} className={`focus:outline-none md:hidden p-2 mr-2 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>
                     <FontAwesomeIcon icon={isOpen ? faTimes : faBars} size="lg" />
                 </button>
             </div>
-            <div className={`${isOpen ? 'block' : 'hidden'} md:flex md:items-center md:justify-between md:space-x-4`}>
+            <div className={`${isOpen ? 'block' : 'hidden'} md:flex md:items-center md:justify-between md:space-x-10`}>
                 <Link to="/recipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Recipes</Link>
                 <ProtectedLink to="/myrecipes" isProtected={true} protectedNavigate={protectedNavigate} className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>
                     My Recipes

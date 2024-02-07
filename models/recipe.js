@@ -1,6 +1,23 @@
 const mongoose = require('mongoose')
 const Schema = mongoose.Schema
 
+const grindSizeSchema = new mongoose.Schema({
+    steps: {
+        type: Number,
+        required: true, // Assuming every grinder has a basic step scale
+        min: 0 // Ensuring the value is positive
+    },
+    microsteps: {
+        type: Number,
+        required: false, // Not all grinders will have microsteps
+        min: 0 
+    },
+    description: {
+        type: String,
+        required: false // Optional descriptive text for more detail
+    }
+});
+
 const recipeSchema = new Schema ({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -20,6 +37,7 @@ const recipeSchema = new Schema ({
         type: mongoose.Schema.Types.ObjectId,
         ref: "CoffeeBean"
     },
+    grindSize: grindSizeSchema,
     steps: [{
         type: String
     }],
