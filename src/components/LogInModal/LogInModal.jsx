@@ -35,24 +35,26 @@ export default function LogInModal({ isOpen, onClose }) {
     if (!isOpen) return null;
 
     return (
-        <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" onClick={onClose}>
+        <div className="fixed z-20 inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" onClick={onClose}>
             <div className="bg-white p-5 rounded-lg relative" onClick={handleModalContentClick}>
                 <button onClick={onClose} className="absolute top-2 right-2 text-gray-700">
                     <FontAwesomeIcon icon={faTimes} />
                 </button>
                 <h2 className="text-lg">You need to be logged in to access this feature.</h2>
-                <button
-                    onClick={handleLoginRedirect}
-                    className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-                >
-                    Login / Sign Up
-                </button>
-                <button
-                    onClick={onClose}
-                    className="bg-gray-500 text-white px-4 py-2 rounded mt-4"
-                >
-                    Close
-                </button>
+                <div className='space-x-6'>
+                    <button
+                        onClick={handleLoginRedirect}
+                        className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
+                    >
+                        Login / Sign Up
+                    </button>
+                    <button
+                        onClick={onClose}
+                        className="bg-gray-500 text-white px-4 py-2 rounded mt-4"
+                    >
+                        Close
+                    </button>
+                </div>
             </div>
         </div>
     );
