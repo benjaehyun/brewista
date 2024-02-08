@@ -1,9 +1,10 @@
 import * as usersAPI from './users-api'
-
+import * as profilesAPI from './profiles-api'
 
 export async function signUp (userData) {
     const token = await usersAPI.signUp(userData)
     localStorage.setItem('token', token)
+    const profile = await profilesAPI.createProfile()
     return getUser()
 }
 

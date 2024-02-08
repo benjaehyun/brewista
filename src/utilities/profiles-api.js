@@ -5,3 +5,8 @@ const BASE_URL = '/api/profiles'
 export function getProfile() {
     return sendRequest(BASE_URL)
 }
+
+
+export function createProfile() {
+    return sendRequest(`${BASE_URL}/create`, 'POST', );
+  }

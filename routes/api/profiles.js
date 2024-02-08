@@ -1,4 +1,9 @@
 const express = require('express')
 const router = express.Router()
-const ensureLoggedIN = requrire('../../config/ensureLoggedIn')
+const profilesCtrl = require('../../controllers/api/profiles')
+// const ensureLoggedIN = require('../../config/ensureLoggedIn')
 
+router.get ('/', profilesCtrl.details)
+router.post ('/create', profilesCtrl.create)
+
+module.exports = router;
