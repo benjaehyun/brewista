@@ -50,6 +50,7 @@ export default function NavBar({ user, setUser, protectedNavigate }) {
                 {user && (
                     <>
                         <Link to="/myrecipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>My Recipes</Link>
+                        <Link to="/profile" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Profile</Link>
                         <span className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Welcome, {user.name}</span>
                         <Link to="" onClick={handleLogOut} className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Log Out</Link>
                     </>

@@ -10,6 +10,10 @@ const profileSchema = new Schema ({
         required: true, 
         unique: true
     }, 
+    displayName: {
+        type: String, 
+        required: false
+    }, 
     bio: {
         type: String, 
         required: false

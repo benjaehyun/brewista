@@ -1,5 +1,5 @@
 // TabContent.jsx
-function TabContent({ activeTab }) {
+export default function TabContent({ activeTab }) {
     switch (activeTab) {
       case 'posts':
         return <div>Post content</div>;

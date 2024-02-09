@@ -4,7 +4,7 @@ import { signUp } from '../../utilities/users-service';
 
 export default function SignUpForm({ setUser }) {
     const [formData, setFormData] = useState({
-        name: '', 
+        username: '', // Now using username instead of name
         email: '', 
         password: '', 
         confirm: ''
@@ -15,7 +15,7 @@ export default function SignUpForm({ setUser }) {
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError('');
+        setError(''); // Reset error message on input change
     }
 
     async function handleSubmit(e) {
@@ -27,9 +27,11 @@ export default function SignUpForm({ setUser }) {
         try {
             const user = await signUp(formData);
             setUser(user);
-            navigate('/');
-        } catch {
-            setError('Sign up Failed - Try Again');
+            navigate('/profile'); // Redirect user to their profile upon successful signup
+        } catch (err) {
+            // Assuming the backend sends back an error in the format of { error: "Username already exists" }
+            // Or { error: "Email already in use" }, adjust based on your backend's actual response format
+            setError(err.response?.data?.error || 'Sign up Failed - Try Again With a Unique Username and Email');
         }
     }
 
@@ -38,41 +40,69 @@ export default function SignUpForm({ setUser }) {
             <div className="w-full max-w-xs">
                 <form autoComplete="off" onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="name">
-                            Name
+                        <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
+                            Username
                         </label>
-                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="name" value={formData.name} onChange={handleChange} required />
+                        <input 
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            type="text" 
+                            name="username" 
+                            value={formData.username} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="email">
+                        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
                             Email
                         </label>
-                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="text" name="email" value={formData.email} onChange={handleChange} required />
+                        <input 
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            type="email" // Ensuring proper keyboard on mobile devices
+                            name="email" 
+                            value={formData.email} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     <div className="mb-4">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="password">
+                        <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
                             Password
                         </label>
-                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="password" name="password" value={formData.password} onChange={handleChange} required />
+                        <input 
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            type="password" 
+                            name="password" 
+                            value={formData.password} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     <div className="mb-6">
-                        <label className="block text-gray-700 text-sm font-bold mb-2" htmlFor="confirm">
+                        <label htmlFor="confirm" className="block text-gray-700 text-sm font-bold mb-2">
                             Confirm Password
                         </label>
-                        <input className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" type="password" name="confirm" value={formData.confirm} onChange={handleChange} required />
+                        <input 
+                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
+                            type="password" 
+                            name="confirm" 
+                            value={formData.confirm} 
+                            onChange={handleChange} 
+                            required 
+                        />
                     </div>
                     <div className="flex items-center justify-center">
                         <button 
                             className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline 
-                                        ${formData.password !== formData.confirm ? 'opacity-50 cursor-not-allowed' : ''}`}
+                                        ${!formData.username || !formData.email || formData.password !== formData.confirm ? 'opacity-50 cursor-not-allowed' : ''}`}
                             type="submit" 
-                            disabled={formData.password !== formData.confirm}>
+                            disabled={!formData.username || !formData.email || formData.password !== formData.confirm}>
                             SIGN UP
                         </button>
                     </div>
                 </form>
+                {error && <p className="text-red-500 text-xs italic text-center">{error}</p>}
             </div>
-            {error && <p className="text-red-500 text-xs italic text-center">{error}</p>}
         </div>
     );
 }

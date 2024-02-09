@@ -1,16 +1,100 @@
-// UserProfile.jsx
-export default function UserProfile({ user }) {
-    // Placeholder for user data. Assume `user` prop is passed down or fetched here.
-    return (
-      <div className="text-center mb-6">
-        <h1 className="text-2xl font-bold">{user.name}</h1>
-        <p className="text-gray-700">{user.bio}</p>
-        {/* Followers/Following Links */}
-        <div className="flex justify-center space-x-4 mt-4">
-          <a href="/followers" className="text-blue-500">Followers: {user.followersCount}</a>
-          <a href="/following" className="text-blue-500">Following: {user.followingCount}</a>
-        </div>
-      </div>
-    );
-  }
-  
+import React, { useState, useEffect } from 'react';
+
+export default function UserProfile({ profile, updateProfile, setProfile }) {
+  const [editMode, setEditMode] = useState(false);
+  // Store the initial form data to compare changes against
+  const initialFormData = {
+    name: profile?.name || '',
+    bio: profile?.bio || '',
+  };
+  const [formData, setFormData] = useState(initialFormData);
+  // State to track if any changes have been made to enable the Save button
+  const [isFormDirty, setIsFormDirty] = useState(false);
+
+  useEffect(() => {
+    // When the profile prop changes (e.g., initially fetched), update the form data and reset form dirty state
+    setFormData({
+      name: profile?.name || '',
+      bio: profile?.bio || '',
+    });
+    setIsFormDirty(false);
+  }, [profile]);
+
+  const handleChange = (event) => {
+    const { name, value } = event.target;
+    setFormData(prevState => {
+      const newData = { ...prevState, [name]: value };
+      // Check if the form data is different from the initial data to update the form dirty state
+      const formDirty = newData.name !== initialFormData.name || newData.bio !== initialFormData.bio;
+      setIsFormDirty(formDirty);
+      return newData;
+    });
+  };
+
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    if (!isFormDirty) return; // Only proceed if changes were made
+    const profileData = await updateProfile(formData); // Uncomment and implement your update logic
+    console.log(`profiledata: ${JSON.stringify(profileData)}`); // Placeholder for your updateProfile function
+    setEditMode(false);
+    setIsFormDirty(false); // Reset form dirty state after submission
+    if (profileData.name) {
+        setProfile({
+            ...profile, 
+            name: profileData.name
+        })
+    } if (profileData.bio) {
+        setProfile({
+            ...profile, 
+            bio: profileData.bio
+        })
+    }
+  };
+
+  return (
+    <div className="text-center mb-6">
+      {editMode ? (
+        <form onSubmit={handleSubmit} className="space-y-4">
+          <div className="flex flex-col md:flex-row md:items-center md:justify-center md:space-x-4">
+            <label htmlFor="name" className="block text-sm font-medium text-gray-700 md:text-right md:w-1/4">Name</label>
+            <input
+              id="name"
+              type="text"
+              name="name"
+              value={formData.name}
+              onChange={handleChange}
+              className="mt-1 block w-full md:w-3/5 rounded-md border-2 border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 sm:text-sm"
+            />
+          </div>
+          <div className="flex flex-col md:flex-row md:items-center md:justify-center md:space-x-4">
+            <label htmlFor="bio" className="block text-sm font-medium text-gray-700 md:text-right md:w-1/4">Bio</label>
+            <textarea
+              id="bio"
+              name="bio"
+              value={formData.bio}
+              onChange={handleChange}
+              className="mt-1 block w-full md:w-3/5 rounded-md border-2 border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 sm:text-sm"
+              placeholder="No bio yet"
+            />
+          </div>
+          <div className="flex justify-center space-x-4 mt-4">
+            <button type="submit" disabled={!isFormDirty} className={`inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md ${isFormDirty ? 'text-white bg-blue-500 hover:bg-blue-700' : 'text-gray-500 bg-gray-200'} focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500`}>
+              Save
+            </button>
+            <button onClick={() => setEditMode(false)} className="inline-flex justify-center py-2 px-4 border border-gray-300 shadow-sm text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500">
+              Cancel
+            </button>
+          </div>
+        </form>
+      ) : (
+        <>
+          <h1 className="text-2xl font-bold">{profile?.name || 'No name'}</h1>
+          <p className="text-gray-700">{profile?.bio || 'No bio yet'}</p>
+          <button onClick={() => setEditMode(true)} className="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
+            Edit Profile
+          </button>
+        </>
+      )}
+    </div>
+  );
+}

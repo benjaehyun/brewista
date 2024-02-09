@@ -6,7 +6,10 @@ export function getProfile() {
     return sendRequest(BASE_URL)
 }
 
-
 export function createProfile() {
     return sendRequest(`${BASE_URL}/create`, 'POST', );
   }
+
+export function updateProfile(form) {
+    return sendRequest(`${BASE_URL}`, 'POST', {form});
+}

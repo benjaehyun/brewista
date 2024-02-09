@@ -1,7 +1,7 @@
 import * as usersAPI from './users-api'
 import * as profilesAPI from './profiles-api'
 
-export async function signUp (userData) {
+export async function signUp (userData) {  // need to refactor to handle errors thrown by the backend to identify which field is a duplicate, which also needs to be refactored
     const token = await usersAPI.signUp(userData)
     localStorage.setItem('token', token)
     const profile = await profilesAPI.createProfile()

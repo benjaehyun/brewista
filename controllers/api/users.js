@@ -13,9 +13,14 @@ async function create (req, res) {
         const user = await User.create(req.body)
         const token = createJWT(user)
         res.json(token)
-    } catch (err) {
-        console.log(err)
-        res.status(400).json(err)
+    } catch (error) { // Needs to be refactored to return the correct field
+        console.log(error)
+        if (error.code === 11000) { // MongoDB duplicate key error
+            const field = Object.keys(error.keyPattern)[0]; // 'username' or 'email'
+            res.status(400).json({ error: `${field.charAt(0).toUpperCase() + field.slice(1)} already exists.` });
+          } else {
+            res.status(500).json({ error: 'Internal server error' });
+          }
     }
 }
 

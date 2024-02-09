@@ -1,5 +1,5 @@
 // GearSection.jsx
-function GearSection({ gear }) {
+export default function GearSection({ gear }) {
     // Placeholder for gear data. Assume `gear` prop is passed down or fetched here.
     return (
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">

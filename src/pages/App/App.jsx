@@ -12,6 +12,7 @@ import SavedRecipesIndex from "../SavedRecipesIndex/SavedRecipesIndex";
 import LogInModal from "../../components/LogInModal/LogInModal";
 import { useProtectedNavigation } from "./useProtectedNavigation";
 import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
+import ProfilePage from "../ProfilePage/ProfilePage";
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -37,7 +38,10 @@ export default function App() {
           <Route path="/auth" element={<AuthPage setUser={setUser} />} />
           {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
           {user ? 
-          <Route path="/myrecipes" element={<SavedRecipesIndex />} />
+          <>
+            <Route path="/myrecipes" element={<SavedRecipesIndex />} />
+            <Route path="/profile" element={<ProfilePage />} />
+          </>
           :
           <Route path="/notfound" element={<NotFoundPage />} />
           }
