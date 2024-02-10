@@ -29,7 +29,7 @@ export default function ProfilePage() {
       { isLoading ? <h1>Loading profile...</h1> : 
         <div className="container mx-auto p-4">
           <UserProfile profile={profile} updateProfile={profilesApi.updateProfile} setProfile={setProfile}/>
-          {/* <div className="my-4">
+          <div className="my-4">
             <FollowersModal />
             <FollowingModal />
           </div>
@@ -41,7 +41,7 @@ export default function ProfilePage() {
               <button onClick={() => setActiveTab('saved')} className={`px-4 py-2 ${activeTab === 'saved' ? 'text-blue-500' : 'text-gray-500'}`}>Saved</button>
             </div>
             <TabContent activeTab={activeTab} />
-          </div> */}
+          </div>
         </div>
       }
     </>

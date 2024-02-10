@@ -4,7 +4,7 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
   const [editMode, setEditMode] = useState(false);
   // Store the initial form data to compare changes against
   const initialFormData = {
-    name: profile?.name || '',
+    displayName: profile?.displayName || '',
     bio: profile?.bio || '',
   };
   const [formData, setFormData] = useState(initialFormData);
@@ -14,7 +14,7 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
   useEffect(() => {
     // When the profile prop changes (e.g., initially fetched), update the form data and reset form dirty state
     setFormData({
-      name: profile?.name || '',
+      displayName: profile?.displayName || '',
       bio: profile?.bio || '',
     });
     setIsFormDirty(false);
@@ -25,7 +25,7 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
     setFormData(prevState => {
       const newData = { ...prevState, [name]: value };
       // Check if the form data is different from the initial data to update the form dirty state
-      const formDirty = newData.name !== initialFormData.name || newData.bio !== initialFormData.bio;
+      const formDirty = newData.displayName !== initialFormData.displayName || newData.bio !== initialFormData.bio;
       setIsFormDirty(formDirty);
       return newData;
     });
@@ -35,20 +35,9 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
     e.preventDefault();
     if (!isFormDirty) return; // Only proceed if changes were made
     const profileData = await updateProfile(formData); // Uncomment and implement your update logic
-    console.log(`profiledata: ${JSON.stringify(profileData)}`); // Placeholder for your updateProfile function
     setEditMode(false);
     setIsFormDirty(false); // Reset form dirty state after submission
-    if (profileData.name) {
-        setProfile({
-            ...profile, 
-            name: profileData.name
-        })
-    } if (profileData.bio) {
-        setProfile({
-            ...profile, 
-            bio: profileData.bio
-        })
-    }
+    setProfile(profileData)
   };
 
   return (
@@ -56,12 +45,12 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
       {editMode ? (
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="flex flex-col md:flex-row md:items-center md:justify-center md:space-x-4">
-            <label htmlFor="name" className="block text-sm font-medium text-gray-700 md:text-right md:w-1/4">Name</label>
+            <label htmlFor="displayName" className="block text-sm font-medium text-gray-700 md:text-right md:w-1/4">Display Name</label>
             <input
               id="name"
               type="text"
-              name="name"
-              value={formData.name}
+              name="displayName"
+              value={formData.displayName}
               onChange={handleChange}
               className="mt-1 block w-full md:w-3/5 rounded-md border-2 border-gray-300 shadow-sm p-3 focus:border-indigo-500 focus:ring focus:ring-indigo-500 focus:ring-opacity-50 sm:text-sm"
             />
@@ -88,7 +77,7 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
         </form>
       ) : (
         <>
-          <h1 className="text-2xl font-bold">{profile?.name || 'No name'}</h1>
+          <h1 className="text-2xl font-bold">{profile?.displayName || 'No display name yet, edit to add set yours!'}</h1>
           <p className="text-gray-700">{profile?.bio || 'No bio yet'}</p>
           <button onClick={() => setEditMode(true)} className="mt-4 inline-flex justify-center py-2 px-4 border border-transparent shadow-sm text-sm font-medium rounded-md text-white bg-blue-500 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500">
             Edit Profile

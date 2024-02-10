@@ -1,5 +1,6 @@
 const User = require('../../models/user')
 const Profile = require('../../models/profile')
+const profile = require('../../models/profile')
 
 module.exports = {
     create, 
@@ -22,13 +23,7 @@ async function create (req, res) {
 
 async function details (req, res) {
     try {
-        const profileData = await Profile.findOne({user:req.user._id}).lean()
-        console.log(profileData)
-        const user = await User.findById(req.user._id)
-        const profile = {
-            ...profileData, 
-            name: user.name
-        }
+        const profile = await Profile.findOne({user:req.user._id}).lean()
         console.log(profile)
         res.json(profile)
     } catch (err) {
@@ -39,19 +34,8 @@ async function details (req, res) {
 
 async function update (req, res) {
     try {
-        const changes = {}
-        console.log(req.body)
-        if (req.body.form.name) {
-            const user = await User.findByIdAndUpdate(req.user._id, {name: req.body.form.name}, {new:true})
-            console.log(`user: ${user}`)
-            changes.name = user.name
-        }
-        if (req.body.form.bio) {
-            const profileData = await Profile.findOneAndUpdate({user: req.user._id}, {bio: req.body.form.bio}, {new:true})
-            changes.bio = profileData.bio
-        }
-        console.log(`changes: ${changes}`)
-        res.json(changes)
+        const profileData = await Profile.findOneAndUpdate({user: req.user._id}, req.body.form, {new:true})
+        res.json(profileData)
     } catch (err) {
         console.log(err)
         res.status(400).json(err)
