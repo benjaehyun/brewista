@@ -22,7 +22,6 @@ export default function ProfilePage() {
           setIsLoading(false);
       }
       getApiProfile()
-      console.log(profile)
   }, [])
 
   return (

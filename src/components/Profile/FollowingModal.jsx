@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
+import * as relationApi from "../../utilities/relation-api"
 
-export default function FollowingModal({ isOpen, onClose, userId }) {
+export default function FollowingModal({ isOpen, onClose, profileId }) {
   const [following, setFollowing] = useState([]);
   const [isLoading, setIsLoading] = useState(false);
 
@@ -9,19 +10,19 @@ export default function FollowingModal({ isOpen, onClose, userId }) {
       const fetchFollowing = async () => {
         setIsLoading(true);
         try {
-        //   const response = await fetch(`/api/following/${userId}`);
-        //   const data = await response.json();
-        //   setFollowing(data.following);
+            const followingList = await relationApi.getFollowing(profileId)
+            console.log(followingList)
+            setFollowing(followingList);
         } catch (error) {
-          console.error("Failed to fetch following", error);
+            console.error("Failed to fetch following list", error);
         } finally {
-          setIsLoading(false);
+            setIsLoading(false);
         }
       };
 
       fetchFollowing();
     }
-  }, [isOpen, userId]);
+  }, [isOpen, profileId]);
 
   return (
     <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center ${isOpen ? '' : 'hidden'}`}>

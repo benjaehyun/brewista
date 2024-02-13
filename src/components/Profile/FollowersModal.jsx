@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as profilesApi from "../../utilities/profiles-api"
+import * as relationApi from "../../utilities/relation-api"
 
 export default function FollowersModal({ isOpen, onClose, profileId }) {
   const [followers, setFollowers] = useState([]);
@@ -10,8 +10,9 @@ export default function FollowersModal({ isOpen, onClose, profileId }) {
       const fetchFollowers = async () => {
         setIsLoading(true);
         try {
-            const data = await profilesApi.getFollowers(profileId)
-            setFollowers(data.followers);
+            const followerList = await relationApi.getFollowers(profileId)
+            console.log(followerList)
+            setFollowers(followerList);
         } catch (error) {
             console.error("Failed to fetch followers", error);
         } finally {
@@ -21,7 +22,7 @@ export default function FollowersModal({ isOpen, onClose, profileId }) {
 
       fetchFollowers();
     }
-  }, [isOpen, userId]);
+  }, [isOpen, profileId]);
 
   return (
     <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center ${isOpen ? '' : 'hidden'}`}>
