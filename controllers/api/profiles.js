@@ -1,11 +1,13 @@
 const User = require('../../models/user')
 const Profile = require('../../models/profile')
 const profile = require('../../models/profile')
+const Relation = require('../../models/relation')
 
 module.exports = {
     create, 
     details, 
     update,  
+    followersIndex
 }
 
 async function create (req, res) {
@@ -24,6 +26,10 @@ async function create (req, res) {
 async function details (req, res) {
     try {
         const profile = await Profile.findOne({user:req.user._id}).lean()
+        const followersCount = await Relation.countDocuments({following: profile._id})
+        const followingCount = await Relation.countDocuments({follower: profile._id})
+        profile.followersCount = followersCount
+        profile.followingCount = followingCount
         console.log(profile)
         res.json(profile)
     } catch (err) {
@@ -36,6 +42,15 @@ async function update (req, res) {
     try {
         const profileData = await Profile.findOneAndUpdate({user: req.user._id}, req.body.form, {new:true})
         res.json(profileData)
+    } catch (err) {
+        console.log(err)
+        res.status(400).json(err)
+    }
+}
+
+async function followersIndex (req, res) {
+    try {
+        
     } catch (err) {
         console.log(err)
         res.status(400).json(err)
