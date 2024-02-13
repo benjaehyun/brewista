@@ -14,6 +14,3 @@ export function updateProfile(form) {
     return sendRequest(`${BASE_URL}`, 'POST', {form});
 }
 
-export function getFollowers (profileId) {
-    return sendRequest(`${BASE_URL}/${profileId}/followers`);
-}

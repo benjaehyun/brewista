@@ -6,6 +6,5 @@ const profilesCtrl = require('../../controllers/api/profiles')
 router.get ('/', profilesCtrl.details)
 router.post ('/', profilesCtrl.update)
 router.post ('/create', profilesCtrl.create)
-router.get ('/:id/followers', profilesCtrl.followersIndex)
 
 module.exports = router;
