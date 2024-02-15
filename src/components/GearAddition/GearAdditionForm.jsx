@@ -2,59 +2,68 @@ import React, { useState, useEffect } from 'react';
 
 import debounce from 'lodash.debounce';
 
-export default function GearAdditionForm () {
-  const [brands, setBrands] = useState([]);
-  const [selectedBrand, setSelectedBrand] = useState('');
-  const [models, setModels] = useState([]);
-  const [inputBrand, setInputBrand] = useState('');
+export default function GearAdditionForm ({onClose}) {
+  // State for input fields
+  const [brand, setBrand] = useState('');
+  const [model, setModel] = useState('');
+  const [modification, setModification] = useState('');
+  
+  // State for suggestions
+  const [brandSuggestions, setBrandSuggestions] = useState([]);
+  const [modelSuggestions, setModelSuggestions] = useState([]);
+  const [modificationSuggestions, setModificationSuggestions] = useState([]);
 
-  // Fetch brands as the component mounts or input changes
-  // useEffect(() => {
-  //   const fetchBrands = async () => {
-  //     try {
-  //       const response = await axios.get(`/api/gear/brands?q=${inputBrand}`);
-  //       setBrands(response.data);
-  //     } catch (error) {
-  //       console.error('Error fetching brands', error);
-  //     }
-  //   };
-  //   fetchBrands();
-  // }, [inputBrand]);
+  // Example debounce function for brand suggestions, similar functions for models and modifications
+  const fetchBrandSuggestions = debounce(async (query) => {
+    // Placeholder for real fetch call
+    console.log('Fetching brands for query:', query);
+    // Mock data for demonstration
+    setBrandSuggestions(['Brand1', 'Brand2', 'Brand3', 'Brand4', 'Brand5', 'Brand6', 'Brand7', 'Brand8', 'Brand9', 'Brand10']);
+  }, 300);
 
-  // // Debounce brand input changes
-  // const handleBrandChange = debounce((value) => {
-  //   setInputBrand(value);
-  // }, 300);
+  // Handlers for input changes
+  const handleBrandChange = (e) => {
+    const value = e.target.value;
+    setBrand(value);
+    fetchBrandSuggestions(value);
+  };
 
-  // // Fetch models when a brand is selected
-  // useEffect(() => {
-  //   if (!selectedBrand) return;
+  // Add similar handlers for models and modifications
 
-  //   const fetchModels = async () => {
-  //     try {
-  //       const response = await axios.get(`/api/gear/models?brand=${selectedBrand}`);
-  //       setModels(response.data);
-  //     } catch (error) {
-  //       console.error('Error fetching models for brand', error);
-  //     }
-  //   };
-  //   fetchModels();
-  // }, [selectedBrand]);
+  // Placeholder function for form submission
+  const handleSubmit = async (e) => {
+    e.preventDefault();
+    console.log(`Adding Gear: Brand - ${brand}, Model - ${model}, Modification - ${modification}`);
+    onClose(); // Close the modal on successful submission
+  };
 
   return (
-    // <div>
-    //   <input
-    //     type="text"
-    //     placeholder="Type or select a brand"
-    //     onChange={(e) => handleBrandChange(e.target.value)}
-    //   />
-    //   <select onChange={(e) => setSelectedBrand(e.target.value)}>
-    //     {brands.map((brand, index) => (
-    //       <option key={index} value={brand}>{brand}</option>
-    //     ))}
-    //   </select>
-    //   {/* Similar structure for model and modification inputs */}
-    // </div>
-    <h1>gear addition form</h1>
+    <form onSubmit={handleSubmit} className="space-y-4 p-4">
+      <div className="relative">
+        <input
+          type="text"
+          placeholder="Brand"
+          value={brand}
+          onChange={handleBrandChange}
+          className="input w-full px-4 py-2 border border-gray-300 rounded-md focus:outline-none focus:ring-2 focus:ring-blue-500"
+        />
+        {brandSuggestions.length > 0 && (
+          <ul className="absolute z-10 max-h-40 w-full overflow-auto bg-white border border-gray-200 rounded-md mt-1">
+            {brandSuggestions.map((suggestion, index) => (
+              <li
+                key={index}
+                className="px-4 py-2 hover:bg-gray-100 cursor-pointer"
+                onClick={() => { setBrand(suggestion); setBrandSuggestions([]); }}
+              >
+                {suggestion}
+              </li>
+            ))}
+          </ul>
+        )}
+      </div>
+      {/* Implement similar structure for model and modification inputs with suggestions */}
+      
+      <button type="submit" className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Add Gear</button>
+    </form>
   );
 };
