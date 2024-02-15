@@ -6,6 +6,7 @@ import GearSection from '../../components/Profile/GearSection';
 import FollowersModal from '../../components/Profile/FollowersModal';
 import FollowingModal from '../../components/Profile/FollowingModal';
 import TabContent from '../../components/Profile/TabContent'; // Handles tab switching and content
+import GearAdditionModal from '../../components/GearAddition/GearAdditionModal';
 
 export default function ProfilePage() {
   const [activeTab, setActiveTab] = useState('posts');
@@ -13,6 +14,8 @@ export default function ProfilePage() {
   const [isLoading, setIsLoading] = useState(true);
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
+  const [showGearModal, setShowGearModal] = useState(false);
+
 
   useEffect(() => {
       async function getApiProfile () {
@@ -39,7 +42,8 @@ export default function ProfilePage() {
           </div>
           <FollowersModal isOpen={showFollowersModal} onClose={() => setShowFollowersModal(false)} profileId={profile._id} />
           <FollowingModal isOpen={showFollowingModal} onClose={() => setShowFollowingModal(false)} profileId={profile._id} />
-          <GearSection />
+          <GearSection gear={profile.gear} onAddGear={() => setShowGearModal(true)} />
+          <GearAdditionModal isOpen={showGearModal} onClose={() => setShowGearModal(false)} />
           <div className="my-4">
             <div className="flex justify-center space-x-4">
               <button onClick={() => setActiveTab('posts')} className={`px-4 py-2 ${activeTab === 'posts' ? 'text-blue-500' : 'text-gray-500'}`}>Posts</button>
