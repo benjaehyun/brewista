@@ -4,24 +4,24 @@ const Schema = mongoose.Schema
 const grindSizeSchema = new mongoose.Schema({
     steps: {
         type: Number,
-        required: true, // Assuming every grinder has a basic step scale
-        min: 0 // Ensuring the value is positive
+        required: true, // assuming every grinder has a basic step scale
+        min: 0 // ensures the value is positive
     },
     microsteps: {
         type: Number,
-        required: false, // Not all grinders will have microsteps
+        required: false, // not all grinders will have microsteps
         min: 0 
     },
     description: {
         type: String,
-        required: false // Optional descriptive text for more detail
+        required: false // optional descriptive text for more detail
     }
 });
 
 const recipeSchema = new Schema ({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
-        ref: 'User', // Assuming you have a User model defined somewhere
+        ref: 'User', 
         required: true
     },
     name: {
@@ -43,7 +43,7 @@ const recipeSchema = new Schema ({
     }],
     flowRate: {
         type: Number,
-        default: 0 // Specify your default value here
+        required: false
     },
     type: {
         type: String,
@@ -59,14 +59,14 @@ const recipeSchema = new Schema ({
         required: false // Optional large text field for journaling about the recipe
     },
     tastingNotes: [{
-        type: String // Array of strings for tasting notes
+        type: String 
     }],
     isTimed: {
         type: Boolean,
-        default: false // Boolean to indicate if the recipe is timed
+        default: false 
     }
 }, {
-    timestamps: true // Adds createdAt and updatedAt timestamps
+    timestamps: true 
 });
 
 

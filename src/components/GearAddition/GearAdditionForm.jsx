@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useCallback } from 'react';
 
 import debounce from 'lodash.debounce';
 
@@ -14,22 +14,22 @@ export default function GearAdditionForm ({onClose}) {
   const [modificationSuggestions, setModificationSuggestions] = useState([]);
 
   // example debounce usage in fetch requests for brand suggestions
-  const fetchBrandSuggestions = debounce(async (query) => {
+  const fetchBrandSuggestions = useCallback(debounce(async (query) => { // wrapping the debounce call in useCallback and providing an empty dependency array will only create one debounced function and will not be recreated with every render
     // placeholder for real fetch call
     console.log('Fetching brands for query:', query);
     // mock data to populate dropdown
     setBrandSuggestions(['Brand1', 'Brand2', 'Brand3', 'Brand4', 'Brand5', 'Brand6', 'Brand7', 'Brand8', 'Brand9', 'Brand10']);
-  }, 300);
+  }, 400), []);
 
-  const fetchModelSuggestions = debounce(async (query) => {
+  const fetchModelSuggestions = useCallback(debounce(async (query) => {
     console.log('Fetching models for query:', query);
     setModelSuggestions(['Model1', 'Model2', 'Model3', 'Model4', 'Model5', 'Model6', 'Model7', 'Model8', 'Model9', 'Model10']);
-  }, 300);
+  }, 400), []);
   
-  const fetchModificationSuggestions = debounce(async (query) => {
+  const fetchModificationSuggestions = useCallback(debounce(async (query) => {
     console.log('Fetching modifications for query:', query);
     setModificationSuggestions(['Modification1', 'Modification2', 'Modification3', 'Modification4', 'Modification5', 'Modification6', 'Modification7', 'Modification8', 'Modification9', 'Modification10']);
-  }, 300);
+  }, 400), []);
 
 
 

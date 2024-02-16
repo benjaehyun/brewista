@@ -7,7 +7,7 @@ module.exports = {
     create, 
     details, 
     update,  
-    followersIndex
+
 }
 
 async function create (req, res) {
@@ -48,11 +48,3 @@ async function update (req, res) {
     }
 }
 
-async function followersIndex (req, res) {
-    try {
-        
-    } catch (err) {
-        console.log(err)
-        res.status(400).json(err)
-    }
-}
