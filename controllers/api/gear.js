@@ -10,6 +10,7 @@ module.exports = {
     searchModificationsByBrandAndModel,
     addGear,
     removeGearFromProfile, 
+    getGear, 
 
 }
 
@@ -156,5 +157,18 @@ async function removeGearFromProfile(req, res) {
     } catch (error) {
         console.error('Error removing gear from profile:', error);
         res.status(500).json({ message: 'Error removing gear from profile', error });
+    }
+}
+
+async function getGear (req, res) {
+    try {
+        const profile = await Profile.findOne({ user: req.user._id }).populate('gear')
+        if (!profile) {
+            return res.status(404).json({message: 'Profile not found'})
+        }
+        res.json(profile.gear)
+    } catch (error) {
+        console.error('Error getting gear for profile:', error);
+        res.status(500).json({ message: 'Error getting gear for profile', error });
     }
 }

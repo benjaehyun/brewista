@@ -18,7 +18,7 @@ export function fetchModifications(brand, model, query = '') {
     return sendRequest(url);
 }
 
-export function getGear () {
+export function fetchUserGear () {
     return sendRequest(`${BASE_URL}`)
 }
 
