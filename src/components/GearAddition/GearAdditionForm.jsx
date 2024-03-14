@@ -2,7 +2,10 @@ import React, { useState, useEffect, useCallback } from 'react';
 import * as gearAPI from '../../utilities/gear-api';
 import debounce from 'lodash.debounce';
 
-export default function GearAdditionForm({ onClose }) {
+export default function GearAdditionForm({ onClose, getApiProfile }) {
+  // Gear types for selection
+  const gearTypes = ['Brewer', 'Paper', 'Grinder', 'Kettle', 'Scale', 'Other'];
+
   // Input fields
   const [brand, setBrand] = useState('');
   const [model, setModel] = useState('');
@@ -19,24 +22,26 @@ export default function GearAdditionForm({ onClose }) {
   const [isModelDropdownVisible, setIsModelDropdownVisible] = useState(false);
   const [isModificationDropdownVisible, setIsModificationDropdownVisible] = useState(false);
 
-  const gearTypes = ['Brewer', 'Paper', 'Grinder', 'Kettle', 'Scale', 'Other'];
+  // Form validation 
+  const isFormValid = brand && model && gearType
 
   // Debounced fetch requests
   const fetchBrandSuggestions = useCallback(debounce(async (query) => {
     const apiBrandSuggestions = await gearAPI.fetchBrands(query);
-    setBrandSuggestions(apiBrandSuggestions.length ? apiBrandSuggestions : ['Add Brand']);
+    setBrandSuggestions([...apiBrandSuggestions, 'Add New Brand']);
+    // setBrandSuggestions(apiBrandSuggestions.length ? apiBrandSuggestions : ['Add Brand']);
     setIsBrandDropdownVisible(true); // Show dropdown when fetching
   }, 400), []);
 
   const fetchModelSuggestions = useCallback(debounce(async (brand, query) => {
     const apiModelSuggestions = await gearAPI.fetchModels(brand, query);
-    setModelSuggestions(apiModelSuggestions.length ? apiModelSuggestions : ['Add Model']);
+    setModelSuggestions([...apiModelSuggestions, 'Add New Model']);
     setIsModelDropdownVisible(true); // Show dropdown when fetching
   }, 400), []);
 
   const fetchModificationSuggestions = useCallback(debounce(async (brand, model, query) => {
     const apiModificationSuggestions = await gearAPI.fetchModifications(brand, model, query);
-    setModificationSuggestions(apiModificationSuggestions.length ? apiModificationSuggestions : ['Add Modification']);
+    setModificationSuggestions([...apiModificationSuggestions, 'Add New Modification']);
     setIsModificationDropdownVisible(true); // Show dropdown when fetching
   }, 400), []);
 
@@ -67,19 +72,19 @@ export default function GearAdditionForm({ onClose }) {
 
   // Close dropdowns without changing input fields
   const handleSelectBrand = (suggestion) => {
-    if (suggestion !== 'Add Brand') setBrand(suggestion);
+    if (suggestion !== 'Add New Brand') setBrand(suggestion);
     setIsBrandDropdownVisible(false);
     setBrandSuggestions([]);
   };
 
   const handleSelectModel = (suggestion) => {
-    if (suggestion !== 'Add Model') setModel(suggestion);
+    if (suggestion !== 'Add New Model') setModel(suggestion);
     setIsModelDropdownVisible(false);
     setModelSuggestions([]);
   };
 
   const handleSelectModification = (suggestion) => {
-    if (suggestion !== 'Add Modification') setModification(suggestion);
+    if (suggestion !== 'Add New Modification') setModification(suggestion);
     setIsModificationDropdownVisible(false);
     setModificationSuggestions([]);
   };
@@ -92,7 +97,8 @@ export default function GearAdditionForm({ onClose }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-      await gearAPI.addGear({ brand, model, modification, type: gearType });
+      await gearAPI.addGear({ brand, model, modifications: modification, type: gearType });
+      getApiProfile()
       onClose(); // Close the modal on successful submission
     } catch (error) {
       console.error('Error submitting gear:', error);
@@ -102,7 +108,8 @@ export default function GearAdditionForm({ onClose }) {
   return (
     <form onSubmit={handleSubmit} className="space-y-4 p-4">
       {/* Brand input and conditional dropdown */}
-      <div className="relative" onBlur={() => setIsBrandDropdownVisible(false)} onFocus={() => setIsBrandDropdownVisible(true)}>
+      <div className="relative" onBlur={() => {setTimeout(() => {setIsBrandDropdownVisible(false)}, 200)}} onFocus={() => setIsBrandDropdownVisible(true)}>
+      {/* <div className="relative" onBlur={() => setIsBrandDropdownVisible(false)} onFocus={() => setIsBrandDropdownVisible(true)}> */}
         <input
           type="text"
           placeholder="Brand"
@@ -122,7 +129,7 @@ export default function GearAdditionForm({ onClose }) {
       </div>
 
       {/* Model input and conditional dropdown */}
-      <div className="relative" onBlur={() => setIsModelDropdownVisible(false)} onFocus={() => setIsModelDropdownVisible(true)}>
+      <div className="relative" onBlur={() => {setTimeout(() => {setIsModelDropdownVisible(false)}, 200)}} onFocus={() => setIsModelDropdownVisible(true)}>
         <input
           type="text"
           placeholder="Model"
@@ -142,7 +149,7 @@ export default function GearAdditionForm({ onClose }) {
       </div>
 
       {/* Modifications input and conditional dropdown */}
-      <div className="relative" onBlur={() => setIsModificationDropdownVisible(false)} onFocus={() => setIsModificationDropdownVisible(true)}>
+      <div className="relative" onBlur={() => {setTimeout(() => {setIsModificationDropdownVisible(false)}, 200)}} onFocus={() => setIsModificationDropdownVisible(true)}>
         <input
           type="text"
           placeholder="Modifications"
@@ -183,7 +190,13 @@ export default function GearAdditionForm({ onClose }) {
         </div>
       </fieldset>
 
-      <button type="submit" className="w-full px-4 py-2 bg-blue-500 text-white font-semibold rounded-md hover:bg-blue-600 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2">Add Gear</button>
+      <button 
+        type="submit" 
+        disabled={!isFormValid} 
+        className={`w-full px-4 py-2 text-white font-semibold rounded-md ${isFormValid ? 'bg-blue-500 hover:bg-blue-600' : 'bg-blue-300'} focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-offset-2`}
+      >
+        Add Gear
+      </button>
     </form>
   );
 }

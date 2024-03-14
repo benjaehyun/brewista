@@ -114,7 +114,8 @@ async function searchModificationsByBrandAndModel(req, res) {
 
 
 async function addGear (req, res) {
-    const {brand, model, modifications, type} = req.body
+    let {brand, model, modifications, type} = req.body
+    brand = capitalizeFirstLetter(brand)
     try {
         let gear = await Gear.findOne({ brand, model, modifications });
         if (!gear) {
@@ -135,3 +136,7 @@ async function addGear (req, res) {
         res.status(500).json({ message: 'Error adding gear', error });
     }
 }
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }

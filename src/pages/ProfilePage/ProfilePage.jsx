@@ -25,8 +25,15 @@ export default function ProfilePage() {
           setIsLoading(false);
       }
       getApiProfile()
-  }, [])
+    }, [])
 
+    async function getApiProfile () {
+        const apiProfile = await profilesApi.getProfile()
+        // setProfile({...profile, ...apiProfile})
+        setProfile(profile => ({ ...profile, ...apiProfile })) // Functionally very similar to just passing the spread objects, however, the functional update via arrow function provides the most current states at the time of update and ensures that any recent updates that could have been made before this setter function would be applied 
+        setIsLoading(false);
+    }
+    
   return (
     <>
       { isLoading ? <h1>Loading profile...</h1> : 
@@ -43,7 +50,7 @@ export default function ProfilePage() {
           <FollowersModal isOpen={showFollowersModal} onClose={() => setShowFollowersModal(false)} profileId={profile._id} />
           <FollowingModal isOpen={showFollowingModal} onClose={() => setShowFollowingModal(false)} profileId={profile._id} />
           <GearSection gear={profile.gear} onAddGear={() => setShowGearModal(true)} />
-          <GearAdditionModal isOpen={showGearModal} onClose={() => setShowGearModal(false)} />
+          <GearAdditionModal getApiProfile={getApiProfile} isOpen={showGearModal} onClose={() => setShowGearModal(false)} />
           <div className="my-4">
             <div className="flex justify-center space-x-4">
               <button onClick={() => setActiveTab('posts')} className={`px-4 py-2 ${activeTab === 'posts' ? 'text-blue-500' : 'text-gray-500'}`}>Posts</button>

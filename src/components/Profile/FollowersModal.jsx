@@ -25,8 +25,8 @@ export default function FollowersModal({ isOpen, onClose, profileId }) {
   }, [isOpen, profileId]);
 
   return (
-    <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center ${isOpen ? '' : 'hidden'}`}>
-      <div className="bg-white p-4 rounded-lg shadow-lg max-w-md w-full">
+    <div className={`fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center z-10 ${isOpen ? '' : 'hidden'}`}>
+      <div className="bg-white p-4 rounded-lg shadow-lg max-w-md w-full z-50">
         <button onClick={onClose} className="float-right font-bold">X</button>
         <h2 className="text-lg font-semibold">Followers</h2>
         {isLoading ? (

@@ -34,7 +34,7 @@ export default function UserProfile({ profile, updateProfile, setProfile }) {
   const handleSubmit = async (e) => {
     e.preventDefault();
     if (!isFormDirty) return; // Only proceed if changes were made
-    const profileData = await updateProfile(formData); // Uncomment and implement your update logic
+    const profileData = await updateProfile(formData); 
     setEditMode(false);
     setIsFormDirty(false); // Reset form dirty state after submission
     setProfile(profileData)

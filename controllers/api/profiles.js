@@ -25,12 +25,11 @@ async function create (req, res) {
 
 async function details (req, res) {
     try {
-        const profile = await Profile.findOne({user:req.user._id}).lean()
+        const profile = await Profile.findOne({user:req.user._id}).lean().populate('gear')
         const followersCount = await Relation.countDocuments({following: profile._id})
         const followingCount = await Relation.countDocuments({follower: profile._id})
         profile.followersCount = followersCount
         profile.followingCount = followingCount
-        console.log(profile)
         res.json(profile)
     } catch (err) {
         console.log(err)
