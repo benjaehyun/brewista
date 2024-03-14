@@ -18,6 +18,27 @@ const grindSizeSchema = new mongoose.Schema({
     }
 });
 
+const stepSchema = new mongoose.Schema({
+    description: {
+        type: String,
+        required: true
+    },
+    time: {
+        type: Number, // Time in seconds
+        required: false // Making it optional allows for ratio-based steps without specific timing
+    },
+    isBloom: {
+        type: Boolean,
+        default: false // Most steps aren't bloom phases, so default to false
+    },
+    // Consider adding water amount here if you want to specify amounts per step
+    // This could be useful for both ratio and explicit recipes
+    waterAmount: {
+        type: Number, // Water in milliliters or as part of a ratio
+        required: false
+    }
+});
+
 const recipeSchema = new Schema ({
     userID: {
         type: mongoose.Schema.Types.ObjectId,
@@ -38,9 +59,7 @@ const recipeSchema = new Schema ({
         ref: "CoffeeBean"
     },
     grindSize: grindSizeSchema,
-    steps: [{
-        type: String
-    }],
+    steps: [stepSchema],
     flowRate: {
         type: Number,
         required: false
@@ -54,6 +73,11 @@ const recipeSchema = new Schema ({
         type: Number, // Adding the water temperature field
         required: false // Assuming it's optional
     },
+    waterTemperatureUnit: {
+        type: String,
+        enum: ['Celsius', 'Fahrenheit'],
+        required: false // This field is optional and only needed if waterTemperature is provided
+    },    
     journal: {
         type: String,
         required: false // Optional large text field for journaling about the recipe

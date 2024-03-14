@@ -13,6 +13,7 @@ import LogInModal from "../../components/LogInModal/LogInModal";
 import { useProtectedNavigation } from "./useProtectedNavigation";
 import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 import ProfilePage from "../ProfilePage/ProfilePage";
+import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -41,6 +42,7 @@ export default function App() {
           <>
             <Route path="/myrecipes" element={<SavedRecipesIndex />} />
             <Route path="/profile" element={<ProfilePage />} />
+            <Route path="/recipes/create" element={<RecipeCreationPage />} />
           </>
           :
           <Route path="/notfound" element={<NotFoundPage />} />

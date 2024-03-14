@@ -44,8 +44,6 @@ export default function GearSection({ gear, onAddGear, removeGearItem }) {
   };
 
   const removeGear = async () => {
-    // Implement the remove gear functionality here
-    // removeGearItem(selectedGearId) should be a prop function that handles the actual deletion
     await removeGearItem(selectedGearId);
     console.log(`removing gear ${selectedGearId}`)
     setIsConfirmModalVisible(false);
@@ -70,7 +68,7 @@ export default function GearSection({ gear, onAddGear, removeGearItem }) {
             </button>
         </div>
 
-        {/* Gear grid with overflow control */}
+        {/* Gear grid */}
         <div className="max-h-[350px] overflow-auto p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
             {filteredGear.map((item, index) => (
             <div key={index} className="relative p-4 bg-white shadow rounded-lg">

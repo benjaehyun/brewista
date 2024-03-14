@@ -18,6 +18,9 @@ export function fetchModifications(brand, model, query = '') {
     return sendRequest(url);
 }
 
+export function getGear () {
+    return sendRequest(`${BASE_URL}`)
+}
 
 export function addGear (gearData) {
     return sendRequest(`${BASE_URL}`, 'POST', gearData)
