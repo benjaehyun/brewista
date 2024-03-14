@@ -25,70 +25,93 @@ import GearAdditionForm from "../GearAddition/GearAdditionForm"
 //     );
 //   }
 
+import React, { useState } from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faTrashAlt } from '@fortawesome/free-solid-svg-icons';
-import { useState} from "react";
 
-export default function GearSection({ gear, onAddGear }) {
-    const [filter, setFilter] = useState('');
-    const gearTypes = ['Brewer', 'Paper', 'Grinder', 'Kettle', 'Scale', 'Other'];
-    const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
-    const [selectedGearId, setSelectedGearId] = useState(null);
+export default function GearSection({ gear, onAddGear, removeGearItem }) {
+  const [isConfirmModalVisible, setIsConfirmModalVisible] = useState(false);
+  const [selectedGearId, setSelectedGearId] = useState(null);
 
-    function showConfirmModal (gearId) {
-        setSelectedGearId(gearId);
-        setIsConfirmModalVisible(true);
-    };
+  const gearTypes = ['Brewer', 'Paper', 'Grinder', 'Kettle', 'Scale', 'Other'];
+  const [filter, setFilter] = useState('');
 
-    async function removeGear() {
-        try {
-            // api call to remove gear item by selected id 
-            setIsConfirmModalVisible(false)
-            setSelectedGearId(null)
-        } catch (error) {
-            console.error("Failed to remove gear item", error)
-        }
-    }
-  
-    const filteredGear = filter === '' ? gear : gear.filter(item => item.type === filter);
-  
-    return (
-      <div>
+  const filteredGear = filter ? gear.filter(item => item.type === filter) : gear;
+
+  const showConfirmModal = (gearId) => {
+    setSelectedGearId(gearId);
+    setIsConfirmModalVisible(true);
+  };
+
+  const removeGear = async () => {
+    // Implement the remove gear functionality here
+    // removeGearItem(selectedGearId) should be a prop function that handles the actual deletion
+    await removeGearItem(selectedGearId);
+    console.log(`removing gear ${selectedGearId}`)
+    setIsConfirmModalVisible(false);
+  };
+
+  return (
+    <div>
         <div className="flex flex-wrap gap-2 p-4 justify-center items-center">
-          {gearTypes.map((type) => (
+            {gearTypes.map((type) => (
             <button key={type} onClick={() => setFilter(type)} className="px-3 py-1 text-sm text-blue-700 bg-blue-100 rounded-full hover:bg-blue-200 focus:outline-none focus:ring-2 focus:ring-blue-500">
-              {type}
+                {type}
             </button>
-          ))}
-          <button onClick={() => setFilter('')} className="px-3 py-1 text-sm text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
+            ))}
+            <button onClick={() => setFilter('')} className="px-3 py-1 text-sm text-gray-700 bg-gray-100 rounded-full hover:bg-gray-200 focus:outline-none focus:ring-2 focus:ring-gray-500">
             Show All
-          </button>
-          <button 
+            </button>
+            <button 
             onClick={onAddGear} 
             className="ml-auto px-4 py-2 bg-green-500 text-white rounded-md hover:bg-green-600 focus:outline-none focus:ring-2 focus:ring-green-500"
-          >
+            >
             + Add New Gear
-          </button>
+            </button>
         </div>
-  
-        <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4 p-4">
-          {filteredGear.map((item, index) => (
+
+        {/* Gear grid with overflow control */}
+        <div className="max-h-[350px] overflow-auto p-4 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-6">
+            {filteredGear.map((item, index) => (
             <div key={index} className="relative p-4 bg-white shadow rounded-lg">
-              <button 
+                <button 
                 onClick={() => showConfirmModal(item._id)} 
                 className="absolute top-0 right-0 p-2 text-white bg-red-500 rounded-full hover:bg-red-600 focus:outline-none"
                 style={{ transform: 'translate(50%, -50%)', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-              >
+                >
                 <FontAwesomeIcon icon={faTrashAlt} size="s" />
-              </button>
-              <h3 className="text-md font-semibold">{item.brand}</h3>
-              <p className="text-sm">Model: {item.model}</p>
-              <p className="text-sm">Modifications: {item.modifications || 'None'}</p>
-              <p className="text-sm">Type: {item.type}</p>
+                </button>
+                <h3 className="text-md font-semibold">{item.brand}</h3>
+                <p className="text-sm">Model: {item.model}</p>
+                <p className="text-sm">Modifications: {item.modifications || 'None'}</p>
+                <p className="text-sm">Type: {item.type}</p>
             </div>
-          ))}
+            ))}
         </div>
-      </div>
-    );
-  }
-  
+
+      {/* Gear removal confirmation modal */}
+      {isConfirmModalVisible && (
+        <div className="fixed inset-0 bg-gray-600 bg-opacity-75 flex justify-center items-center px-4 z-40">
+          <div className="bg-white rounded-lg max-w-md w-full p-4 shadow-lg z-50">
+            <h2 className="text-lg font-semibold">Confirm Removal</h2>
+            <p>Are you sure you want to remove this gear item?</p>
+            <div className="mt-4 flex justify-center gap-4">
+              <button
+                onClick={() => setIsConfirmModalVisible(false)}
+                className="px-4 py-2 bg-gray-200 text-gray-800 rounded hover:bg-gray-300 focus:outline-none focus:ring-2 focus:ring-gray-500"
+              >
+                Cancel
+              </button>
+              <button
+                onClick={removeGear}
+                className="px-4 py-2 bg-red-500 text-white rounded hover:bg-red-600 focus:outline-none focus:ring-2 focus:ring-red-500"
+              >
+                Remove
+              </button>
+            </div>
+          </div>
+        </div>
+      )}
+    </div>
+  );
+}

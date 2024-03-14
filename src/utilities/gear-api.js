@@ -22,3 +22,7 @@ export function fetchModifications(brand, model, query = '') {
 export function addGear (gearData) {
     return sendRequest(`${BASE_URL}`, 'POST', gearData)
 }
+
+export function removeFromProfile(gearId) {
+    return sendRequest(`${BASE_URL}/${gearId}`, 'DELETE');
+}

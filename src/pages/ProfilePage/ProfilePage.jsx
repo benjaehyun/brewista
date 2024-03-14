@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import * as profilesApi from "../../utilities/profiles-api"
-
+import * as gearApi from "../../utilities/gear-api"
 import UserProfile from '../../components/Profile/UserProfile';
 import GearSection from '../../components/Profile/GearSection';
 import FollowersModal from '../../components/Profile/FollowersModal';
@@ -33,6 +33,11 @@ export default function ProfilePage() {
         setProfile(profile => ({ ...profile, ...apiProfile })) // Functionally very similar to just passing the spread objects, however, the functional update via arrow function provides the most current states at the time of update and ensures that any recent updates that could have been made before this setter function would be applied 
         setIsLoading(false);
     }
+
+    async function removeGearItem(gearId) {
+      await gearApi.removeFromProfile(gearId)
+      getApiProfile()
+    }
     
   return (
     <>
@@ -49,7 +54,7 @@ export default function ProfilePage() {
           </div>
           <FollowersModal isOpen={showFollowersModal} onClose={() => setShowFollowersModal(false)} profileId={profile._id} />
           <FollowingModal isOpen={showFollowingModal} onClose={() => setShowFollowingModal(false)} profileId={profile._id} />
-          <GearSection gear={profile.gear} onAddGear={() => setShowGearModal(true)} />
+          <GearSection gear={profile.gear} onAddGear={() => setShowGearModal(true)} removeGearItem={removeGearItem} />
           <GearAdditionModal getApiProfile={getApiProfile} isOpen={showGearModal} onClose={() => setShowGearModal(false)} />
           <div className="my-4">
             <div className="flex justify-center space-x-4">

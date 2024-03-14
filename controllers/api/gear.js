@@ -9,6 +9,8 @@ module.exports = {
     searchModelsByBrand, 
     searchModificationsByBrandAndModel,
     addGear,
+    removeGearFromProfile, 
+
 }
 
 
@@ -140,3 +142,19 @@ async function addGear (req, res) {
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
+
+async function removeGearFromProfile(req, res) {
+    try {
+        const profile = await Profile.findOne({ user: req.user._id });
+        if (!profile) return res.status(404).json({ message: 'Profile not found' });
+
+        // Remove the gearId from the gear array
+        profile.gear.pull(req.params.gearId);
+        await profile.save();
+
+        res.status(200).json({ message: 'Gear removed successfully' });
+    } catch (error) {
+        console.error('Error removing gear from profile:', error);
+        res.status(500).json({ message: 'Error removing gear from profile', error });
+    }
+}

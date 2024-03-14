@@ -8,6 +8,7 @@ router.get ('/brands', gearCtrl.searchBrands)
 router.get ('/models', gearCtrl.searchModelsByBrand)
 router.get ('/modifications', gearCtrl.searchModificationsByBrandAndModel)
 router.post('/', ensureLoggedIn, gearCtrl.addGear)
+router.delete('/:gearId', ensureLoggedIn, gearCtrl.removeGearFromProfile);
 
 
 module.exports = router;
