@@ -4,6 +4,7 @@ import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
 import TastingNotesInput from '../../components/RecipeCreation/TastingNotesInput';
+import CoffeeBeanSelector from '../../components/RecipeCreation/CoffeeBeanSelector';
 import { faChevronUp, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -13,7 +14,7 @@ function Accordion({ title, children, isCompleted, isRequired }) {
     return (
         <div className="mb-4">
             <button
-                className={`w-full px-4 py-2 text-left font-medium focus:outline-none ${isRequired ? 'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'} hover:bg-blue-200 rounded-lg`}
+                className={`w-full px-4 py-2 text-left font-medium focus:outline-none ${isRequired ? isCompleted ? 'bg-green-100 text-green-700':'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'} hover:bg-blue-200 rounded-lg`}
                 onClick={() => setIsOpen(!isOpen)}
             >
                 <div className="flex justify-between items-center">
@@ -37,7 +38,8 @@ export default function RecipeCreationPage() {
     const [gear, setGear] = useState([]);
     const [selectedGear, setSelectedGear] = useState([]);
     const [name, setName] = useState('');
-    const [coffeeBean, setCoffeeBean] = useState('');
+    const [coffeeBeanList, setCoffeeBeanList] = useState([]);
+    const [selectedBean, setSelectedBean] = useState('');
     const [grindSize, setGrindSize] = useState('');
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
@@ -46,17 +48,19 @@ export default function RecipeCreationPage() {
     const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        async function loadUserGear() {
+        async function loadResources() {
             try {
                 const gearList = await fetchUserGear();
                 setGear(gearList);
+                // const beanList = await fetchCoffeeBeans(); 
+                // setCoffeeBeanList(beanList)
                 setIsLoading(false);
             } catch (error) {
-                console.error('Failed to fetch gear:', error);
+                console.error('Failed to fetch resources:', error);
             }
         }
 
-        loadUserGear();
+        loadResources();
     }, []);
 
     const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
@@ -66,7 +70,7 @@ export default function RecipeCreationPage() {
         const recipeData = {
             name,
             gear: selectedGear,
-            coffeeBean,
+            coffeeBean: selectedBean,
             grindSize,
             waterTemperature: waterTemp ? { temp: waterTemp, unit: waterTempUnit } : null,
             steps,
@@ -101,6 +105,9 @@ export default function RecipeCreationPage() {
                 </div>
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} />
+                </Accordion>
+                <Accordion title="Select Bean" isCompleted={selectedBean.length > 0} isRequired={true}>
+                    <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} />
                 </Accordion>
                 <Accordion title="Water Temperature" isCompleted={waterTemp} isRequired={false}>
                     <TemperatureInput waterTemp={waterTemp} setWaterTemp={setWaterTemp} waterTempUnit={waterTempUnit} setWaterTempUnit={setWaterTempUnit} />
