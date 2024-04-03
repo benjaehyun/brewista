@@ -1,8 +1,8 @@
 import React from 'react'
 import { useState } from 'react';
+import GearAdditionModal from '../GearAddition/GearAdditionModal';
 
-export default function GearSelector({ gear, selectedGear, setSelectedGear }) {
-
+export default function GearSelector({ gear, selectedGear, setSelectedGear, onAddNewGear }) {
   const [expandedCategory, setExpandedCategory] = useState(null);
 
   const gearByType = gear.reduce((acc, item) => {
@@ -20,6 +20,10 @@ export default function GearSelector({ gear, selectedGear, setSelectedGear }) {
   const toggleCategory = (category) => {
       setExpandedCategory(expandedCategory === category ? null : category);
   };
+
+  async function fetchUpdatedGearList () {
+
+  }
 
   return (
       <div className="space-y-2">
@@ -63,6 +67,12 @@ export default function GearSelector({ gear, selectedGear, setSelectedGear }) {
                   )}
               </div>
           ))}
+          <button
+            onClick={onAddNewGear}
+            className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+          >
+            + Add New Gear
+          </button>
       </div>
   );
 }

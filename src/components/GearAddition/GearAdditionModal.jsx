@@ -1,7 +1,7 @@
 import React from 'react';
 import GearAdditionForm from './GearAdditionForm'; 
 
-const GearAdditionModal = ({ isOpen, onClose, getApiProfile }) => {
+export default function GearAdditionModal ({ isOpen, onClose, getApiProfile }) {
   if (!isOpen) return null;
 
   return (
@@ -14,5 +14,3 @@ const GearAdditionModal = ({ isOpen, onClose, getApiProfile }) => {
     </div>
   );
 };
-
-export default GearAdditionModal;

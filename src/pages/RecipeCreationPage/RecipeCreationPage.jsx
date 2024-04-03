@@ -5,8 +5,10 @@ import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
 import TastingNotesInput from '../../components/RecipeCreation/TastingNotesInput';
 import CoffeeBeanSelector from '../../components/RecipeCreation/CoffeeBeanSelector';
+import GearAdditionModal from '../../components/GearAddition/GearAdditionModal';
 import { faChevronUp, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+
 
 function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -46,6 +48,7 @@ export default function RecipeCreationPage() {
     const [steps, setSteps] = useState([]);
     const [tastingNotes, setTastingNotes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
+    const [showGearAdditionModal, setShowGearAdditionModal] = useState(false);
 
     useEffect(() => {
         async function loadResources() {
@@ -62,6 +65,11 @@ export default function RecipeCreationPage() {
 
         loadResources();
     }, []);
+
+    const updateGearList = async () => {
+        const updatedGearList = await fetchUserGear();
+        setGear(updatedGearList);
+    };
 
     const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
 
@@ -104,7 +112,7 @@ export default function RecipeCreationPage() {
                     />
                 </div>
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
-                    <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} />
+                    <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
                 <Accordion title="Select Bean" isCompleted={selectedBean.length > 0} isRequired={true}>
                     <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} />
@@ -126,6 +134,9 @@ export default function RecipeCreationPage() {
                     Submit Recipe
                 </button>
             </form>
+            {showGearAdditionModal && (
+                <GearAdditionModal isOpen={showGearAdditionModal} onClose={() => setShowGearAdditionModal(false)} getApiProfile={updateGearList} />
+            )} 
         </div>
     );
 }
