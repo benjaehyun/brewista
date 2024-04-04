@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 // Placeholder for fetching beans and adding a new bean
 // import { fetchCoffeeBeans, addNewBean } from '../../api';
 
-export default function CoffeeBeanSelector({ coffeeBeanList,selectedBean, setSelectedBean }) {
+export default function CoffeeBeanSelector({ coffeeBeanList, selectedBean, setSelectedBean, onAddNewCoffee }) {
   const [isAddingNewBean, setIsAddingNewBean] = useState(false);
 
 
@@ -11,11 +11,11 @@ export default function CoffeeBeanSelector({ coffeeBeanList,selectedBean, setSel
     // Optionally close the selector or reset state as needed
   };
 
-  const handleAddNewBean = () => {
-    // Placeholder for adding a new bean functionality
-    setIsAddingNewBean(true);
-    // Show form for adding a new bean or open a modal
-  };
+//   const handleAddNewBean = () => {
+//     // Placeholder for adding a new bean functionality
+//     setIsAddingNewBean(true);
+//     // Show form for adding a new bean or open a modal
+//   };
 
   return (
     <div>
@@ -28,13 +28,13 @@ export default function CoffeeBeanSelector({ coffeeBeanList,selectedBean, setSel
           </div>
         ))}
       </div>
-      <button onClick={handleAddNewBean}>+ Add New Bean</button>
+      <button 
+      onClick={onAddNewCoffee}
+      className="mt-2 text-sm text-blue-600 hover:text-blue-800"
+      >
+        + Add New Bean
+    </button>
       {/* Form or modal for adding a new bean */}
-      {isAddingNewBean && (
-        <div>
-          {/* Form fields for adding a new coffee bean */}
-        </div>
-      )}
     </div>
   );
 }

@@ -25,6 +25,7 @@ app.use('/api/users', require('./routes/api/users'))
 app.use('/api/profiles', require('./routes/api/profiles'))
 app.use('/api/relation', require('./routes/api/relation'))
 app.use('/api/gear', require('./routes/api/gear'))
+app.use('/api/cofee-bean', require('./routes/api/coffeeBean'))
 
 // The following "catch all" route (note the *) is necessary
 // to return the index.html on all non-AJAX requests

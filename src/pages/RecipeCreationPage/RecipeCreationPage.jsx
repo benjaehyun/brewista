@@ -1,11 +1,13 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUserGear } from '../../utilities/gear-api';
+import { fetchCoffeeBeans } from '../../utilities/coffeeBean-api'
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
 import TastingNotesInput from '../../components/RecipeCreation/TastingNotesInput';
 import CoffeeBeanSelector from '../../components/RecipeCreation/CoffeeBeanSelector';
 import GearAdditionModal from '../../components/GearAddition/GearAdditionModal';
+import CoffeeBeanAdditionModal from '../../components/CoffeeBeanAddition/CoffeeBeanAdditionModal';
 import { faChevronUp, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 
@@ -49,6 +51,7 @@ export default function RecipeCreationPage() {
     const [tastingNotes, setTastingNotes] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [showGearAdditionModal, setShowGearAdditionModal] = useState(false);
+    const [showCoffeeAdditionModal, setShowCoffeeAdditionModal] = useState(false);
 
     useEffect(() => {
         async function loadResources() {
@@ -70,6 +73,11 @@ export default function RecipeCreationPage() {
         const updatedGearList = await fetchUserGear();
         setGear(updatedGearList);
     };
+
+    async function updateCoffeeBeanList () {
+        // const updatedCoffeeBeanList = await fetchCoffeeBeans(); 
+        // setCoffeeBeanList(updatedCoffeeBeanList)
+    }
 
     const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
 
@@ -115,7 +123,7 @@ export default function RecipeCreationPage() {
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
                 <Accordion title="Select Bean" isCompleted={selectedBean.length > 0} isRequired={true}>
-                    <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} />
+                    <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} onAddNewCoffee={() => setShowCoffeeAdditionModal(true)} />
                 </Accordion>
                 <Accordion title="Water Temperature" isCompleted={waterTemp} isRequired={false}>
                     <TemperatureInput waterTemp={waterTemp} setWaterTemp={setWaterTemp} waterTempUnit={waterTempUnit} setWaterTempUnit={setWaterTempUnit} />
@@ -136,6 +144,9 @@ export default function RecipeCreationPage() {
             </form>
             {showGearAdditionModal && (
                 <GearAdditionModal isOpen={showGearAdditionModal} onClose={() => setShowGearAdditionModal(false)} getApiProfile={updateGearList} />
+            )} 
+            {showCoffeeAdditionModal && (
+                <CoffeeBeanAdditionModal isOpen={showCoffeeAdditionModal} onClose={() => setShowCoffeeAdditionModal(false)} updateCoffeeBeanList={updateCoffeeBeanList} />
             )} 
         </div>
     );

@@ -1,6 +1,5 @@
 const User = require('../../models/user')
 const Profile = require('../../models/profile')
-const profile = require('../../models/profile')
 const Relation = require('../../models/relation')
 const Gear = require ('../../models/gear')
 

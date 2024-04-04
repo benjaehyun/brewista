@@ -1,4 +1,4 @@
-import React, { useState, useCallback } from 'react';
+import React, { useState, useCallback, useEffect } from 'react';
 import debounce from 'lodash.debounce';
 import * as coffeeBeanAPI from '../../utilities/coffeeBean-api';
 
@@ -131,7 +131,7 @@ export default function CoffeeBeanAdditionForm({ onClose, updateCoffeeBeanList }
       e.preventDefault();
       if (!isFormValid) return;
       try {
-        await coffeeBeanAPI.addNewCoffeeBean({ roaster, origin, roastLevel, process });
+        // await coffeeBeanAPI.addNewCoffeeBean({ roaster, origin, roastLevel, process });
         updateCoffeeBeanList();
         onClose();
       } catch (error) {
