@@ -20,43 +20,46 @@ export default function CoffeeBeanAdditionForm({ onClose, updateCoffeeBeanList }
     const isFormValid = roaster && origin && roastLevel; // Process is optional
   
     const fetchSuggestionsDebounced = useCallback(debounce(async (field, query) => {
-      let suggestions;
-      switch (field) {
+        // console.log(`Fetching: ${field}, Query: ${query}`);
+        let suggestions;
+        switch (field) {
         case 'roaster':
-          suggestions = await coffeeBeanAPI.fetchRoasters(query);
-          setRoasterSuggestions([...suggestions, 'Add New Roaster']);
-          setShowSuggestion('roaster');
-          break;
+            suggestions = await coffeeBeanAPI.fetchRoasters(query);
+            setRoasterSuggestions([...suggestions, 'Add New Roaster']);
+            setShowSuggestion('roaster');
+            break;
         case 'origin':
-          suggestions = await coffeeBeanAPI.fetchOrigins(roaster, query);
-          setOriginSuggestions([...suggestions, 'Add New Origin']);
-          setShowSuggestion('origin');
-          break;
+            suggestions = await coffeeBeanAPI.fetchOrigins(roaster, query);
+            setOriginSuggestions([...suggestions, 'Add New Origin']);
+            setShowSuggestion('origin');
+            break;
         case 'roastLevel':
-          suggestions = await coffeeBeanAPI.fetchRoastLevels(roaster, origin, query);
-          setRoastLevelSuggestions([...suggestions, 'Add New Roast Level']);
-          setShowSuggestion('roastLevel');
-          break;
+            suggestions = await coffeeBeanAPI.fetchRoastLevels(roaster, origin, query);
+            setRoastLevelSuggestions([...suggestions, 'Add New Roast Level']);
+            setShowSuggestion('roastLevel');
+            break;
         case 'process':
-          suggestions = await coffeeBeanAPI.fetchProcesses(roaster, origin, roastLevel, query);
-          setProcessSuggestions([...suggestions, 'Add New Process']);
-          setShowSuggestion('process');
-          break;
+            suggestions = await coffeeBeanAPI.fetchProcesses(roaster, origin, roastLevel, query);
+            setProcessSuggestions([...suggestions, 'Add New Process']);
+            setShowSuggestion('process');
+            break;
         default:
-          setShowSuggestion('');
-          break;
-      }
-    }, 300), [roaster, origin, roastLevel]);
+            setShowSuggestion('');
+            break;
+        }
+    }, 400), []);
   
     useEffect(() => {
       return () => {
         fetchSuggestionsDebounced.cancel();
       };
     }, [fetchSuggestionsDebounced]);
-    
+
+
     // input change handlers 
     const handleRoasterChange = (e) => {
         setRoaster(e.target.value);
+        // console.log(`Roaster Changed: ${e.target.value}`)
         fetchSuggestionsDebounced('roaster', e.target.value);
     };
 
@@ -131,6 +134,7 @@ export default function CoffeeBeanAdditionForm({ onClose, updateCoffeeBeanList }
       e.preventDefault();
       if (!isFormValid) return;
       try {
+        console.log(`Adding New Coffee Bean: ${roaster}, ${origin}, ${roastLevel}, ${process}`)
         // await coffeeBeanAPI.addNewCoffeeBean({ roaster, origin, roastLevel, process });
         updateCoffeeBeanList();
         onClose();

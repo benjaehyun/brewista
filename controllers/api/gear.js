@@ -30,7 +30,7 @@ async function searchBrands(req, res) {
                 $limit: 10
             },
             {
-                $sort: { _id: 1 } // Sort alphabetically by brand
+                $sort: { _id: 1 } 
             }
         ];
 
