@@ -21,3 +21,7 @@ export function fetchProcesses(roaster, origin, roastLevel, query = '') {
     const url = `${BASE_URL}/processes?roaster=${encodeURIComponent(roaster)}&origin=${encodeURIComponent(origin)}&roast-level=${encodeURIComponent(roastLevel)}&q=${encodeURIComponent(query)}`;
     return sendRequest(url);
 }
+
+export function addCoffeeBean (beanData) {
+    return sendRequest(`${BASE_URL}`, 'POST', beanData)
+}

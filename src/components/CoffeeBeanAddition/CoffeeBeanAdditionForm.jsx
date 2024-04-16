@@ -135,7 +135,7 @@ export default function CoffeeBeanAdditionForm({ onClose, updateCoffeeBeanList }
       if (!isFormValid) return;
       try {
         console.log(`Adding New Coffee Bean: ${roaster}, ${origin}, ${roastLevel}, ${process}`)
-        // await coffeeBeanAPI.addNewCoffeeBean({ roaster, origin, roastLevel, process });
+        await coffeeBeanAPI.addCoffeeBean({ roaster, origin, roastLevel, process });
         updateCoffeeBeanList();
         onClose();
       } catch (error) {

@@ -7,6 +7,7 @@ module.exports = {
     searchOriginsByRoasters, 
     searchRoastLevelsByRoasterAndOrigin,
     searchProcessesByRoasterOriginAndRoastLevel,
+    addBean,
 };
 
 
@@ -137,3 +138,21 @@ async function searchProcessesByRoasterOriginAndRoastLevel(req, res) {
         res.status(400).json({ message: 'Error fetching processes', error: err });
     }
 }
+
+
+
+async function addBean(req, res) {
+    try {
+        const { roaster, origin, roastLevel, process } = req.body;
+        const newBean = new CoffeeBean({ roaster, origin, roastLevel, process });
+        await newBean.save();
+        res.status(201).json(newBean);
+    } catch (error) {
+        console.error('Failed to add coffee bean:', error);
+        res.status(400).json({ error: 'Failed to add coffee bean' });
+    }
+};
+
+function capitalizeFirstLetter(string) {
+    return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
+  }
