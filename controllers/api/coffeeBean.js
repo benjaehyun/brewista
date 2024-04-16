@@ -8,6 +8,8 @@ module.exports = {
     searchRoastLevelsByRoasterAndOrigin,
     searchProcessesByRoasterOriginAndRoastLevel,
     addBean,
+    fetchFilteredBeans,
+
 };
 
 
@@ -156,3 +158,19 @@ async function addBean(req, res) {
 function capitalizeFirstLetter(string) {
     return string.charAt(0).toUpperCase() + string.slice(1).toLowerCase();
   }
+
+async function fetchFilteredBeans (req, res) {
+    const { roaster, origin, roastLevel, process } = req.query;
+    try {
+        const query = {
+            ...(roaster && { roaster: new RegExp(roaster, 'i') }),
+            ...(origin && { origin: new RegExp(origin, 'i') }),
+            ...(roastLevel && { roastLevel: new RegExp(roastLevel, 'i') }),
+            ...(process && { process: new RegExp(process, 'i') }),
+        };
+        const coffeeBeans = await CoffeeBean.find(query).limit(10);
+        res.json(coffeeBeans);
+    } catch (err) {
+        res.status(500).send('Server error');
+    }
+}

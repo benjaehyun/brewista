@@ -25,3 +25,13 @@ export function fetchProcesses(roaster, origin, roastLevel, query = '') {
 export function addCoffeeBean (beanData) {
     return sendRequest(`${BASE_URL}`, 'POST', beanData)
 }
+
+export function fetchFilteredBeans(filters) {
+    const query = new URLSearchParams({
+        roaster: filters.roaster,
+        origin: filters.origin,
+        roastLevel: filters.roastLevel,
+        process: filters.process
+    }).toString();
+    return sendRequest(`${BASE_URL}/filtered?${query}`)
+}
