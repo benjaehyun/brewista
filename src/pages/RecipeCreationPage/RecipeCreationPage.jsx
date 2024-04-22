@@ -123,7 +123,7 @@ export default function RecipeCreationPage() {
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
-                <Accordion title="Select Bean" isCompleted={selectedBean.length > 0} isRequired={true}>
+                <Accordion title="Select Bean" isCompleted={selectedBean} isRequired={true}>
                     <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} onAddNewCoffee={() => setShowCoffeeAdditionModal(true)} />
                 </Accordion>
                 <Accordion title="Water Temperature" isCompleted={waterTemp} isRequired={false}>
