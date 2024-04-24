@@ -21,11 +21,9 @@ export default function CoffeeBeanSelector({ selectedBean, setSelectedBean, onAd
             }
         };
 
-        // Apply debounce to the fetchBeans function
         const debouncedFetch = debounce(fetchBeans, 300);
         debouncedFetch();
 
-        // Clean up the debounced function on component unmount
         return () => debouncedFetch.cancel();
     }, [filters]);
 
@@ -38,9 +36,9 @@ export default function CoffeeBeanSelector({ selectedBean, setSelectedBean, onAd
 
     const handleSelectBean = (bean) => {
         if (selectedBean && selectedBean._id === bean._id) {
-            setSelectedBean(null);  // Deselect if the same bean is clicked again
+            setSelectedBean('');  
         } else {
-            setSelectedBean(bean);  // Select new bean
+            setSelectedBean(bean);  
         }
     };
 

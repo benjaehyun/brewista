@@ -42,17 +42,21 @@ function Accordion({ title, children, isCompleted, isRequired }) {
 export default function RecipeCreationPage() {
     const [gear, setGear] = useState([]);
     const [selectedGear, setSelectedGear] = useState([]);
+    const [isTimed, setIsTimed] = useState(false)
     const [name, setName] = useState('');
-    const [coffeeBeanList, setCoffeeBeanList] = useState([]);
     const [selectedBean, setSelectedBean] = useState('');
     const [grindSize, setGrindSize] = useState('');
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
     const [steps, setSteps] = useState([]);
     const [tastingNotes, setTastingNotes] = useState([]);
+
+
     const [isLoading, setIsLoading] = useState(true);
+    const [coffeeBeanList, setCoffeeBeanList] = useState([]);
     const [showGearAdditionModal, setShowGearAdditionModal] = useState(false);
     const [showCoffeeAdditionModal, setShowCoffeeAdditionModal] = useState(false);
+    
 
     useEffect(() => {
         async function loadResources() {
@@ -81,6 +85,7 @@ export default function RecipeCreationPage() {
     }
 
     const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
+
 
     const handleRecipeSubmit = async (e) => {
         e.preventDefault();
@@ -120,6 +125,8 @@ export default function RecipeCreationPage() {
                         required
                     />
                 </div>
+
+
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
@@ -130,6 +137,13 @@ export default function RecipeCreationPage() {
                     <TemperatureInput waterTemp={waterTemp} setWaterTemp={setWaterTemp} waterTempUnit={waterTempUnit} setWaterTempUnit={setWaterTempUnit} />
                 </Accordion>
                 <Accordion title="Recipe Steps" isCompleted={steps.length > 0} isRequired={true}>
+                    <div className="flex items-center justify-between my-4 ml-2">
+                        <span className="font-medium text-gray-700">Is this recipe timed?</span>
+                        <div className="relative inline-block w-14 h-8" onClick={() => setIsTimed(prev => !prev)}>
+                            <span className={`absolute left-0 top-0 right-0 bottom-0 transition-colors duration-300 ease-in-out rounded-full ${isTimed ? 'bg-blue-600' : 'bg-gray-600'}`} />
+                            <span className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300 ease-in-out ${isTimed ? 'transform translate-x-6' : ''}`} />
+                        </div>
+                    </div>
                     <RecipeStepForm steps={steps} setSteps={setSteps} />
                 </Accordion>
                 <Accordion title="Tasting Notes" isCompleted={tastingNotes.length > 0} isRequired={false}>
