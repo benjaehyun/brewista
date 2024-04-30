@@ -10,6 +10,7 @@ import GearAdditionModal from '../../components/GearAddition/GearAdditionModal';
 import CoffeeBeanAdditionModal from '../../components/CoffeeBeanAddition/CoffeeBeanAdditionModal';
 import { faChevronUp, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
 
 
 function Accordion({ title, children, isCompleted, isRequired }) {
@@ -45,7 +46,11 @@ export default function RecipeCreationPage() {
     const [isTimed, setIsTimed] = useState(false)
     const [name, setName] = useState('');
     const [selectedBean, setSelectedBean] = useState('');
-    const [grindSize, setGrindSize] = useState('');
+    const [grindSize, setGrindSize] = useState({
+        steps: 0, 
+        microsteps: 0, 
+        description: ''
+    });
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
     const [steps, setSteps] = useState([]);
@@ -132,6 +137,9 @@ export default function RecipeCreationPage() {
                 </Accordion>
                 <Accordion title="Select Bean" isCompleted={selectedBean} isRequired={true}>
                     <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} onAddNewCoffee={() => setShowCoffeeAdditionModal(true)} />
+                </Accordion>
+                <Accordion title="Grind Size" isCompleted={grindSize.steps !== 0} isRequired={true}>
+                    <GrindSizeInput grindSize={grindSize} setGrindSize={setGrindSize} />
                 </Accordion>
                 <Accordion title="Water Temperature" isCompleted={waterTemp} isRequired={false}>
                     <TemperatureInput waterTemp={waterTemp} setWaterTemp={setWaterTemp} waterTempUnit={waterTempUnit} setWaterTempUnit={setWaterTempUnit} />
