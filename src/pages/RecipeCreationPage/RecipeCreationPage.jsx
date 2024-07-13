@@ -11,6 +11,8 @@ import CoffeeBeanAdditionModal from '../../components/CoffeeBeanAddition/CoffeeB
 import { faChevronUp, faChevronDown, faCircle } from '@fortawesome/free-solid-svg-icons';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
+import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
+import JournalInput from '../../components/RecipeCreation/JournalInput';
 
 
 function Accordion({ title, children, isCompleted, isRequired }) {
@@ -41,6 +43,7 @@ function Accordion({ title, children, isCompleted, isRequired }) {
 }
 
 export default function RecipeCreationPage() {
+    const [isRatio, setIsRatio] = useState(true)
     const [gear, setGear] = useState([]);
     const [selectedGear, setSelectedGear] = useState([]);
     const [isTimed, setIsTimed] = useState(false)
@@ -51,10 +54,12 @@ export default function RecipeCreationPage() {
         microsteps: 0, 
         description: ''
     });
+    const [flowRate, setFlowRate] = useState(0);
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
     const [steps, setSteps] = useState([]);
     const [tastingNotes, setTastingNotes] = useState([]);
+    const [journal, setJournal] = useState('');
 
 
     const [isLoading, setIsLoading] = useState(true);
@@ -100,6 +105,7 @@ export default function RecipeCreationPage() {
             coffeeBean: selectedBean,
             grindSize,
             waterTemperature: waterTemp ? { temp: waterTemp, unit: waterTempUnit } : null,
+            flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
         };
@@ -144,6 +150,9 @@ export default function RecipeCreationPage() {
                 <Accordion title="Water Temperature" isCompleted={waterTemp} isRequired={false}>
                     <TemperatureInput waterTemp={waterTemp} setWaterTemp={setWaterTemp} waterTempUnit={waterTempUnit} setWaterTempUnit={setWaterTempUnit} />
                 </Accordion>
+                <Accordion title="Flow Rate" isCompleted={flowRate > 0} isRequired={false}>
+                    <FlowRateInput flowRate={flowRate} setFlowRate={setFlowRate} />
+                </Accordion>
                 <Accordion title="Recipe Steps" isCompleted={steps.length > 0} isRequired={true}>
                     <div className="flex items-center justify-between my-4 ml-2">
                         <span className="font-medium text-gray-700">Is this recipe timed?</span>
@@ -156,6 +165,9 @@ export default function RecipeCreationPage() {
                 </Accordion>
                 <Accordion title="Tasting Notes" isCompleted={tastingNotes.length > 0} isRequired={false}>
                     <TastingNotesInput tastingNotes={tastingNotes} setTastingNotes={setTastingNotes} />
+                </Accordion>
+                <Accordion title="Journal" isCompleted={journal.length > 0} isRequired={false}>
+                    <JournalInput journal={journal} setJournal={setJournal} />
                 </Accordion>
                 <button
                     type="submit"
