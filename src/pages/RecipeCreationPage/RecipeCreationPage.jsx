@@ -14,7 +14,6 @@ import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
 import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
 import JournalInput from '../../components/RecipeCreation/JournalInput';
 
-
 function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -43,10 +42,10 @@ function Accordion({ title, children, isCompleted, isRequired }) {
 }
 
 export default function RecipeCreationPage() {
-    const [isRatio, setIsRatio] = useState(true)
+    const [isRatio, setIsRatio] = useState(true);
     const [gear, setGear] = useState([]);
     const [selectedGear, setSelectedGear] = useState([]);
-    const [isTimed, setIsTimed] = useState(false)
+    const [isTimed, setIsTimed] = useState(false);
     const [name, setName] = useState('');
     const [selectedBean, setSelectedBean] = useState('');
     const [grindSize, setGrindSize] = useState({
@@ -61,20 +60,16 @@ export default function RecipeCreationPage() {
     const [tastingNotes, setTastingNotes] = useState([]);
     const [journal, setJournal] = useState('');
 
-
     const [isLoading, setIsLoading] = useState(true);
     const [coffeeBeanList, setCoffeeBeanList] = useState([]);
     const [showGearAdditionModal, setShowGearAdditionModal] = useState(false);
     const [showCoffeeAdditionModal, setShowCoffeeAdditionModal] = useState(false);
-    
 
     useEffect(() => {
         async function loadResources() {
             try {
                 const gearList = await fetchUserGear();
                 setGear(gearList);
-                // const beanList = await fetchCoffeeBeans(); 
-                // setCoffeeBeanList(beanList)
                 setIsLoading(false);
             } catch (error) {
                 console.error('Failed to fetch resources:', error);
@@ -89,13 +84,12 @@ export default function RecipeCreationPage() {
         setGear(updatedGearList);
     };
 
-    async function updateCoffeeBeanList () {
+    async function updateCoffeeBeanList() {
         // const updatedCoffeeBeanList = await fetchCoffeeBeans(); 
         // setCoffeeBeanList(updatedCoffeeBeanList)
     }
 
     const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
-
 
     const handleRecipeSubmit = async (e) => {
         e.preventDefault();
@@ -108,6 +102,7 @@ export default function RecipeCreationPage() {
             flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
+            journal
         };
 
         try {
@@ -137,7 +132,6 @@ export default function RecipeCreationPage() {
                     />
                 </div>
 
-
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
@@ -161,7 +155,7 @@ export default function RecipeCreationPage() {
                             <span className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300 ease-in-out ${isTimed ? 'transform translate-x-6' : ''}`} />
                         </div>
                     </div>
-                    <RecipeStepForm steps={steps} setSteps={setSteps} />
+                    <RecipeStepForm steps={steps} setSteps={setSteps} isTimed={isTimed} setIsTimed={setIsTimed} />
                 </Accordion>
                 <Accordion title="Tasting Notes" isCompleted={tastingNotes.length > 0} isRequired={false}>
                     <TastingNotesInput tastingNotes={tastingNotes} setTastingNotes={setTastingNotes} />
