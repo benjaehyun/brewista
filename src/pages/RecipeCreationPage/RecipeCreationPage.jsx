@@ -14,6 +14,7 @@ import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
 import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
 import JournalInput from '../../components/RecipeCreation/JournalInput';
 
+
 function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
 
@@ -42,7 +43,7 @@ function Accordion({ title, children, isCompleted, isRequired }) {
 }
 
 export default function RecipeCreationPage() {
-    const [isRatio, setIsRatio] = useState(true);
+    const [isRatio, setIsRatio] = useState(false);
     const [gear, setGear] = useState([]);
     const [selectedGear, setSelectedGear] = useState([]);
     const [isTimed, setIsTimed] = useState(false);
@@ -53,6 +54,7 @@ export default function RecipeCreationPage() {
         microsteps: 0, 
         description: ''
     });
+    const [coffeeAmount, setCoffeeAmount] = useState('');
     const [flowRate, setFlowRate] = useState(0);
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
@@ -70,6 +72,8 @@ export default function RecipeCreationPage() {
             try {
                 const gearList = await fetchUserGear();
                 setGear(gearList);
+                // const beanList = await fetchCoffeeBeans(); 
+                // setCoffeeBeanList(beanList)
                 setIsLoading(false);
             } catch (error) {
                 console.error('Failed to fetch resources:', error);
@@ -84,12 +88,12 @@ export default function RecipeCreationPage() {
         setGear(updatedGearList);
     };
 
-    async function updateCoffeeBeanList() {
+    async function updateCoffeeBeanList () {
         // const updatedCoffeeBeanList = await fetchCoffeeBeans(); 
         // setCoffeeBeanList(updatedCoffeeBeanList)
     }
 
-    const isFormValid = name.trim() && selectedGear.length > 0 && steps.length > 0;
+    const isFormValid = name.trim() && selectedGear.length > 0 && coffeeAmount > 0 && steps.length > 0;
 
     const handleRecipeSubmit = async (e) => {
         e.preventDefault();
@@ -98,11 +102,14 @@ export default function RecipeCreationPage() {
             gear: selectedGear,
             coffeeBean: selectedBean,
             grindSize,
+            coffeeAmount,
             waterTemperature: waterTemp ? { temp: waterTemp, unit: waterTempUnit } : null,
             flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
-            journal
+            journal,
+            isTimed,
+            type: isRatio ? 'Ratios' : 'Explicit',
         };
 
         try {
@@ -113,8 +120,6 @@ export default function RecipeCreationPage() {
             console.error('Error submitting recipe:', error);
         }
     };
-
-    if (isLoading) return <div>Loading...</div>;
 
     return (
         <div className="max-w-4xl mx-auto p-4">
@@ -131,6 +136,62 @@ export default function RecipeCreationPage() {
                         required
                     />
                 </div>
+
+                <div className="mt-4">
+                    <span className="block text-sm font-medium text-gray-700">Recipe Type</span>
+                    <div className="mt-1 flex justify-center items-center space-x-4">
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="recipeType"
+                                value="Explicit"
+                                checked={!isRatio}
+                                onChange={() => setIsRatio(false)}
+                                className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <span className="ml-2">Explicit (in grams)</span>
+                        </label>
+                        <label className="inline-flex items-center">
+                            <input
+                                type="radio"
+                                name="recipeType"
+                                value="Ratio"
+                                checked={isRatio}
+                                onChange={() => setIsRatio(true)}
+                                className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
+                            />
+                            <span className="ml-2">Ratio</span>
+                        </label>
+                    </div>
+                </div>
+
+                <Accordion title="Coffee Amount" isCompleted={coffeeAmount > 0} isRequired={true}>
+                    {isRatio ? (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Coffee Amount (Ratio)</label>
+                            <input
+                                type="text"
+                                value={coffeeAmount}
+                                onChange={(e) => setCoffeeAmount(e.target.value)}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Enter coffee amount as part of a ratio (e.g., 1:15)"
+                                required
+                            />
+                        </div>
+                    ) : (
+                        <div>
+                            <label className="block text-sm font-medium text-gray-700">Coffee Amount (grams)</label>
+                            <input
+                                type="number"
+                                value={coffeeAmount}
+                                onChange={(e) => setCoffeeAmount(parseFloat(e.target.value) || '')}
+                                className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                                placeholder="Enter coffee amount in grams"
+                                required
+                            />
+                        </div>
+                    )}
+                </Accordion>
 
                 <Accordion title="Select Gear" isCompleted={selectedGear.length > 0} isRequired={true}>
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
@@ -149,13 +210,13 @@ export default function RecipeCreationPage() {
                 </Accordion>
                 <Accordion title="Recipe Steps" isCompleted={steps.length > 0} isRequired={true}>
                     <div className="flex items-center justify-between my-4 ml-2">
-                        <span className="font-medium text-gray-700">Is this recipe timed?</span>
+                        <span className="font-medium text-gray-700">Is this step timed?</span>
                         <div className="relative inline-block w-14 h-8" onClick={() => setIsTimed(prev => !prev)}>
                             <span className={`absolute left-0 top-0 right-0 bottom-0 transition-colors duration-300 ease-in-out rounded-full ${isTimed ? 'bg-blue-600' : 'bg-gray-600'}`} />
                             <span className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300 ease-in-out ${isTimed ? 'transform translate-x-6' : ''}`} />
                         </div>
                     </div>
-                    <RecipeStepForm steps={steps} setSteps={setSteps} isTimed={isTimed} setIsTimed={setIsTimed} />
+                    <RecipeStepForm steps={steps} setSteps={setSteps} isTimed={isTimed} setIsTimed={setIsTimed} isRatio={isRatio}/>
                 </Accordion>
                 <Accordion title="Tasting Notes" isCompleted={tastingNotes.length > 0} isRequired={false}>
                     <TastingNotesInput tastingNotes={tastingNotes} setTastingNotes={setTastingNotes} />
