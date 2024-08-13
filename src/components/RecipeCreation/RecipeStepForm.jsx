@@ -6,22 +6,19 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
     const [description, setDescription] = useState('');
     const [time, setTime] = useState('');
     const [waterAmount, setWaterAmount] = useState('');
-    const [ratioAmount, setRatioAmount] = useState('');
     const [isBloom, setIsBloom] = useState(false);
 
     const handleAddStep = () => {
         const newStep = {
             description,
             time: isTimed && time ? parseFloat(time) : undefined,
-            waterAmount: !isRatio && waterAmount ? parseFloat(waterAmount) : undefined,
-            ratioAmount: isRatio && ratioAmount ? parseFloat(ratioAmount) : undefined,
+            waterAmount: waterAmount ? parseFloat(waterAmount) : undefined,
             isBloom,
         };
         setSteps([...steps, newStep]);
         setDescription('');
         setTime('');
         setWaterAmount('');
-        setRatioAmount('');
         setIsBloom(false);
     };
 
@@ -57,30 +54,18 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
                         />
                     </div>
                 )}
-                {!isRatio && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Water Amount (ml)</label>
-                        <input
-                            type="number"
-                            value={waterAmount}
-                            onChange={(e) => setWaterAmount(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Enter water amount in ml"
-                        />
-                    </div>
-                )}
-                {isRatio && (
-                    <div>
-                        <label className="block text-sm font-medium text-gray-700">Ratio Amount</label>
-                        <input
-                            type="text"
-                            value={ratioAmount}
-                            onChange={(e) => setRatioAmount(e.target.value)}
-                            className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                            placeholder="Enter ratio amount (e.g., 1:15)"
-                        />
-                    </div>
-                )}
+                <div>
+                    <label className="block text-sm font-medium text-gray-700">
+                        {isRatio ? 'Ratio Amount' : 'Water Amount (ml)'}
+                    </label>
+                    <input
+                        type="number"
+                        value={waterAmount}
+                        onChange={(e) => setWaterAmount(e.target.value)}
+                        className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
+                        placeholder={isRatio ? "Enter ratio amount (e.g., 15 for 1:15)" : "Enter water amount in ml"}
+                    />
+                </div>
                 <div className="flex items-center">
                     <input
                         type="checkbox"
@@ -100,12 +85,11 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
             </div>
             <div className="mt-4 space-y-2">
                 {steps.map((step, index) => (
-                    <div key={index} className="p-4 bg-gray-100 rounded-md shadow-md flex justify-center items-center">
-                        <div>
+                    <div key={index} className="p-4 bg-gray-100 rounded-md shadow-md flex justify-between items-center">
+                        <div className="text-center">
                             <p className="font-semibold">{step.description}</p>
                             {step.time && <p className="text-sm text-gray-600">Time: {step.time} seconds</p>}
-                            {step.waterAmount && <p className="text-sm text-gray-600">Water: {step.waterAmount} ml</p>}
-                            {step.ratioAmount && <p className="text-sm text-gray-600">Parts of Water Ratio: {step.ratioAmount}</p>}
+                            {step.waterAmount && <p className="text-sm text-gray-600">Water: {step.waterAmount} {isRatio ? 'parts' : 'ml'}</p>}
                             {step.isBloom && <p className="text-sm text-gray-600">Bloom Phase</p>}
                         </div>
                         <button

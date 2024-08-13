@@ -33,6 +33,7 @@ const stepSchema = new mongoose.Schema({
     },
     // Consider adding water amount here if you want to specify amounts per step
     // This could be useful for both ratio and explicit recipes
+    // Can probably take out the isTimed component and can check for it in the front-end handling. 
     waterAmount: {
         type: Number, // Water in milliliters or as part of a ratio
         required: false
@@ -57,6 +58,10 @@ const recipeSchema = new Schema ({
     coffeeBean: {
         type: mongoose.Schema.Types.ObjectId,
         ref: "CoffeeBean"
+    },
+    coffeeAmount: {
+        type: Number,
+        required: true 
     },
     grindSize: grindSizeSchema,
     steps: [stepSchema],
@@ -85,10 +90,6 @@ const recipeSchema = new Schema ({
     tastingNotes: [{
         type: String 
     }],
-    isTimed: {
-        type: Boolean,
-        default: false 
-    }
 }, {
     timestamps: true 
 });

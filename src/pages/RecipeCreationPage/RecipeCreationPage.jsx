@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUserGear } from '../../utilities/gear-api';
-import { fetchCoffeeBeans } from '../../utilities/coffeeBean-api'
+import { fetchCoffeeBeans } from '../../utilities/coffeeBean-api';
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
@@ -13,7 +13,6 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
 import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
 import JournalInput from '../../components/RecipeCreation/JournalInput';
-
 
 function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -54,7 +53,7 @@ export default function RecipeCreationPage() {
         microsteps: 0, 
         description: ''
     });
-    const [coffeeAmount, setCoffeeAmount] = useState('');
+    const [coffeeAmount, setCoffeeAmount] = useState(0);
     const [flowRate, setFlowRate] = useState(0);
     const [waterTemp, setWaterTemp] = useState('');
     const [waterTempUnit, setWaterTempUnit] = useState('Celsius');
@@ -90,8 +89,24 @@ export default function RecipeCreationPage() {
 
     async function updateCoffeeBeanList () {
         // const updatedCoffeeBeanList = await fetchCoffeeBeans(); 
-        // setCoffeeBeanList(updatedCoffeeBeanList)
+        // setCoffeeBeanList(updatedCoffeeBeanList);
     }
+
+    const handleRecipeTypeChange = (newType) => {
+        if (newType !== isRatio) {
+            if (steps.length > 0) { // Check if there are any steps
+                const confirmed = window.confirm("Switching the recipe type will reset your steps. Do you want to continue?");
+                if (confirmed) {
+                    setIsRatio(newType);
+                    setSteps([]);
+                }
+            } else {
+                // If there are no steps, simply switch the type without alerting
+                setIsRatio(newType);
+            }
+        }
+    };
+    
 
     const isFormValid = name.trim() && selectedGear.length > 0 && coffeeAmount > 0 && steps.length > 0;
 
@@ -100,20 +115,19 @@ export default function RecipeCreationPage() {
         const recipeData = {
             name,
             gear: selectedGear,
-            coffeeBean: selectedBean,
+            coffeeBean: selectedBean._id,
             grindSize,
             coffeeAmount,
-            waterTemperature: waterTemp ? { temp: waterTemp, unit: waterTempUnit } : null,
+            waterTemperature: waterTemp ?  waterTemp : null,
+            waterTemperatureUnit: waterTemp ? waterTempUnit : null,
             flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
             journal,
-            isTimed,
             type: isRatio ? 'Ratios' : 'Explicit',
         };
 
         try {
-            // Placeholder: Replace with actual submit function
             console.log('Submitting recipe:', recipeData);
             // await submitRecipe(recipeData);
         } catch (error) {
@@ -146,7 +160,7 @@ export default function RecipeCreationPage() {
                                 name="recipeType"
                                 value="Explicit"
                                 checked={!isRatio}
-                                onChange={() => setIsRatio(false)}
+                                onChange={() => handleRecipeTypeChange(false)}
                                 className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                             />
                             <span className="ml-2">Explicit (in grams)</span>
@@ -157,7 +171,7 @@ export default function RecipeCreationPage() {
                                 name="recipeType"
                                 value="Ratio"
                                 checked={isRatio}
-                                onChange={() => setIsRatio(true)}
+                                onChange={() => handleRecipeTypeChange(true)}
                                 className="form-radio h-4 w-4 text-blue-600 transition duration-150 ease-in-out"
                             />
                             <span className="ml-2">Ratio</span>
@@ -170,11 +184,11 @@ export default function RecipeCreationPage() {
                         <div>
                             <label className="block text-sm font-medium text-gray-700">Coffee Amount (Ratio)</label>
                             <input
-                                type="text"
+                                type="number"
                                 value={coffeeAmount}
-                                onChange={(e) => setCoffeeAmount(e.target.value)}
+                                onChange={(e) => setCoffeeAmount(parseFloat(e.target.value) || '')}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
-                                placeholder="Enter coffee amount as part of a ratio (e.g., 1:15)"
+                                placeholder="Enter coffee amount as part of a ratio (e.g., if the ratio of the total brew volume to coffee is 15:1 then enter 1)"
                                 required
                             />
                         </div>
@@ -216,7 +230,7 @@ export default function RecipeCreationPage() {
                             <span className={`absolute left-1 top-1 bg-white w-6 h-6 rounded-full shadow transition-transform duration-300 ease-in-out ${isTimed ? 'transform translate-x-6' : ''}`} />
                         </div>
                     </div>
-                    <RecipeStepForm steps={steps} setSteps={setSteps} isTimed={isTimed} setIsTimed={setIsTimed} isRatio={isRatio}/>
+                    <RecipeStepForm steps={steps} setSteps={setSteps} isTimed={isTimed} isRatio={isRatio} />
                 </Accordion>
                 <Accordion title="Tasting Notes" isCompleted={tastingNotes.length > 0} isRequired={false}>
                     <TastingNotesInput tastingNotes={tastingNotes} setTastingNotes={setTastingNotes} />
