@@ -1,6 +1,7 @@
 import React, { useState, useEffect } from 'react';
 import { fetchUserGear } from '../../utilities/gear-api';
 import { fetchCoffeeBeans } from '../../utilities/coffeeBean-api';
+import { addRecipe } from '../../utilities/recipe-api';
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
@@ -129,7 +130,7 @@ export default function RecipeCreationPage() {
 
         try {
             console.log('Submitting recipe:', recipeData);
-            // await submitRecipe(recipeData);
+            // await addRecipe(recipeData);
         } catch (error) {
             console.error('Error submitting recipe:', error);
         }
