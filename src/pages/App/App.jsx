@@ -36,7 +36,7 @@ export default function App() {
         <Routes>
           <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
           <Route path="/recipes" element={<RecipesIndexPage />} />
-          <Route path="/recipes:id" element={<RecipesDetailsPage />} />
+          <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
           <Route path="/auth" element={<AuthPage setUser={setUser} />} />
           {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
           {user ? 

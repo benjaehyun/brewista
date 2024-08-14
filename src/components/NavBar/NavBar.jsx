@@ -53,7 +53,7 @@ export default function NavBar({ user, setUser, protectedNavigate }) {
                         <Link to="/savedrecipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Saved Recipes</Link>
                         <Link to="/recipes/create" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Add A Recipe</Link>
                         <Link to="/profile" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Profile</Link>
-                        <span className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Welcome, {user.name}</span>
+                        <span className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Welcome, {user.username}</span>
                         <Link to="" onClick={handleLogOut} className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Log Out</Link>
                     </>
                 )}
