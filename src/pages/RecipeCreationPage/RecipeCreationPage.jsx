@@ -130,7 +130,7 @@ export default function RecipeCreationPage() {
 
         try {
             console.log('Submitting recipe:', recipeData);
-            // await addRecipe(recipeData);
+            await addRecipe(recipeData);
         } catch (error) {
             console.error('Error submitting recipe:', error);
         }

@@ -1,6 +1,6 @@
 const User = require('../../models/user')
-const Profile = require('../../models/profile')
-const Relation = require('../../models/relation')
+const Recipe = require('../../models/recipe')
+const CoffeeBean = require('../../models/coffeeBean')
 const Gear = require ('../../models/gear')
 
 module.exports = {
@@ -9,26 +9,45 @@ module.exports = {
 }
 
 
-async function addRecipe (req, res) {
-    // let {brand, model, modifications, type} = req.body
-    // brand = capitalizeFirstLetter(brand)
+async function addRecipe(req, res) {
     try {
-        // let gear = await Gear.findOne({ brand, model, modifications });
-        // if (!gear) {
-        //     gear = new Gear({ brand, model, modifications, type });
-        //     await gear.save();
-        // }
-        // const profile = await Profile.findOne({ user: req.user._id });
-        // if (!profile) {
-        //     return res.status(404).json({ message: 'Profile not found' });
-        // }
-        // if (!profile.gear.includes(gear._id)) {
-        //     profile.gear.push(gear._id);
-        //     await profile.save();
-        // }
-        // res.status(201).json({ message: 'Gear added to profile successfully', gear });
+        const {
+            name,
+            gear,
+            coffeeBean,
+            grindSize,
+            coffeeAmount,
+            waterTemperature,
+            waterTemperatureUnit,
+            flowRate,
+            steps,
+            tastingNotes,
+            journal,
+            type,
+        } = req.body;
+        const userID = req.user._id
+        if (!name || !gear || !coffeeAmount || !type || !userID) {
+            return res.status(400).json({ error: "Missing required fields" });
+        }
+        const newRecipe = new Recipe({
+            userID,
+            name,
+            gear,
+            coffeeBean,
+            coffeeAmount,
+            grindSize,
+            waterTemperature,
+            waterTemperatureUnit,
+            flowRate,
+            steps,
+            tastingNotes,
+            journal,
+            type
+        });
+        const savedRecipe = await newRecipe.save();
+        res.status(201).json(savedRecipe);
     } catch (error) {
-        // console.error('Error adding gear:', error);
-        // res.status(500).json({ message: 'Error adding gear', error });
+        console.error('Error adding recipe:', error);
+        res.status(500).json({ error: 'Internal server error' });
     }
 }

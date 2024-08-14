@@ -80,7 +80,7 @@ const recipeSchema = new Schema ({
     },
     waterTemperatureUnit: {
         type: String,
-        enum: ['Celsius', 'Fahrenheit'],
+        enum: ['Celsius', 'Fahrenheit', null],
         required: false // This field is optional and only needed if waterTemperature is provided
     },    
     journal: {
