@@ -14,6 +14,7 @@ import { useProtectedNavigation } from "./useProtectedNavigation";
 import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
+import MyRecipesPage from "../MyRecipesPage/MyRecipesPage";
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -40,7 +41,8 @@ export default function App() {
           {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
           {user ? 
           <>
-            <Route path="/myrecipes" element={<SavedRecipesIndex />} />
+            <Route path="/myrecipes" element={<MyRecipesPage />} />
+            <Route path="/savedrecipes" element={<SavedRecipesIndex />} />
             <Route path="/profile" element={<ProfilePage />} />
             <Route path="/recipes/create" element={<RecipeCreationPage />} />
           </>

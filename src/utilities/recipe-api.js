@@ -3,6 +3,10 @@ import sendRequest from "./send-request";
 const BASE_URL = '/api/recipe'
 
 
+export function fetchCurrentUserRecipes () {
+    return sendRequest(`${BASE_URL}`)
+}
+
 export function addRecipe (recipe) {
     return sendRequest(`${BASE_URL}/add`, 'POST', recipe)
 }

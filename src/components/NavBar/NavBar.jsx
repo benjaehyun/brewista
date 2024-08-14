@@ -44,12 +44,13 @@ export default function NavBar({ user, setUser, protectedNavigate }) {
             </div>
             <div className={`${isOpen ? 'block' : 'hidden'} md:flex md:items-center md:justify-between md:space-x-10`}>
                 <Link to="/recipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Recipes</Link>
-                <ProtectedLink to="/myrecipes" isProtected={true} protectedNavigate={protectedNavigate} className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>
+                {/* <ProtectedLink to="/myrecipes" isProtected={true} protectedNavigate={protectedNavigate} className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>
                     My Recipes
-                </ProtectedLink>
+                </ProtectedLink> */}
                 {user && (
                     <>
                         <Link to="/myrecipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>My Recipes</Link>
+                        <Link to="/savedrecipes" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Saved Recipes</Link>
                         <Link to="/recipes/create" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Add A Recipe</Link>
                         <Link to="/profile" className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`} onClick={closeMenu}>Profile</Link>
                         <span className={`block mt-2 md:inline-block md:mt-0 ${isScrolled ? 'text-gray-800' : 'text-white'}`}>Welcome, {user.name}</span>
