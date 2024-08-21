@@ -1,9 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling } from '@fortawesome/free-solid-svg-icons';
+import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 
-export default function RecipesDetailsPage() {
-    const { id } = useParams(); 
+export default function RecipeOverviewPage() {
+    const { id } = useParams();
     const [recipe, setRecipe] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -51,57 +54,129 @@ export default function RecipesDetailsPage() {
         journal,
     } = recipe;
 
+    const brewVolume = steps.reduce((total, step) => {
+        return step.waterAmount ? total + step.waterAmount : total;
+    }, 0);
+
     return (
         <div className="max-w-4xl mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4">{name}</h1>
-            <p className="text-sm text-gray-500 mb-2">Author: {userID.username}</p>
-            <p className="text-sm text-gray-500 mb-2">
-                Bean: {coffeeBean.roaster}, {coffeeBean.origin}, {coffeeBean.roastLevel}
-                {coffeeBean.process ? `, ${coffeeBean.process}` : ''}
-            </p>
-            <p className="text-sm text-gray-500 mb-2">Recipe Type: {type}</p>
-            <p className="text-sm text-gray-500 mb-2">
-                Coffee Amount: {type === 'Ratios' ? `${coffeeAmount}:` : `${coffeeAmount}g`}
-            </p>
-            {waterTemperature && (
-                <p className="text-sm text-gray-500 mb-2">
-                    Water Temperature: {waterTemperature}°{waterTemperatureUnit}
-                </p>
-            )}
-            {flowRate && <p className="text-sm text-gray-500 mb-2">Flow Rate: {flowRate} mL/s</p>}
+            <div className="flex flex-wrap gap-4 mb-4">
+                <div className="flex items-center bg-blue-100 text-blue-800 p-3 rounded-lg shadow-md">
+                    <FontAwesomeIcon icon={faUser} className="mr-2" />
+                    <div>
+                        <p className="text-sm font-semibold">Author</p>
+                        <p className="text-sm">{userID.username}</p>
+                    </div>
+                </div>
 
-            <h2 className="text-2xl font-semibold mb-4">Grind Size</h2>
-            <p className="text-sm text-gray-500 mb-2">Steps: {grindSize.steps}</p>
-            {grindSize.microsteps && <p className="text-sm text-gray-500 mb-2">Microsteps: {grindSize.microsteps}</p>}
-            {grindSize.description && <p className="text-sm text-gray-500 mb-2">Description: {grindSize.description}</p>}
+                <div className="flex items-center bg-green-100 text-green-800 p-3 rounded-lg shadow-md">
+                    <FontAwesomeIcon icon={faSeedling} className="mr-2" />
+                    <div>
+                        <p className="text-sm font-semibold">Bean</p>
+                        <p className="text-sm">{coffeeBean.roaster}, {coffeeBean.origin}, {coffeeBean.roastLevel}{coffeeBean.process ? `, ${coffeeBean.process}` : ''}</p>
+                    </div>
+                </div>
 
-            <h2 className="text-2xl font-semibold mb-4">Steps</h2>
-            <div className="mb-8">
-                {/* Placeholder for the timeline component */}
-                <div className="h-64 bg-gray-200 rounded-md flex items-center justify-center">
-                    <span className="text-gray-500">Timeline Placeholder</span>
+                <div className="flex items-center bg-yellow-100 text-yellow-800 p-3 rounded-lg shadow-md">
+                    <FontAwesomeIcon icon={type === 'Ratio' ? faBalanceScale : faRuler} className="mr-2" />
+                    <div>
+                        <p className="text-sm font-semibold">Recipe Type</p>
+                        <p className="text-sm">{type}</p>
+                    </div>
+                </div>
+
+                {type === 'Ratio' ? (
+                    <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#C9A783', color: '#5B4636' }} >
+                        <FontAwesomeIcon icon={faBalanceScale} className="mr-2" />
+                        <div>
+                            <p className="text-sm font-semibold">Brew Ratio</p>
+                            <p className="text-sm">{coffeeAmount}:{brewVolume}</p>
+                        </div>
+                    </div>
+                ) : (
+                    <>
+                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#A67B5B', color: '#F8F4F1' }} >
+                            <FontAwesomeIcon icon={faWeight} className="mr-2" />
+                            <div>
+                                <p className="text-sm font-semibold">Coffee Amount</p>
+                                <p className="text-sm">{coffeeAmount}g</p>
+                            </div>
+                        </div>
+                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#D3B8AE', color: '#5B4636' }}  >
+                            <FontAwesomeIcon icon={faFlask} className="mr-2" />
+                            <div>
+                                <p className="text-sm font-semibold">Brew Volume</p>
+                                <p className="text-sm">{brewVolume}mL</p>
+                            </div>
+                        </div>
+                    </>
+                )}
+
+                {waterTemperature && (
+                    <div className="flex items-center bg-red-100 text-red-800 p-3 rounded-lg shadow-md">
+                        <FontAwesomeIcon icon={faThermometerHalf} className="mr-2" />
+                        <div>
+                            <p className="text-sm font-semibold">Water Temperature</p>
+                            <p className="text-sm">{waterTemperature}°{waterTemperatureUnit}</p>
+                        </div>
+                    </div>
+                )}
+
+                {flowRate && (
+                    <div className="flex items-center bg-teal-100 text-teal-800 p-3 rounded-lg shadow-md">
+                        <FontAwesomeIcon icon={faTint} className="mr-2" />
+                        <div>
+                            <p className="text-sm font-semibold">Flow Rate</p>
+                            <p className="text-sm">{flowRate} mL/s</p>
+                        </div>
+                    </div>
+                )}
+
+                <div className="flex items-center bg-gray-100 text-gray-800 p-3 rounded-lg shadow-md">
+                    <FontAwesomeIcon icon={faBlender} className="mr-2" />
+                    <div>
+                        <p className="text-sm font-semibold">Grind Size</p>
+                        <p className="text-sm">Steps: {grindSize.steps}</p>
+                        {grindSize.microsteps != null && grindSize.microsteps !== 0 && (
+                            <p className="text-sm">Microsteps: {grindSize.microsteps}</p>
+                        )}
+                        {grindSize.description && <p className="text-sm">Description: {grindSize.description}</p>}
+                    </div>
                 </div>
             </div>
 
             {tastingNotes.length > 0 && (
-                <>
-                    <h2 className="text-2xl font-semibold mb-4">Tasting Notes</h2>
-                    <div className="flex flex-wrap gap-2 mb-8">
-                        {tastingNotes.map((note, index) => (
-                            <span key={index} className="text-xs bg-gray-200 px-2 py-1 rounded-full">
-                                {note}
-                            </span>
-                        ))}
+                <div className="flex items-center bg-blue-100 text-blue-800 p-4 rounded-lg shadow-md mb-8">
+                    <FontAwesomeIcon icon={faWineGlass} className="mr-2" />
+                    <div className="flex-1">
+                        <p className="text-sm font-semibold">Tasting Notes</p>
+                        <div className="flex flex-wrap gap-2">
+                            {tastingNotes.map((note, index) => (
+                                <span key={index} className="text-xs bg-blue-200 text-blue-900 px-2 py-1 rounded-full">
+                                    {note}
+                                </span>
+                            ))}
+                        </div>
                     </div>
-                </>
+                </div>
             )}
 
             {journal && (
-                <>
-                    <h2 className="text-2xl font-semibold mb-4">Journal</h2>
-                    <p className="text-sm text-gray-700 mb-8">{journal}</p>
-                </>
+                <div className="flex items-center bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md mb-8">
+                    <FontAwesomeIcon icon={faBook} className="mr-2" />
+                    <div className="flex-1">
+                        <p className="text-sm font-semibold">Journal</p>
+                        <p className="text-sm">{journal}</p>
+                    </div>
+                </div>
             )}
+
+            <h2 className="text-2xl font-semibold mb-4">Steps</h2>
+            <div className="mb-8">
+                {/* Insert the AnimatedTimeline component here */}
+                <AnimatedTimeline steps={steps} />
+            </div>
         </div>
     );
 }

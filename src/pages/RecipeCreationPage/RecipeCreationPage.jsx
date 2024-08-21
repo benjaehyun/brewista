@@ -125,7 +125,7 @@ export default function RecipeCreationPage() {
             steps,
             tastingNotes,
             journal,
-            type: isRatio ? 'Ratios' : 'Explicit',
+            type: isRatio ? 'Ratio' : 'Explicit',
         };
 
         try {

@@ -1,0 +1,9 @@
+.timeline-node {
+    transition: transform 0.3s ease, opacity 0.3s ease;
+  }
+  
+  .timeline-line {
+    transition: transform 0.3s ease;
+    transform-origin: top;
+  }
+  

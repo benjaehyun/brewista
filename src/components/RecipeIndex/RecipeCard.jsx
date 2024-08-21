@@ -10,7 +10,7 @@ export default function RecipeCard({ recipe }) {
     }, 0);
 
     // Determine the display for coffee amount and brew volume
-    const coffeeBrewDisplay = type === 'Ratios' 
+    const coffeeBrewDisplay = type === 'Ratio' 
         ? `${coffeeAmount}: ${brewVolume}`
         : `${coffeeAmount}g, ${brewVolume}mL`;
 

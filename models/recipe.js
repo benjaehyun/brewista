@@ -71,7 +71,7 @@ const recipeSchema = new Schema ({
     },
     type: {
         type: String,
-        enum: ['Ratios', 'Explicit'],
+        enum: ['Ratio', 'Explicit'],
         required: true
     },
     waterTemperature: {
