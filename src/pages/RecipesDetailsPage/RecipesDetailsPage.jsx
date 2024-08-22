@@ -2,7 +2,7 @@ import React, { useState, useEffect } from 'react';
 import { useParams } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faMugHot, faTriangleExclamation, faScroll } from '@fortawesome/free-solid-svg-icons';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 
 export default function RecipeOverviewPage() {
@@ -52,11 +52,21 @@ export default function RecipeOverviewPage() {
         steps,
         tastingNotes,
         journal,
+        gear
     } = recipe;
 
     const brewVolume = steps.reduce((total, step) => {
         return step.waterAmount ? total + step.waterAmount : total;
     }, 0);
+
+    const gearIcons = {
+        Brewer: faMugHot,
+        Paper: faScroll,
+        Grinder: faBlender,
+        Kettle: faTint,
+        Scale: faBalanceScale,
+        Other: faTriangleExclamation, // Default icon for unspecified gear types
+    };
 
     return (
         <div className="max-w-4xl mx-auto p-4">
@@ -134,7 +144,7 @@ export default function RecipeOverviewPage() {
                 )}
 
                 <div className="flex items-center bg-gray-100 text-gray-800 p-3 rounded-lg shadow-md">
-                    <FontAwesomeIcon icon={faBlender} className="mr-2" />
+                    <FontAwesomeIcon icon={faCubesStacked} className="mr-2" />
                     <div>
                         <p className="text-sm font-semibold">Grind Size</p>
                         <p className="text-sm">Steps: {grindSize.steps}</p>
@@ -145,6 +155,25 @@ export default function RecipeOverviewPage() {
                     </div>
                 </div>
             </div>
+
+            {/* Gear Section */}
+            {gear && gear.length > 0 && (
+                <div className="mb-8">
+                    <h2 className="text-2xl font-semibold mb-4">Gear</h2>
+                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                        {gear.map((item, index) => (
+                            <div key={index} className="flex items-center bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md">
+                                <FontAwesomeIcon icon={gearIcons[item.type] || gearIcons.Other} className="mr-2" />
+                                <div>
+                                    <p className="text-sm font-semibold">{item.type}</p>
+                                    <p className="text-sm">{item.brand} {item.model}</p>
+                                    {item.modifications && <p className="text-sm text-gray-600">Modifications: {item.modifications}</p>}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
 
             {tastingNotes.length > 0 && (
                 <div className="flex items-center bg-blue-100 text-blue-800 p-4 rounded-lg shadow-md mb-8">
@@ -174,7 +203,6 @@ export default function RecipeOverviewPage() {
 
             <h2 className="text-2xl font-semibold mb-4">Steps</h2>
             <div className="mb-8">
-                {/* Insert the AnimatedTimeline component here */}
                 <AnimatedTimeline steps={steps} />
             </div>
         </div>

@@ -74,7 +74,8 @@ async function getRecipeById(req, res) {
 
         const recipe = await Recipe.findById(recipeId)
             .populate('userID', 'username') // Populate the userID with username field
-            .populate('coffeeBean', 'roaster origin roastLevel process'); // Populate coffeeBean with relevant fields
+            .populate('coffeeBean', 'roaster origin roastLevel process') // Populate coffeeBean with relevant fields
+            .populate('gear', 'brand model modifications type'); // Populate coffeeBean with relevant fields
 
         if (!recipe) {
             return res.status(404).json({ error: 'Recipe not found' });

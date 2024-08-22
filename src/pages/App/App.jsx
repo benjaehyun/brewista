@@ -15,6 +15,7 @@ import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
 import MyRecipesPage from "../MyRecipesPage/MyRecipesPage";
+import CalculatePage from "../CalculatePage/CalculatePage";
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -37,6 +38,7 @@ export default function App() {
           <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
           <Route path="/recipes" element={<RecipesIndexPage />} />
           <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
+          <Route path="/calculate/:id" element={<CalculatePage />} />
           <Route path="/auth" element={<AuthPage setUser={setUser} />} />
           {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
           {user ? 
