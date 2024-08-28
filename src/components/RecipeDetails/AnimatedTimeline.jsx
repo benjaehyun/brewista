@@ -1,7 +1,7 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
 
-export default function ScaledTimeline({ steps }) {
+export default function AnimatedTimeline({ steps }) {
     const timelineRef = useRef(null);
 
     useEffect(() => {
@@ -9,35 +9,54 @@ export default function ScaledTimeline({ steps }) {
         const lines = timelineRef.current.querySelectorAll('.timeline-line');
         const texts = timelineRef.current.querySelectorAll('.timeline-text');
         const times = timelineRef.current.querySelectorAll('.timeline-time');
-
+        const waterAmounts = timelineRef.current.querySelectorAll('.timeline-water-amount');
+    
         // Animate nodes
-        gsap.fromTo(
-            nodes,
-            { opacity: 0, scale: 0 },
-            { opacity: 1, scale: 1, duration: 0.5, stagger: 0.2 }
-        );
-
+        if (nodes.length > 0) {
+            gsap.fromTo(
+                nodes,
+                { opacity: 0, scale: 0 },
+                { opacity: 1, scale: 1, duration: 0.5, stagger: 0.2 }
+            );
+        }
+    
         // Animate lines
-        gsap.fromTo(
-            lines,
-            { scaleY: 0 },
-            { scaleY: 1, duration: 0.5, stagger: 0.2, delay: 0.1 }
-        );
-
+        if (lines.length > 0) {
+            gsap.fromTo(
+                lines,
+                { scaleY: 0 },
+                { scaleY: 1, duration: 0.5, stagger: 0.2, delay: 0.1 }
+            );
+        }
+    
         // Animate text
-        gsap.fromTo(
-            texts,
-            { opacity: 0, x: -20 },
-            { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, delay: 0.3 }
-        );
-
+        if (texts.length > 0) {
+            gsap.fromTo(
+                texts,
+                { opacity: 0, x: -20 },
+                { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, delay: 0.3 }
+            );
+        }
+    
         // Animate time displays
-        gsap.fromTo(
-            times,
-            { opacity: 0, x: -10 },
-            { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, delay: 0.3 }
-        );
+        if (times.length > 0) {
+            gsap.fromTo(
+                times,
+                { opacity: 0, x: -10 },
+                { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, delay: 0.3 }
+            );
+        }
+    
+        // Animate water amounts
+        if (waterAmounts.length > 0) {
+            gsap.fromTo(
+                waterAmounts,
+                { opacity: 0, x: 20 },
+                { opacity: 1, x: 0, duration: 0.5, stagger: 0.2, delay: 0.3 }
+            );
+        }
     }, [steps]);
+    
 
     // Configuration for line lengths
     const MIN_LINE_HEIGHT = 50; // in pixels
@@ -63,6 +82,13 @@ export default function ScaledTimeline({ steps }) {
             {steps.map((step, index) => (
                 <div key={index} className="flex flex-col items-center">
                     <div className="relative flex items-center">
+                        {/* Water Amount (if applicable) */}
+                        {step.waterAmount !== undefined && (
+                            <p className="timeline-water-amount absolute right-8 text-xs text-gray-600 whitespace-nowrap">
+                                {`${step.waterAmount} mL`}
+                            </p>
+                        )}
+
                         {/* Step Node */}
                         <div className="timeline-node w-6 h-6 rounded-full bg-blue-500"></div>
 

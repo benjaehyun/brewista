@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
-import { useParams } from 'react-router-dom';
+import { useParams, Link } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faMugHot, faTriangleExclamation, faScroll } from '@fortawesome/free-solid-svg-icons';
+import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faVideo, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 
 export default function RecipeOverviewPage() {
@@ -59,19 +59,39 @@ export default function RecipeOverviewPage() {
         return step.waterAmount ? total + step.waterAmount : total;
     }, 0);
 
-    const gearIcons = {
-        Brewer: faMugHot,
-        Paper: faScroll,
-        Grinder: faBlender,
-        Kettle: faTint,
-        Scale: faBalanceScale,
-        Other: faTriangleExclamation, // Default icon for unspecified gear types
+    const getGearIcon = (gearType) => {
+        switch (gearType) {
+            case 'Brewer':
+                return (
+                    <FontAwesomeIcon
+                        icon={faVideo}
+                        className="mr-2"
+                        style={{ transform: 'rotate(270deg)' }}
+                    />
+                );
+            case 'Paper':
+                return <FontAwesomeIcon icon={faLayerGroup} className="mr-2" />;
+            case 'Grinder':
+                return <FontAwesomeIcon icon={faBlender} className="mr-2" />;
+            case 'Kettle':
+                return <FontAwesomeIcon icon={faTint} className="mr-2" />;
+            case 'Scale':
+                return <FontAwesomeIcon icon={faBalanceScale} className="mr-2" />;
+            default:
+                return <FontAwesomeIcon icon={faCubesStacked} className="mr-2" />;
+        }
     };
 
     return (
         <div className="max-w-4xl mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4">{name}</h1>
-            <div className="flex flex-wrap gap-4 mb-4">
+            {/* Brew Recipe Button */}
+            <div className="flex justify-end w-full my-4">
+                    <Link to={`/calculate/${id}`} className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition">
+                        Brew Recipe
+                    </Link>
+            </div>
+            <div className="flex flex-wrap gap-4 mb-4 items-center">
                 <div className="flex items-center bg-blue-100 text-blue-800 p-3 rounded-lg shadow-md">
                     <FontAwesomeIcon icon={faUser} className="mr-2" />
                     <div>
@@ -97,7 +117,7 @@ export default function RecipeOverviewPage() {
                 </div>
 
                 {type === 'Ratio' ? (
-                    <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#C9A783', color: '#5B4636' }} >
+                    <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#C9A783', color: '#5B4636' }}>
                         <FontAwesomeIcon icon={faBalanceScale} className="mr-2" />
                         <div>
                             <p className="text-sm font-semibold">Brew Ratio</p>
@@ -106,14 +126,14 @@ export default function RecipeOverviewPage() {
                     </div>
                 ) : (
                     <>
-                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#A67B5B', color: '#F8F4F1' }} >
+                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#A67B5B', color: '#F8F4F1' }}>
                             <FontAwesomeIcon icon={faWeight} className="mr-2" />
                             <div>
                                 <p className="text-sm font-semibold">Coffee Amount</p>
                                 <p className="text-sm">{coffeeAmount}g</p>
                             </div>
                         </div>
-                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#D3B8AE', color: '#5B4636' }}  >
+                        <div className="flex items-center p-3 rounded-lg shadow-md" style={{ backgroundColor: '#D3B8AE', color: '#5B4636' }}>
                             <FontAwesomeIcon icon={faFlask} className="mr-2" />
                             <div>
                                 <p className="text-sm font-semibold">Brew Volume</p>
@@ -127,7 +147,7 @@ export default function RecipeOverviewPage() {
                     <div className="flex items-center bg-red-100 text-red-800 p-3 rounded-lg shadow-md">
                         <FontAwesomeIcon icon={faThermometerHalf} className="mr-2" />
                         <div>
-                            <p className="text-sm font-semibold">Water Temperature</p>
+                            <p className="text-sm font-semibold">Water Temp.</p>
                             <p className="text-sm">{waterTemperature}°{waterTemperatureUnit}</p>
                         </div>
                     </div>
@@ -149,31 +169,14 @@ export default function RecipeOverviewPage() {
                         <p className="text-sm font-semibold">Grind Size</p>
                         <p className="text-sm">Steps: {grindSize.steps}</p>
                         {grindSize.microsteps != null && grindSize.microsteps !== 0 && (
-                            <p className="text-sm">Microsteps: {grindSize.microsteps}</p>
+                            <p className="text-xs">Microsteps: {grindSize.microsteps}</p>
                         )}
                         {grindSize.description && <p className="text-sm">Description: {grindSize.description}</p>}
                     </div>
                 </div>
-            </div>
 
-            {/* Gear Section */}
-            {gear && gear.length > 0 && (
-                <div className="mb-8">
-                    <h2 className="text-2xl font-semibold mb-4">Gear</h2>
-                    <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-                        {gear.map((item, index) => (
-                            <div key={index} className="flex items-center bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md">
-                                <FontAwesomeIcon icon={gearIcons[item.type] || gearIcons.Other} className="mr-2" />
-                                <div>
-                                    <p className="text-sm font-semibold">{item.type}</p>
-                                    <p className="text-sm">{item.brand} {item.model}</p>
-                                    {item.modifications && <p className="text-sm text-gray-600">Modifications: {item.modifications}</p>}
-                                </div>
-                            </div>
-                        ))}
-                    </div>
-                </div>
-            )}
+                
+            </div>
 
             {tastingNotes.length > 0 && (
                 <div className="flex items-center bg-blue-100 text-blue-800 p-4 rounded-lg shadow-md mb-8">
@@ -191,6 +194,32 @@ export default function RecipeOverviewPage() {
                 </div>
             )}
 
+            {gear && gear.length > 0 && (
+                <div className="bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md mb-8">
+                    <p className="text-sm font-semibold mb-4">Gear</p>
+                    <div className="flex flex-wrap gap-4">
+                        {gear.map((item) => (
+                            <div key={item._id} className="flex items-center bg-gray-200 text-gray-800 p-3 rounded-lg shadow-md">
+                                {getGearIcon(item.type)}
+                                <div className="text-center">
+                                    <p className="text-sm font-semibold">{item.type}</p>
+                                    <p className="text-sm">{item.brand} {item.model}</p>
+                                    {item.modifications && (
+                                        <p className="text-xs text-gray-600">{item.modifications}</p>
+                                    )}
+                                </div>
+                            </div>
+                        ))}
+                    </div>
+                </div>
+            )}
+
+            <h2 className="text-2xl font-semibold mb-4">Steps</h2>
+            <div className="mb-8">
+                {/* Insert the AnimatedTimeline component here */}
+                <AnimatedTimeline steps={steps} />
+            </div>
+
             {journal && (
                 <div className="flex items-center bg-gray-100 text-gray-800 p-4 rounded-lg shadow-md mb-8">
                     <FontAwesomeIcon icon={faBook} className="mr-2" />
@@ -201,10 +230,6 @@ export default function RecipeOverviewPage() {
                 </div>
             )}
 
-            <h2 className="text-2xl font-semibold mb-4">Steps</h2>
-            <div className="mb-8">
-                <AnimatedTimeline steps={steps} />
-            </div>
         </div>
     );
 }
