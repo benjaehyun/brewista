@@ -3,8 +3,13 @@ import { useParams } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import debounce from 'lodash.debounce';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
+import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
+import Switch from 'react-switch';
+import { useNavigate } from 'react-router-dom';
 
 export default function CalculatePage() {
+    const navigate = useNavigate() 
     const { id } = useParams();
     const [recipe, setRecipe] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
@@ -72,24 +77,12 @@ export default function CalculatePage() {
             setCalculatedValue(calculatedValue);
             setScalingFactor(scalingFactor);
 
-            console.log('Calculated Value:', calculatedValue);
-            console.log('Scaling Factor:', scalingFactor);
-
             // Calculate scaled steps
-            const updatedSteps = steps.map((step) => {
-                const scaledWaterAmount = step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined;
-                
-                // Time scaling using the conical calculation
-                const scaledTime = step.time 
-                    ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) 
-                    : undefined;
-
-                return {
-                    ...step,
-                    waterAmount: scaledWaterAmount,
-                    time: scaledTime,
-                };
-            });
+            const updatedSteps = steps.map((step) => ({
+                ...step,
+                waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
+                time: step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined, // Adjust time scaling using the conical approach
+            }));
 
             setCalculatedSteps(updatedSteps);
 
@@ -106,6 +99,10 @@ export default function CalculatePage() {
         setUserInput(e.target.value);
     };
 
+    const handleSwitchChange = (checked) => {
+        setInputType(checked ? 'brewVolume' : 'coffeeAmount');
+    };
+
     if (isLoading) {
         return <div>Loading...</div>;
     }
@@ -118,81 +115,118 @@ export default function CalculatePage() {
         return <div>Recipe not found</div>;
     }
 
+    const handleStartBrew = () => {
+      navigate('/timer', {
+          state: {
+              userInput,
+              calculatedValue,
+              calculatedSteps,
+              inputType,
+              scalingFactor,
+          },
+      });
+    };
+
     const originalBrewVolume = recipe.steps.reduce((total, step) => {
         return step.waterAmount ? total + step.waterAmount : total;
     }, 0);
 
     return (
         <div className="max-w-4xl mx-auto p-4">
-            <h1 className="text-3xl font-bold mb-4">Calculate Brew</h1>
+            <h1 className="text-3xl font-bold mb-4 text-center">Calculate Brew</h1>
 
-            <div className="mb-4">
+            <div className="mb-4 text-center">
                 {recipe.type === 'Ratio' ? (
                     <>
-                        <p className="mb-2">Brew Ratio: {recipe.coffeeAmount}:{originalBrewVolume}</p>
+                        <p className="mb-2 flex justify-center items-center">
+                            <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
+                            Brew Ratio: {recipe.coffeeAmount}:{originalBrewVolume}
+                        </p>
                     </>
                 ) : (
                     <>
-                        <p className="mb-2">Original Coffee Amount: {recipe.coffeeAmount}g</p>
-                        <p className="mb-2">Original Brew Volume: {originalBrewVolume}mL</p>
+                        <p className="mb-2 flex justify-center items-center">
+                            <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
+                            Original Coffee Amount: {recipe.coffeeAmount}g
+                        </p>
+                        <p className="mb-2 flex justify-center items-center">
+                            <FontAwesomeIcon icon={faTint} className="mr-2 text-blue-600" />
+                            Original Brew Volume: {originalBrewVolume}mL
+                        </p>
                     </>
                 )}
             </div>
 
-            <div className="mb-4">
-                <label className="mr-4">
-                    <input
-                        type="radio"
-                        value="coffeeAmount"
-                        checked={inputType === 'coffeeAmount'}
-                        onChange={(e) => setInputType(e.target.value)}
-                    />
-                    Coffee Amount
-                </label>
-                <label>
-                    <input
-                        type="radio"
-                        value="brewVolume"
-                        checked={inputType === 'brewVolume'}
-                        onChange={(e) => setInputType(e.target.value)}
-                    />
-                    Brew Volume
-                </label>
+            <div className="mb-4 flex justify-center items-center">
+                <span className="mr-4">Coffee Amount</span>
+                <Switch
+                    onChange={handleSwitchChange}
+                    checked={inputType === 'brewVolume'}
+                    offColor="#8B4513"      // Brown color
+                    onColor="#00008B"       // Dark blue color
+                    offHandleColor="#FFFFFF" // Darker brown color
+                    onHandleColor="#FFFFFF"  // Lighter blue color
+                    uncheckedIcon={false}
+                    checkedIcon={false}
+                />
+                <span className="ml-4">Brew Volume</span>
             </div>
 
             <div className="mb-4">
                 {inputType === 'coffeeAmount' ? (
-                    <div>
-                        <label className="block mb-2">Enter Desired Coffee Amount (g):</label>
+                    <div className="mb-2">
+                        <label className="block mb-2 text-center">Enter Desired Coffee Amount (g):</label>
                         <input
-                            type="number"
-                            value={userInput}
-                            onChange={handleInputChange}
-                            className="p-2 border rounded"
-                        />
+                          type="number"
+                          value={userInput}
+                          onChange={handleInputChange}
+                          className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
+                      />
                     </div>
                 ) : (
-                    <div>
-                        <label className="block mb-2">Enter Desired Brew Volume (mL):</label>
+                    <div className="mb-2">
+                        <label className="block mb-2 text-center">Enter Desired Brew Volume (mL):</label>
                         <input
                             type="number"
                             value={userInput}
                             onChange={handleInputChange}
-                            className="p-2 border rounded"
+                            className="p-2 border rounded w-full text-center"
                         />
                     </div>
                 )}
             </div>
 
-            <div className="mb-4">
-                {inputType === 'coffeeAmount' ? (
-                    <p>Calculated Brew Volume: {calculatedValue ? `${calculatedValue.toFixed(2)} mL` : 'N/A'}</p>
-                ) : (
-                    <p>Calculated Coffee Amount: {calculatedValue ? `${calculatedValue.toFixed(2)} g` : 'N/A'}</p>
-                )}
+            <button
+                onClick={handleStartBrew}
+                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+            >
+                Start Brew
+            </button>
+
+
+            <div className="my-4 flex justify-center items-center">
+                <div>
+                    {inputType === 'coffeeAmount' ? (
+                        <p className="text-lg font-semibold mr-4">
+                            <FontAwesomeIcon icon={faTint} className="mr-2 text-blue-600" />
+                            Calculated Brew Volume: {calculatedValue ? `${calculatedValue.toFixed(2)} mL` : 'N/A'}
+                        </p>
+                    ) : (
+                        <p className="text-lg font-semibold mr-4">
+                            <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
+                            Calculated Coffee Amount: {calculatedValue ? `${calculatedValue.toFixed(2)} g` : 'N/A'}
+                        </p>
+                    )}
+                </div>
+                <div>
+                    <p className="text-lg font-semibold">
+                        <FontAwesomeIcon icon={faEquals} className="mr-2 text-gray-600" />
+                        Scaling Factor: {scalingFactor.toFixed(2)}
+                    </p>
+                </div>
             </div>
 
-            <h2 className="text-2xl font-semibold mb-4">Steps</h2>
+            <h2 className="text-2xl font-semibold mb-4 text-center">Steps</h2>
             <div className="mb-8">
                 <AnimatedTimeline steps={calculatedSteps.length > 0 ? calculatedSteps : recipe.steps} />
             </div>
