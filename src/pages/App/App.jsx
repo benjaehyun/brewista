@@ -16,7 +16,7 @@ import ProfilePage from "../ProfilePage/ProfilePage";
 import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
 import MyRecipesPage from "../MyRecipesPage/MyRecipesPage";
 import CalculatePage from "../CalculatePage/CalculatePage";
-import TimerPage from "../../TimerPage/TimerPage";
+import TimerPage from "../TimerPage/TimerPage";
 
 export default function App() {
   const [user, setUser] = useState(getUser());

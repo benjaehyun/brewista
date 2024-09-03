@@ -1,35 +1,35 @@
 import React, { useEffect, useState } from 'react';
 import { useLocation, useNavigate } from 'react-router-dom';
-import OverviewComponent from '../components/Timer/Overview';
-import PrepStepsComponent from '../components/Timer/PrepSteps';
-import BrewStepComponent from '../components/Timer/BrewSteps';
-import FinalizationComponent from '../components/Timer/Finalization';
+import OverviewComponent from '../../components/Timer/Overview';
+import PrepStepsComponent from '../../components/Timer/PrepSteps';
+import BrewStepComponent from '../../components/Timer/BrewSteps';
+import FinalizationComponent from '../../components/Timer/Finalization';
 
 export default function TimerPage() {
     const location = useLocation();
-    const navigate = useNavigate(); // Replace useHistory with useNavigate
-    const { userInput, calculatedValue, calculatedSteps, inputType } = location.state || {};
+    const navigate = useNavigate();
+    const { recipe, coffeeAmount, brewVolume, stepsToUse, scalingFactor } = location.state || {};
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);
 
     useEffect(() => {
-        if (!userInput || !calculatedValue || !calculatedSteps) {
-            navigate('/calculate'); // Replace history.push with navigate
+        if (!recipe || !stepsToUse) {
+            navigate('/calculate'); // Redirect if necessary data is missing
         }
-    }, [userInput, calculatedValue, calculatedSteps, navigate]);
+    }, [recipe, stepsToUse, navigate]);
 
     const handleStartBrew = () => {
         setIsBrewStarted(true);
     };
 
     const handleNextStep = () => {
-        if (currentStep < calculatedSteps.length - 1) {
+        if (currentStep < stepsToUse.length - 1) {
             setCurrentStep(currentStep + 1);
         }
     };
 
-    if (!userInput || !calculatedValue || !calculatedSteps) {
+    if (!recipe || !stepsToUse) {
         return null; // Avoid rendering if redirected
     }
 
@@ -38,22 +38,23 @@ export default function TimerPage() {
             {isBrewStarted ? (
                 <>
                     <BrewStepComponent
-                        step={calculatedSteps[currentStep]}
+                        step={stepsToUse[currentStep]}
                         onNextStep={handleNextStep}
                     />
-                    {currentStep === calculatedSteps.length - 1 && (
+                    {currentStep === stepsToUse.length - 1 && (
                         <FinalizationComponent />
                     )}
                 </>
             ) : (
                 <>
                     <OverviewComponent
-                        userInput={userInput}
-                        calculatedValue={calculatedValue}
-                        inputType={inputType}
+                        recipe={recipe}
+                        coffeeAmount={coffeeAmount}
+                        brewVolume={brewVolume}
+                        scalingFactor={scalingFactor}
                         onStartBrew={handleStartBrew}
                     />
-                    <PrepStepsComponent />
+                    <PrepStepsComponent recipe={recipe} />
                 </>
             )}
         </div>

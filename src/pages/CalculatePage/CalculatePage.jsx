@@ -81,7 +81,7 @@ export default function CalculatePage() {
             const updatedSteps = steps.map((step) => ({
                 ...step,
                 waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
-                time: step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined, // Adjust time scaling using the conical approach
+                time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined), // Keep bloom time unchanged
             }));
 
             setCalculatedSteps(updatedSteps);
@@ -115,14 +115,28 @@ export default function CalculatePage() {
         return <div>Recipe not found</div>;
     }
 
+    // Use user input if available, otherwise use default values from the recipe
+    // const inputToUse = userInput || recipe.CoffeeAmount || recipe.BrewVolume;
+    // const calculatedValueToUse = calculatedValue || recipe.defaultBrewVolume || recipe.defaultCoffeeAmount;
+    // const coffeeValue = inputType === 'coffeeAmount' && calculatedValue !== null ? calculatedValue : recipe.coffeeAmount;
     const handleStartBrew = () => {
+      let coffeeValue; 
+      if (userInput !== '' && inputType === 'coffeeAmount') {
+        coffeeValue = userInput
+      } else if (calculatedValue !== null && inputType === 'brewVolume') {
+        coffeeValue = calculatedValue
+      } else {
+        coffeeValue = recipe.coffeeAmount
+      }
+      const stepsToUse = calculatedSteps.length > 0 ? calculatedSteps : recipe.steps;
+
       navigate('/timer', {
           state: {
-              userInput,
-              calculatedValue,
-              calculatedSteps,
-              inputType,
-              scalingFactor,
+              recipe: recipe,
+              coffeeAmount: coffeeValue,
+              brewVolume: calculatedValue !== null && inputType === 'coffeeAmount' ? calculatedValue : originalBrewVolume,
+              stepsToUse, 
+              scalingFactor
           },
       });
     };
@@ -198,7 +212,10 @@ export default function CalculatePage() {
 
             <button
                 onClick={handleStartBrew}
-                className="bg-blue-600 hover:bg-blue-700 text-white font-semibold py-2 px-4 rounded-lg shadow-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75"
+                disabled={recipe.type === 'Ratio' && !userInput}
+                className={`${
+                    recipe.type === 'Ratio' && !userInput ? 'bg-gray-400 cursor-not-allowed' : 'bg-blue-600 hover:bg-blue-700'
+                } text-white font-semibold py-2 px-4 rounded-lg shadow-lg transition duration-200 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-400 focus:ring-opacity-75`}
             >
                 Start Brew
             </button>
