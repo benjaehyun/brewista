@@ -1,11 +1,11 @@
 import React, { useEffect, useState } from 'react';
-import { useLocation, useNavigate } from 'react-router-dom';
-import OverviewComponent from '../../components/Timer/Overview';
-import PrepStepsComponent from '../../components/Timer/PrepSteps';
+import { useParams, useLocation, useNavigate } from 'react-router-dom';
+import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewStepComponent from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
 
 export default function TimerPage() {
+    const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const { recipe, coffeeAmount, brewVolume, stepsToUse, scalingFactor } = location.state || {};
@@ -15,9 +15,12 @@ export default function TimerPage() {
 
     useEffect(() => {
         if (!recipe || !stepsToUse) {
-            navigate('/calculate'); // Redirect if necessary data is missing
+            // Navigate to calculate page with the recipe ID
+            navigate(`/calculate/${id}`, { 
+                state: { error: "Missing recipe information. Please recalculate." }
+            });
         }
-    }, [recipe, stepsToUse, navigate]);
+    }, [recipe, stepsToUse, navigate, id]);
 
     const handleStartBrew = () => {
         setIsBrewStarted(true);
@@ -35,7 +38,14 @@ export default function TimerPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-4">
-            {isBrewStarted ? (
+            {!isBrewStarted ? (
+                <PreparationOverview
+                    recipe={recipe}
+                    coffeeAmount={coffeeAmount}
+                    brewVolume={brewVolume}
+                    onStartBrew={handleStartBrew}
+                />
+            ) : (
                 <>
                     <BrewStepComponent
                         step={stepsToUse[currentStep]}
@@ -44,17 +54,6 @@ export default function TimerPage() {
                     {currentStep === stepsToUse.length - 1 && (
                         <FinalizationComponent />
                     )}
-                </>
-            ) : (
-                <>
-                    <OverviewComponent
-                        recipe={recipe}
-                        coffeeAmount={coffeeAmount}
-                        brewVolume={brewVolume}
-                        scalingFactor={scalingFactor}
-                        onStartBrew={handleStartBrew}
-                    />
-                    <PrepStepsComponent recipe={recipe} />
                 </>
             )}
         </div>

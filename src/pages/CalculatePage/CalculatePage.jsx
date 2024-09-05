@@ -130,7 +130,7 @@ export default function CalculatePage() {
       }
       const stepsToUse = calculatedSteps.length > 0 ? calculatedSteps : recipe.steps;
 
-      navigate('/timer', {
+      navigate(`/timer/${id}`, {
           state: {
               recipe: recipe,
               coffeeAmount: coffeeValue,

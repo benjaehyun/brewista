@@ -40,7 +40,7 @@ export default function App() {
           <Route path="/recipes" element={<RecipesIndexPage />} />
           <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
           <Route path="/calculate/:id" element={<CalculatePage />} />
-          <Route path="/timer" element={<TimerPage />} />
+          <Route path="/timer/:id" element={<TimerPage />} />
           <Route path="/auth" element={<AuthPage setUser={setUser} />} />
           {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
           {user ? 
