@@ -93,7 +93,7 @@ export default function AnimatedTimeline({ steps }) {
                         <div className="timeline-node w-6 h-6 rounded-full bg-blue-500"></div>
 
                         {/* Description Text */}
-                        <p className="timeline-text absolute left-8 text-left text-sm text-gray-800 p-2 bg-blue-100 rounded-lg shadow whitespace-nowrap overflow-hidden text-ellipsis">
+                        <p className="timeline-text absolute left-8 text-left text-sm text-gray-800 p-2 bg-blue-100 rounded-lg shadow whitespace-nowrap overflow-hidden text-ellipsis max-w-44 sm:max-w-max">
                             {step.description}
                         </p>
                     </div>

@@ -2,7 +2,7 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faWeight, faThermometerHalf, faBlender } from '@fortawesome/free-solid-svg-icons';
 
-const PreparationOverview = ({ recipe, coffeeAmount, brewVolume, onStartBrew }) => {
+export default function PreparationOverview ({ recipe, coffeeAmount, brewVolume, onStartBrew }) {
   if (!recipe || !coffeeAmount || !brewVolume) {
     return <div className="text-red-500">Error: Missing recipe information. Please go back and try again.</div>;
   }
@@ -76,40 +76,43 @@ const PreparationOverview = ({ recipe, coffeeAmount, brewVolume, onStartBrew }) 
   const instructions = generateInstructions(recipe, coffeeAmount, brewVolume);
 
   return (
-    <div className="max-w-2xl mx-auto p-6 bg-white shadow-lg rounded-lg">
-      <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">{recipe.name}</h1>
-      
-      <div className="mb-8">
-        <h2 className="text-2xl font-semibold mb-4 text-gray-700">Preparation Instructions</h2>
-        <ul className="space-y-4">
-          {instructions.map((instruction, index) => (
-            <li key={index} className="flex items-start">
-              <span className="mr-4 mt-1">
-                <FontAwesomeIcon icon={instruction.icon} className="text-blue-500" />
-              </span>
-              <span className="text-gray-600">{instruction.text}</span>
-            </li>
-          ))}
-        </ul>
-      </div>
-
-      {recipe.journal && (
-        <div className="mb-6">
-          <h3 className="text-xl font-semibold mb-2 text-gray-700">Recipe Notes</h3>
-          <p className="text-gray-600 italic">{recipe.journal}</p>
+    <div className="w-full bg-white shadow-lg rounded-lg overflow-hidden">
+      <div className="p-6">
+        <h1 className="text-3xl font-bold mb-6 text-center text-gray-800">{recipe.name}</h1>
+        
+        <div className="mb-8">
+          <h2 className="text-2xl font-semibold mb-4 text-gray-700">Preparation Instructions</h2>
+          <ul className="space-y-4">
+            {instructions.map((instruction, index) => (
+              <li key={index} className="flex items-start">
+                <span className="mr-4 mt-1">
+                  <FontAwesomeIcon icon={instruction.icon} className="text-blue-500" />
+                </span>
+                <span className="text-gray-600">{instruction.text}</span>
+              </li>
+            ))}
+          </ul>
         </div>
-      )}
 
-      <div className="text-center">
-        <button
-          onClick={onStartBrew}
-          className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
-        >
-          Continue
-        </button>
+        <div className="text-center">
+          <button
+            onClick={onStartBrew}
+            className="px-6 py-3 bg-blue-500 hover:bg-blue-600 text-white font-bold rounded-lg shadow-md transition duration-300 ease-in-out transform hover:scale-105 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:ring-opacity-50"
+          >
+            Continue
+          </button>
+        </div>
+
+        {recipe.journal && (
+          <div className="my-6">
+            <h3 className="text-xl font-semibold mb-2 text-gray-700">Recipe Notes</h3>
+            <p className="text-gray-600 italic">{recipe.journal}</p>
+          </div>
+        )}
+
       </div>
     </div>
   );
 };
 
-export default PreparationOverview;
+
