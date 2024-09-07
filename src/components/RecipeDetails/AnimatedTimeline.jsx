@@ -1,8 +1,14 @@
 import React, { useEffect, useRef } from 'react';
 import { gsap } from 'gsap';
+import { useMediaQuery } from 'react-responsive';
+import useStepDescriptionManager from './useStepDescriptionManager';
+import MobileBottomSheet from './MobileBottomSheet';
+import DescriptionModal from './DescriptionModal';
 
 export default function AnimatedTimeline({ steps }) {
     const timelineRef = useRef(null);
+    const { expandedStepIndex, expandStep, closeExpanded } = useStepDescriptionManager(steps);
+    const isMobile = useMediaQuery({ maxWidth: 768 });
 
     useEffect(() => {
         const nodes = timelineRef.current.querySelectorAll('.timeline-node');
@@ -58,6 +64,8 @@ export default function AnimatedTimeline({ steps }) {
     }, [steps]);
     
 
+    
+
     // Configuration for line lengths
     const MIN_LINE_HEIGHT = 50; // in pixels
     const MAX_LINE_HEIGHT = 150; // in pixels
@@ -93,7 +101,13 @@ export default function AnimatedTimeline({ steps }) {
                         <div className="timeline-node w-6 h-6 rounded-full bg-blue-500"></div>
 
                         {/* Description Text */}
-                        <p className="timeline-text absolute left-8 text-left text-sm text-gray-800 p-2 bg-blue-100 rounded-lg shadow whitespace-nowrap overflow-hidden text-ellipsis max-w-44 sm:max-w-max">
+                        {/* <p className="timeline-text absolute left-8 text-left text-sm text-gray-800 p-2 bg-blue-100 rounded-lg shadow whitespace-nowrap overflow-hidden text-ellipsis max-w-44 sm:max-w-max">
+                            {step.description}
+                        </p> */}
+                        <p 
+                            className="timeline-text absolute left-8 text-left text-sm text-gray-800 p-2 bg-blue-100 rounded-lg shadow whitespace-nowrap overflow-hidden text-ellipsis max-w-44 sm:max-w-max cursor-pointer"
+                            onClick={() => expandStep(index)}
+                        >
                             {step.description}
                         </p>
                     </div>
@@ -130,6 +144,20 @@ export default function AnimatedTimeline({ steps }) {
                     </p>
                 </div>
             </div>
+
+            {expandedStepIndex !== null && (
+                isMobile ? (
+                    <MobileBottomSheet
+                        step={steps[expandedStepIndex]}
+                        onClose={closeExpanded}
+                    />
+                ) : (
+                    <DescriptionModal
+                        step={steps[expandedStepIndex]}
+                        onClose={closeExpanded}
+                    />
+                )
+            )}
         </div>
     );
 }

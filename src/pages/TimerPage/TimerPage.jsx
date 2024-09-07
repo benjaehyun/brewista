@@ -121,7 +121,7 @@ export default function TimerPage() {
                         autoStartTimer={autoStartTimer}
                         autoNextStep={autoNextStep}
                     />
-                    {currentStep === stepsToUse.length - 1 && (
+                    {currentStep === stepsToUse.length && (
                         <FinalizationComponent />
                     )}
                 </>
