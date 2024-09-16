@@ -63,7 +63,7 @@ export default function CalculatePage() {
         const updatedSteps = steps.map((step) => ({
             ...step,
             waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
-            time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined),
+            time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed() : undefined),
         }));
 
         return { calculatedValue, scalingFactor, calculatedSteps: updatedSteps };
