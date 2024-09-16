@@ -1,31 +1,90 @@
-import React, { useState, useEffect, useCallback } from 'react';
-import { useParams } from 'react-router-dom';
+import React, { useState, useEffect, useCallback, useMemo } from 'react';
+import { useParams, useNavigate } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
-import { useNavigate } from 'react-router-dom';
+
+const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 
 export default function CalculatePage() {
-    const navigate = useNavigate() 
+    const navigate = useNavigate();
     const { id } = useParams();
     const [recipe, setRecipe] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
-    const [inputType, setInputType] = useState('coffeeAmount'); // or 'brewVolume'
+    const [inputType, setInputType] = useState('coffeeAmount');
     const [userInput, setUserInput] = useState('');
-    const [calculatedValue, setCalculatedValue] = useState(null);
-    const [scalingFactor, setScalingFactor] = useState(1); // Default scaling factor of 1
-    const [calculatedSteps, setCalculatedSteps] = useState([]);
+    const [calculationResult, setCalculationResult] = useState({
+        calculatedValue: null,
+        scalingFactor: 1,
+        calculatedSteps: []
+    });
+
+    const calculateValues = useCallback((input, type, recipeData) => {
+        if (!recipeData || !input) {
+            return {
+                calculatedValue: null,
+                scalingFactor: 1,
+                calculatedSteps: recipeData ? recipeData.steps : []
+            };
+        }
+
+        const { coffeeAmount: originalCoffeeAmount, steps, type: recipeType } = recipeData;
+
+        const originalBrewVolume = steps.reduce((total, step) => {
+            return step.waterAmount ? total + step.waterAmount : total;
+        }, 0);
+
+        let calculatedValue;
+        let scalingFactor = 1;
+
+        if (recipeType === 'Ratio') {
+            const ratio = originalBrewVolume / originalCoffeeAmount;
+            if (type === 'coffeeAmount') {
+                calculatedValue = input * ratio;
+                scalingFactor = input / originalCoffeeAmount;
+            } else if (type === 'brewVolume') {
+                calculatedValue = input / ratio;
+                scalingFactor = input / originalBrewVolume;
+            }
+        } else {
+            if (type === 'coffeeAmount') {
+                scalingFactor = input / originalCoffeeAmount;
+                calculatedValue = scalingFactor * originalBrewVolume;
+            } else if (type === 'brewVolume') {
+                scalingFactor = input / originalBrewVolume;
+                calculatedValue = scalingFactor * originalCoffeeAmount;
+            }
+        }
+
+        const updatedSteps = steps.map((step) => ({
+            ...step,
+            waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
+            time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined),
+        }));
+
+        return { calculatedValue, scalingFactor, calculatedSteps: updatedSteps };
+    }, []);
+
+    const debouncedCalculate = useCallback(
+        debounce((input, type, recipe) => {
+            const result = calculateValues(input, type, recipe);
+            setCalculationResult(result);
+        }, 500),
+        [calculateValues]
+    );
 
     useEffect(() => {
-        async function loadRecipe() {
+        async function loadRecipeAndCalculate() {
             try {
                 const fetchedRecipe = await fetchRecipeById(id);
                 setRecipe(fetchedRecipe);
                 setIsLoading(false);
+                const initialResult = calculateValues('', inputType, fetchedRecipe);
+                setCalculationResult(initialResult);
             } catch (error) {
                 console.error('Failed to fetch recipe:', error);
                 setError('Failed to load recipe');
@@ -33,67 +92,15 @@ export default function CalculatePage() {
             }
         }
 
-        loadRecipe();
-    }, [id]);
+        loadRecipeAndCalculate();
+    // }, [id, inputType, calculateValues]);
+    }, [id, calculateValues]);
 
-    // Debounced calculation function
-    const debouncedCalculate = useCallback(
-        debounce((input, type) => {
-            if (!recipe || !input) {
-                setCalculatedValue(null);
-                setScalingFactor(1);
-                setCalculatedSteps(recipe ? recipe.steps : []);
-                return;
-            }
-
-            const { coffeeAmount: originalCoffeeAmount, steps, type: recipeType } = recipe;
-
-            const originalBrewVolume = steps.reduce((total, step) => {
-                return step.waterAmount ? total + step.waterAmount : total;
-            }, 0);
-
-            let calculatedValue;
-            let scalingFactor = 1;
-
-            if (recipeType === 'Ratio') {
-                const ratio = originalBrewVolume / originalCoffeeAmount;
-                if (type === 'coffeeAmount') {
-                    calculatedValue = input * ratio;
-                    scalingFactor = input / originalCoffeeAmount;
-                } else if (type === 'brewVolume') {
-                    calculatedValue = input / ratio;
-                    scalingFactor = input / originalBrewVolume;
-                }
-            } else {
-                if (type === 'coffeeAmount') {
-                    scalingFactor = input / originalCoffeeAmount;
-                    calculatedValue = scalingFactor * originalBrewVolume;
-                } else if (type === 'brewVolume') {
-                    scalingFactor = input / originalBrewVolume;
-                    calculatedValue = scalingFactor * originalCoffeeAmount;
-                }
-            }
-
-            setCalculatedValue(calculatedValue);
-            setScalingFactor(scalingFactor);
-
-            // Calculate scaled steps
-            const updatedSteps = steps.map((step) => ({
-                ...step,
-                waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
-                time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed(2) : undefined), // Keep bloom time unchanged
-            }));
-
-            setCalculatedSteps(updatedSteps);
-
-        }, 500), // 500ms debounce time
-        [recipe]
-    );
-
-    // Trigger the debounced calculation when user input or input type changes
     useEffect(() => {
-        debouncedCalculate(userInput, inputType);
-    }, [userInput, inputType, debouncedCalculate]);
+        if (recipe) {
+            debouncedCalculate(userInput, inputType, recipe);
+        }
+    }, [userInput, inputType, recipe, debouncedCalculate]);
 
     const handleInputChange = (e) => {
         setUserInput(e.target.value);
@@ -103,43 +110,41 @@ export default function CalculatePage() {
         setInputType(checked ? 'brewVolume' : 'coffeeAmount');
     };
 
-    if (isLoading) {
-        return <div>Loading...</div>;
-    }
-
-    if (error) {
-        return <div>{error}</div>;
-    }
-
-    if (!recipe) {
-        return <div>Recipe not found</div>;
-    }
-
-    // Use user input if available, otherwise use default values from the recipe
-    // const inputToUse = userInput || recipe.CoffeeAmount || recipe.BrewVolume;
-    // const calculatedValueToUse = calculatedValue || recipe.defaultBrewVolume || recipe.defaultCoffeeAmount;
-    // const coffeeValue = inputType === 'coffeeAmount' && calculatedValue !== null ? calculatedValue : recipe.coffeeAmount;
     const handleStartBrew = () => {
-      let coffeeValue; 
-      if (userInput !== '' && inputType === 'coffeeAmount') {
-        coffeeValue = userInput
-      } else if (calculatedValue !== null && inputType === 'brewVolume') {
-        coffeeValue = calculatedValue
-      } else {
-        coffeeValue = recipe.coffeeAmount
-      }
-      const stepsToUse = calculatedSteps.length > 0 ? calculatedSteps : recipe.steps;
+        let coffeeValue;
+        if (userInput !== '' && inputType === 'coffeeAmount') {
+            coffeeValue = userInput;
+        } else if (calculationResult.calculatedValue !== null && inputType === 'brewVolume') {
+            coffeeValue = calculationResult.calculatedValue;
+        } else {
+            coffeeValue = recipe.coffeeAmount;
+        }
 
-      navigate(`/timer/${id}`, {
-          state: {
-              recipe: recipe,
-              coffeeAmount: coffeeValue,
-              brewVolume: calculatedValue !== null && inputType === 'coffeeAmount' ? calculatedValue : originalBrewVolume,
-              stepsToUse, 
-              scalingFactor
-          },
-      });
+        const originalBrewVolume = recipe.steps.reduce((total, step) => {
+            return step.waterAmount ? total + step.waterAmount : total;
+        }, 0);
+
+        navigate(`/timer/${id}`, {
+            state: {
+                recipe: recipe,
+                coffeeAmount: coffeeValue,
+                brewVolume: calculationResult.calculatedValue !== null && inputType === 'coffeeAmount' ? calculationResult.calculatedValue : originalBrewVolume,
+                stepsToUse: calculationResult.calculatedSteps.length > 0 ? calculationResult.calculatedSteps : recipe.steps,
+                scalingFactor: calculationResult.scalingFactor
+            },
+        });
     };
+
+    const stepsToRender = useMemo(() => {
+        return calculationResult.calculatedSteps.length > 0
+            ? calculationResult.calculatedSteps
+            : recipe?.steps || [];
+    }, [calculationResult.calculatedSteps, recipe]);
+
+
+    if (isLoading) return <div>Loading...</div>;
+    if (error) return <div>{error}</div>;
+    if (!recipe) return <div>Recipe not found</div>;
 
     const originalBrewVolume = recipe.steps.reduce((total, step) => {
         return step.waterAmount ? total + step.waterAmount : total;
@@ -151,12 +156,10 @@ export default function CalculatePage() {
 
             <div className="mb-4 text-center">
                 {recipe.type === 'Ratio' ? (
-                    <>
-                        <p className="mb-2 flex justify-center items-center">
-                            <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
-                            Brew Ratio: {recipe.coffeeAmount}:{originalBrewVolume}
-                        </p>
-                    </>
+                    <p className="mb-2 flex justify-center items-center">
+                        <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
+                        Brew Ratio: {recipe.coffeeAmount}:{originalBrewVolume}
+                    </p>
                 ) : (
                     <>
                         <p className="mb-2 flex justify-center items-center">
@@ -176,10 +179,10 @@ export default function CalculatePage() {
                 <Switch
                     onChange={handleSwitchChange}
                     checked={inputType === 'brewVolume'}
-                    offColor="#8B4513"      // Brown color
-                    onColor="#00008B"       // Dark blue color
-                    offHandleColor="#FFFFFF" // Darker brown color
-                    onHandleColor="#FFFFFF"  // Lighter blue color
+                    offColor="#8B4513"
+                    onColor="#00008B"
+                    offHandleColor="#FFFFFF"
+                    onHandleColor="#FFFFFF"
                     uncheckedIcon={false}
                     checkedIcon={false}
                 />
@@ -191,11 +194,11 @@ export default function CalculatePage() {
                     <div className="mb-2">
                         <label className="block mb-2 text-center">Enter Desired Coffee Amount (g):</label>
                         <input
-                          type="number"
-                          value={userInput}
-                          onChange={handleInputChange}
-                          className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
-                      />
+                            type="number"
+                            value={userInput}
+                            onChange={handleInputChange}
+                            className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
+                        />
                     </div>
                 ) : (
                     <div className="mb-2">
@@ -204,7 +207,7 @@ export default function CalculatePage() {
                             type="number"
                             value={userInput}
                             onChange={handleInputChange}
-                            className="p-2 border rounded w-full text-center"
+                            className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
                         />
                     </div>
                 )}
@@ -220,32 +223,31 @@ export default function CalculatePage() {
                 Start Brew
             </button>
 
-
             <div className="my-4 flex justify-center items-center">
                 <div>
                     {inputType === 'coffeeAmount' ? (
                         <p className="text-lg font-semibold mr-4">
                             <FontAwesomeIcon icon={faTint} className="mr-2 text-blue-600" />
-                            Calculated Brew Volume: {calculatedValue ? `${calculatedValue.toFixed(2)} mL` : 'N/A'}
+                            Calculated Brew Volume: {calculationResult.calculatedValue ? `${calculationResult.calculatedValue.toFixed(2)} mL` : 'N/A'}
                         </p>
                     ) : (
                         <p className="text-lg font-semibold mr-4">
                             <FontAwesomeIcon icon={faCoffee} className="mr-2 text-yellow-600" />
-                            Calculated Coffee Amount: {calculatedValue ? `${calculatedValue.toFixed(2)} g` : 'N/A'}
+                            Calculated Coffee Amount: {calculationResult.calculatedValue ? `${calculationResult.calculatedValue.toFixed(2)} g` : 'N/A'}
                         </p>
                     )}
                 </div>
                 <div>
                     <p className="text-lg font-semibold">
                         <FontAwesomeIcon icon={faEquals} className="mr-2 text-gray-600" />
-                        Scaling Factor: {scalingFactor.toFixed(2)}
+                        Scaling Factor: {calculationResult.scalingFactor.toFixed(2)}
                     </p>
                 </div>
             </div>
 
             <h2 className="text-2xl font-semibold mb-4 text-center">Steps</h2>
             <div className="mb-8">
-                <AnimatedTimeline steps={calculatedSteps.length > 0 ? calculatedSteps : recipe.steps} />
+                <MemoizedAnimatedTimeline steps={stepsToRender} />
             </div>
         </div>
     );

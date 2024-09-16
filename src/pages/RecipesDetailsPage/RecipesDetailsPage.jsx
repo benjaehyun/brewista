@@ -1,9 +1,11 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
 import { fetchRecipeById } from '../../utilities/recipe-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faVideo, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
+
+const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 
 export default function RecipeOverviewPage() {
     const { id } = useParams();
@@ -26,6 +28,36 @@ export default function RecipeOverviewPage() {
 
         loadRecipe();
     }, [id]);
+
+    const brewVolume = useMemo(() => {
+        if (!recipe) return 0;
+        return recipe.steps.reduce((total, step) => {
+            return step.waterAmount ? total + step.waterAmount : total;
+        }, 0);
+    }, [recipe]);
+
+    const getGearIcon = useCallback((gearType) => {
+        switch (gearType) {
+            case 'Brewer':
+                return (
+                    <FontAwesomeIcon
+                        icon={faVideo}
+                        className="mr-2"
+                        style={{ transform: 'rotate(270deg)' }}
+                    />
+                );
+            case 'Paper':
+                return <FontAwesomeIcon icon={faLayerGroup} className="mr-2" />;
+            case 'Grinder':
+                return <FontAwesomeIcon icon={faBlender} className="mr-2" />;
+            case 'Kettle':
+                return <FontAwesomeIcon icon={faTint} className="mr-2" />;
+            case 'Scale':
+                return <FontAwesomeIcon icon={faBalanceScale} className="mr-2" />;
+            default:
+                return <FontAwesomeIcon icon={faCubesStacked} className="mr-2" />;
+        }
+    }, []);
 
     if (isLoading) {
         return <div>Loading...</div>;
@@ -55,41 +87,13 @@ export default function RecipeOverviewPage() {
         gear
     } = recipe;
 
-    const brewVolume = steps.reduce((total, step) => {
-        return step.waterAmount ? total + step.waterAmount : total;
-    }, 0);
-
-    const getGearIcon = (gearType) => {
-        switch (gearType) {
-            case 'Brewer':
-                return (
-                    <FontAwesomeIcon
-                        icon={faVideo}
-                        className="mr-2"
-                        style={{ transform: 'rotate(270deg)' }}
-                    />
-                );
-            case 'Paper':
-                return <FontAwesomeIcon icon={faLayerGroup} className="mr-2" />;
-            case 'Grinder':
-                return <FontAwesomeIcon icon={faBlender} className="mr-2" />;
-            case 'Kettle':
-                return <FontAwesomeIcon icon={faTint} className="mr-2" />;
-            case 'Scale':
-                return <FontAwesomeIcon icon={faBalanceScale} className="mr-2" />;
-            default:
-                return <FontAwesomeIcon icon={faCubesStacked} className="mr-2" />;
-        }
-    };
-
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
             <h1 className="text-3xl font-bold mb-4">{name}</h1>
-            {/* Brew Recipe Button */}
             <div className="flex justify-end w-full my-4">
-                    <Link to={`/calculate/${id}`} className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition">
-                        Brew Recipe
-                    </Link>
+                <Link to={`/calculate/${id}`} className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition">
+                    Brew Recipe
+                </Link>
             </div>
             <div className="flex flex-wrap gap-4 mb-4 items-center">
                 <div className="flex items-center bg-blue-100 text-blue-800 p-3 rounded-lg shadow-md sm:p-[1.375rem]">
@@ -99,8 +103,6 @@ export default function RecipeOverviewPage() {
                         <p className="text-sm">{userID.username}</p>
                     </div>
                 </div>
-
-                
 
                 <div className="flex items-center bg-yellow-100 text-yellow-800 p-3 rounded-lg shadow-md sm:p-[1.375rem]">
                     <FontAwesomeIcon icon={type === 'Ratio' ? faBalanceScale : faRuler} className="mr-2" />
@@ -176,8 +178,6 @@ export default function RecipeOverviewPage() {
                         {grindSize.description && <p className="text-sm">Description: {grindSize.description}</p>}
                     </div>
                 </div>
-
-                
             </div>
 
             {tastingNotes.length > 0 && (
@@ -218,8 +218,9 @@ export default function RecipeOverviewPage() {
 
             <h2 className="text-2xl font-semibold mb-4">Steps</h2>
             <div className="mb-8">
-                {/* Insert the AnimatedTimeline component here */}
-                <AnimatedTimeline steps={steps} />
+                {!isLoading && recipe?.steps && (
+                    <MemoizedAnimatedTimeline steps={recipe.steps} />
+                )}
             </div>
 
             {journal && (
@@ -231,7 +232,6 @@ export default function RecipeOverviewPage() {
                     </div>
                 </div>
             )}
-
         </div>
     );
 }
