@@ -46,7 +46,11 @@ async function addRecipe(req, res) {
             type
         });
         const savedRecipe = await newRecipe.save();
-        res.status(201).json(savedRecipe);
+        res.status(201).json({
+            success: true,
+            message: 'Recipe created successfully',
+            recipeId: savedRecipe._id
+        });
     } catch (error) {
         console.error('Error adding recipe:', error);
         res.status(500).json({ error: 'Internal server error' });

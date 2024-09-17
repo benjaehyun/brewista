@@ -14,6 +14,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import GrindSizeInput from '../../components/RecipeCreation/GrindSizeInput';
 import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
 import JournalInput from '../../components/RecipeCreation/JournalInput';
+import { useNavigate } from 'react-router-dom';
 
 function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
@@ -66,6 +67,8 @@ export default function RecipeCreationPage() {
     const [coffeeBeanList, setCoffeeBeanList] = useState([]);
     const [showGearAdditionModal, setShowGearAdditionModal] = useState(false);
     const [showCoffeeAdditionModal, setShowCoffeeAdditionModal] = useState(false);
+
+    const navigate = useNavigate()
 
     useEffect(() => {
         async function loadResources() {
@@ -130,7 +133,10 @@ export default function RecipeCreationPage() {
 
         try {
             console.log('Submitting recipe:', recipeData);
-            await addRecipe(recipeData);
+            const result = await addRecipe(recipeData);
+            if (result.success && result.recipeId) {
+                navigate(`/recipes/${result.recipeId}`)
+            }
         } catch (error) {
             console.error('Error submitting recipe:', error);
         }
