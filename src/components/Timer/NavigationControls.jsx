@@ -7,7 +7,7 @@ export default function NavigationControls() {
   const { timerState, toggleTimer, restartStep, onNextStep, onPreviousStep, currentStepIndex, stepsToUse } = useBrewStep();
 
   const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === stepsToUse.length - 1;
+  const isLastStep = currentStepIndex === stepsToUse.length;
 
   return (
     <div className="flex justify-between items-center h-16 px-4 bg-gray-100">

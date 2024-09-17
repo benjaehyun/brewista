@@ -15,6 +15,7 @@ export default function TimerPage() {
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);
+    const [isBrewFinished, setIsBrewFinished] = useState(false);
     const [autoStartTimer, setAutoStartTimer] = useState(true);
     const [autoNextStep, setAutoNextStep] = useState(true);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
@@ -34,6 +35,8 @@ export default function TimerPage() {
     const handleNextStep = () => {
         if (currentStep < stepsToUse.length - 1) {
             setCurrentStep(currentStep + 1);
+        } else {
+            setIsBrewFinished(true);
         }
     };
 
@@ -110,21 +113,23 @@ export default function TimerPage() {
                     brewVolume={brewVolume}
                     onStartBrew={handleStartBrew}
                 />
+            ) : isBrewFinished ? (
+                <FinalizationComponent
+                    recipe={recipe}
+                    coffeeAmount={coffeeAmount}
+                    brewVolume={brewVolume}
+                    totalBrewTime={stepsToUse.reduce((total, step) => total + (step.time || 0), 0)}
+                />
             ) : (
-                <>
-                    <BrewSteps
-                        step={stepsToUse[currentStep]}
-                        onNextStep={handleNextStep}
-                        onPreviousStep={handlePreviousStep}
-                        stepsToUse={stepsToUse}
-                        currentStepIndex={currentStep}
-                        autoStartTimer={autoStartTimer}
-                        autoNextStep={autoNextStep}
-                    />
-                    {currentStep === stepsToUse.length && (
-                        <FinalizationComponent />
-                    )}
-                </>
+                <BrewSteps
+                    step={stepsToUse[currentStep]}
+                    onNextStep={handleNextStep}
+                    onPreviousStep={handlePreviousStep}
+                    stepsToUse={stepsToUse}
+                    currentStepIndex={currentStep}
+                    autoStartTimer={autoStartTimer}
+                    autoNextStep={autoNextStep}
+                />
             )}
         </div>
     );
