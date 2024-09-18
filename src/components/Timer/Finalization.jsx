@@ -3,7 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { getUser } from '../../utilities/users-service';
 import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
 
-const FinalizationComponent = ({ recipe, calculatedRecipe }) => {
+export default function FinalizationComponent ({ recipe, calculatedRecipe }) {
   const navigate = useNavigate();
   const [selectedRecipe, setSelectedRecipe] = useState('calculated');
   const currentUser = getUser();
@@ -11,10 +11,10 @@ const FinalizationComponent = ({ recipe, calculatedRecipe }) => {
 
   const handleEditOrSave = () => {
     if (selectedRecipe === 'original') {
-        navigate(`/edit-recipe/${recipe._id}`);
+        navigate(`/recipes/edit/${recipe._id}`);
     } else {
         saveCalculatedRecipe(calculatedRecipe)
-        navigate(`/edit-recipe/${recipe._id}`, { 
+        navigate(`/recipes/edit/${recipe._id}`, { 
         state: { calculatedRecipe }
       });
     }
@@ -77,4 +77,3 @@ const FinalizationComponent = ({ recipe, calculatedRecipe }) => {
   );
 };
 
-export default FinalizationComponent;

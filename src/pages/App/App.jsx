@@ -17,6 +17,7 @@ import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
 import MyRecipesPage from "../MyRecipesPage/MyRecipesPage";
 import CalculatePage from "../CalculatePage/CalculatePage";
 import TimerPage from "../TimerPage/TimerPage";
+import RecipesEditPage from "../RecipesEditPage/RecipesEditPage"
 
 export default function App() {
   const [user, setUser] = useState(getUser());
@@ -39,6 +40,7 @@ export default function App() {
           <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
           <Route path="/recipes" element={<RecipesIndexPage />} />
           <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
+          <Route path="/recipes/edit/:id" element={<RecipesEditPage />} />
           <Route path="/calculate/:id" element={<CalculatePage />} />
           <Route path="/timer/:id" element={<TimerPage />} />
           <Route path="/auth" element={<AuthPage setUser={setUser} />} />
