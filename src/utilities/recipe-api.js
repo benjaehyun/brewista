@@ -14,3 +14,7 @@ export function fetchRecipeById (id) {
 export function addRecipe (recipe) {
     return sendRequest(`${BASE_URL}/add`, 'POST', recipe)
 }
+
+export function updateRecipe (recipe) {
+    return sendRequest(`${BASE_URL}/update`, 'POST', recipe)
+}
