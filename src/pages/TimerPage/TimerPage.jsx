@@ -6,12 +6,20 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewSteps from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
+import { clearCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 export default function TimerPage() {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     const { recipe, coffeeAmount, brewVolume, stepsToUse, scalingFactor } = location.state || {};
+
+    const calculatedRecipe = {
+        ...recipe, 
+        coffeeAmount: coffeeAmount,
+        steps: stepsToUse,
+        type: "Explicit"
+    }
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);
@@ -29,6 +37,7 @@ export default function TimerPage() {
     }, [recipe, stepsToUse, navigate, id]);
 
     const handleStartBrew = () => {
+        clearCalculatedRecipe()
         setIsBrewStarted(true);
     };
 
@@ -116,9 +125,7 @@ export default function TimerPage() {
             ) : isBrewFinished ? (
                 <FinalizationComponent
                     recipe={recipe}
-                    coffeeAmount={coffeeAmount}
-                    brewVolume={brewVolume}
-                    totalBrewTime={stepsToUse.reduce((total, step) => total + (step.time || 0), 0)}
+                    calculatedRecipe={calculatedRecipe}
                 />
             ) : (
                 <BrewSteps

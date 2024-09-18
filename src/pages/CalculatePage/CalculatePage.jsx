@@ -62,8 +62,8 @@ export default function CalculatePage() {
 
         const updatedSteps = steps.map((step) => ({
             ...step,
-            waterAmount: step.waterAmount ? (step.waterAmount * scalingFactor).toFixed(2) : undefined,
-            time: step.isBloom ? step.time : (step.time ? (step.time * Math.pow(scalingFactor, 0.35)).toFixed() : undefined),
+            waterAmount: step.waterAmount ? parseFloat((step.waterAmount * scalingFactor).toFixed(2)) : undefined,
+            time: step.isBloom ? step.time : (step.time ? parseFloat((step.time * Math.pow(scalingFactor, 0.35)).toFixed()) : undefined),
         }));
 
         return { calculatedValue, scalingFactor, calculatedSteps: updatedSteps };
@@ -113,7 +113,7 @@ export default function CalculatePage() {
     const handleStartBrew = () => {
         let coffeeValue;
         if (userInput !== '' && inputType === 'coffeeAmount') {
-            coffeeValue = userInput;
+            coffeeValue = parseFloat(userInput);
         } else if (calculationResult.calculatedValue !== null && inputType === 'brewVolume') {
             coffeeValue = calculationResult.calculatedValue;
         } else {
