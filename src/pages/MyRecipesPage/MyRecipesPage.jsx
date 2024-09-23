@@ -1,5 +1,5 @@
 import React, {useEffect, useState} from 'react'
-import { fetchCurrentUserRecipes } from '../../utilities/recipe-api'
+import { fetchCurrentUserRecipes } from '../../services/recipe-api'
 import RecipeCard from '../../components/RecipeIndex/RecipeCard'
 
 export default function MyRecipesPage() {

@@ -1,14 +1,11 @@
 import { useState } from 'react'; 
-import { useNavigate } from 'react-router-dom';
-import * as usersServices from '../../utilities/users-service';
 
-export default function LogInForm({setUser}) {
+export default function LogInForm({ onSubmit }) {
     const [credentials, setCredentials] = useState({
         email: '', 
         password: ''
     });
     const [error, setError] = useState('');
-    const navigate = useNavigate()
 
     function handleChange(e) {
         setCredentials({...credentials, [e.target.name]: e.target.value});
@@ -18,10 +15,8 @@ export default function LogInForm({setUser}) {
     async function handleSubmit(e) {
         e.preventDefault();
         try {
-            const user = await usersServices.login(credentials);
-            setUser(user);
-            navigate('/')
-        } catch {
+            await onSubmit(credentials);
+        } catch (err) {
             setError('Login Failed - Try Again');
         }
     }

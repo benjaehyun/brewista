@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as relationApi from "../../utilities/relation-api"
+import * as relationApi from "../../services/relation-api"
 
 export default function FollowersModal({ isOpen, onClose, profileId }) {
   const [followers, setFollowers] = useState([]);

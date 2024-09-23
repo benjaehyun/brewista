@@ -1,11 +1,16 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
+import { useAuth } from '../../utilities/auth-context';
+import { useAuthModal } from '../../utilities/auth-modal-context';
 
-const ProtectedLink = ({ to, isProtected, children, protectedNavigate, className }) => {
+const ProtectedLink = ({ to, children, className }) => {
+    const { user } = useAuth();
+    const { openLoginModal } = useAuthModal();
+
     const handleClick = (e) => {
-        if (isProtected) {
-            e.preventDefault(); // Prevent default link behavior
-            protectedNavigate(to, isProtected);
+        if (!user) {
+            e.preventDefault();
+            openLoginModal();
         }
     };
 

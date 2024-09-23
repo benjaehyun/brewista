@@ -1,64 +1,93 @@
-import {useState, useEffect} from "react";
+import React, { useState } from 'react';
 import { Routes, Route } from "react-router-dom";
-import { getUser } from "../../utilities/users-service";
-import AuthPage from "../AuthPage/AuthPage";
+import { AuthProvider, useAuth } from "../../utilities/auth-context";
 import NavBar from "../../components/NavBar/NavBar";
 import NotFoundPage from "../NotFoundPage/NotFoundPage";
 import HomePageUnauthenticated from "../HomePage/HomePageUnauthenticated";
-import ScrollToTop from "../../utilities/scroll-to-top";
+import ScrollToTop from "../../services/scroll-to-top";
 import RecipesIndexPage from "../RecipesIndexPage/RecipesIndexPage";
 import RecipesDetailsPage from "../RecipesDetailsPage/RecipesDetailsPage";
 import SavedRecipesIndex from "../SavedRecipesIndex/SavedRecipesIndex";
-import LogInModal from "../../components/LogInModal/LogInModal";
-import { useProtectedNavigation } from "./useProtectedNavigation";
+import LoginModal from "../../components/LoginModal/LoginModal";
 import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
 import MyRecipesPage from "../MyRecipesPage/MyRecipesPage";
 import CalculatePage from "../CalculatePage/CalculatePage";
 import TimerPage from "../TimerPage/TimerPage";
-import RecipesEditPage from "../RecipesEditPage/RecipesEditPage"
+import RecipesEditPage from "../RecipesEditPage/RecipesEditPage";
+import ProtectedRoute from "./ProtectedRoute";
+import { AuthModalProvider, useAuthModal } from '../../utilities/auth-modal-context';
 
-export default function App() {
-  const [user, setUser] = useState(getUser());
-  const { isLoginModalOpen, setLoginModalOpen, protectedNavigate } = useProtectedNavigation(!!user);
-
-  useEffect(() => {
-    if (!user) {
-      setLoginModalOpen(false);
-    }
-  }, [user]);
-
+function AppContent() {
+  const { user } = useAuth();
+  const { isLoginModalOpen, openLoginModal, closeLoginModal} = useAuthModal()
 
   return (
     <main className="App text-center">
       <ScrollToTop />
-      <NavBar user={user} setUser={setUser} protectedNavigate={protectedNavigate} />
+      <NavBar />
+      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
       <div className="mt-16 md:mt-[4.75rem]">
-        <LogInModal isOpen={isLoginModalOpen} onClose={() => setLoginModalOpen(false)} />
         <Routes>
-          <Route path="/" element={ user ? <HomePageAuthenticated /> : <HomePageUnauthenticated /> } />
+          <Route path="/" element={user ? <HomePageAuthenticated /> : <HomePageUnauthenticated />} />
           <Route path="/recipes" element={<RecipesIndexPage />} />
           <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
-          <Route path="/recipes/edit/:id" element={<RecipesEditPage />} />
+          <Route 
+            path="/recipes/edit/:id" 
+            element={
+              <ProtectedRoute >
+                <RecipesEditPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="/calculate/:id" element={<CalculatePage />} />
           <Route path="/timer/:id" element={<TimerPage />} />
-          <Route path="/auth" element={<AuthPage setUser={setUser} />} />
-          {/* <Route path="/myrecipes" element={<ProtectedRoute><SavedRecipesIndex /></ProtectedRoute>} /> */}
-          {user ? 
-          <>
-            <Route path="/myrecipes" element={<MyRecipesPage />} />
-            <Route path="/savedrecipes" element={<SavedRecipesIndex />} />
-            <Route path="/profile" element={<ProfilePage />} />
-            <Route path="/recipes/create" element={<RecipeCreationPage />} />
-          </>
-          :
-          <Route path="/notfound" element={<NotFoundPage />} />
-          }
+          <Route 
+            path="/myrecipes" 
+            element={
+              <ProtectedRoute>
+                <MyRecipesPage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/savedrecipes" 
+            element={
+              <ProtectedRoute>
+                <SavedRecipesIndex />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/profile" 
+            element={
+              <ProtectedRoute>
+                <ProfilePage />
+              </ProtectedRoute>
+            } 
+          />
+          <Route 
+            path="/recipes/create" 
+            element={
+              <ProtectedRoute>
+                <RecipeCreationPage />
+              </ProtectedRoute>
+            } 
+          />
           <Route path="*" element={<NotFoundPage />} />
         </Routes>
       </div>
-      {/* <LogInModal isOpen={isLoginModalOpen} onClose={closeLoginModal} /> */}
     </main>
+  );
+}
+
+export default function App() {
+  return (
+    <AuthProvider>
+      <AuthModalProvider>
+        <AppContent />
+      </AuthModalProvider>
+    </AuthProvider>
   );
 }

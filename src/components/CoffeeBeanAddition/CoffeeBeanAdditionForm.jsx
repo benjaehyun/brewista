@@ -1,6 +1,6 @@
 import React, { useState, useCallback, useEffect } from 'react';
 import debounce from 'lodash.debounce';
-import * as coffeeBeanAPI from '../../utilities/coffeeBean-api';
+import * as coffeeBeanAPI from '../../services/coffeeBean-api';
 
 export default function CoffeeBeanAdditionForm({ onClose, updateCoffeeBeanList }) {
     const [roaster, setRoaster] = useState('');

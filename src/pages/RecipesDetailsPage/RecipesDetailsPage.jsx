@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchRecipeById } from '../../utilities/recipe-api';
+import { fetchRecipeById } from '../../services/recipe-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faVideo, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';

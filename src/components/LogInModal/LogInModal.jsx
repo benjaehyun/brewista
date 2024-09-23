@@ -1,61 +1,68 @@
-import React, { useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faTimes } from '@fortawesome/free-solid-svg-icons';
+import React, { useState } from 'react';
+import { useAuth } from '../../utilities/auth-context';
+import LogInForm from '../Auth/LogInForm';
+import SignUpForm from '../Auth/SignUpForm';
 
-export default function LogInModal({ isOpen, onClose }) {
-    const navigate = useNavigate();
+const LoginModal = ({ isOpen, onClose }) => {
+  const [isLogin, setIsLogin] = useState(true);
+  const { login, signup } = useAuth();
 
-    function handleLoginRedirect() {
-        navigate('/auth');
-        onClose(); // Navigate first, then close
+  const handleLogin = async (credentials) => {
+    try {
+      await login(credentials);
+      onClose();
+    } catch (error) {
+        console.error('Failed to login:', error);
     }
+  };
 
-    // Adjusted to handle the event on the modal content instead of the backdrop
-    function handleModalContentClick(e) {
-        e.stopPropagation(); // Prevents the click from propagating to the backdrop
+  const handleSignup = async (userData) => {
+    try {
+      await signup(userData);
+      onClose();
+    } catch (error) {
+        console.error('Failed to sign up:', error);
     }
+  };
 
-    useEffect(() => {
-        function handleKeyDown(e) {
-            if (e.key === 'Escape') {
-                onClose();
-            }
-        }
+  if (!isOpen) return null;
 
-        if (isOpen) {
-            window.addEventListener('keydown', handleKeyDown);
-        }
-
-        return () => {
-            window.removeEventListener('keydown', handleKeyDown);
-        };
-    }, [isOpen, onClose]);
-
-    if (!isOpen) return null;
-
-    return (
-        <div className="fixed z-20 inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full flex justify-center items-center" onClick={onClose}>
-            <div className="bg-white p-5 rounded-lg relative" onClick={handleModalContentClick}>
-                <button onClick={onClose} className="absolute top-2 right-2 text-gray-700">
-                    <FontAwesomeIcon icon={faTimes} />
-                </button>
-                <h2 className="text-lg">You need to be logged in to access this feature.</h2>
-                <div className='space-x-6'>
-                    <button
-                        onClick={handleLoginRedirect}
-                        className="bg-blue-500 text-white px-4 py-2 rounded mt-4"
-                    >
-                        Login / Sign Up
-                    </button>
-                    <button
-                        onClick={onClose}
-                        className="bg-gray-500 text-white px-4 py-2 rounded mt-4"
-                    >
-                        Close
-                    </button>
-                </div>
-            </div>
+  return (
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
+      <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
+        <div className="mt-3 text-center">
+          <h3 className="text-lg leading-6 font-medium text-gray-900">
+            {isLogin ? 'Log In' : 'Sign Up'}
+          </h3>
+          <div className="mt-2 px-7 py-3">
+            {isLogin ? (
+              <LogInForm onSubmit={handleLogin} />
+            ) : (
+              <SignUpForm onSubmit={handleSignup} />
+            )}
+          </div>
+          <div className="items-center px-4 py-3">
+            <button
+              id="ok-btn"
+              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
+              onClick={() => setIsLogin(!isLogin)}
+            >
+              {isLogin ? 'Need to Sign Up?' : 'Already have an account?'}
+            </button>
+          </div>
+          <div className="items-center px-4 py-3">
+            <button
+              id="close-btn"
+              className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              onClick={onClose}
+            >
+              Close
+            </button>
+          </div>
         </div>
-    );
-}
+      </div>
+    </div>
+  );
+};
+
+export default LoginModal;

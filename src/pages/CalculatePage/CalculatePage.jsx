@@ -1,6 +1,6 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { fetchRecipeById } from '../../utilities/recipe-api';
+import { fetchRecipeById } from '../../services/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';

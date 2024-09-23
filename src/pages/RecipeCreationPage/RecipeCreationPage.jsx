@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserGear } from '../../utilities/gear-api';
-import { fetchCoffeeBeans } from '../../utilities/coffeeBean-api';
-import { addRecipe } from '../../utilities/recipe-api';
+import { fetchUserGear } from '../../services/gear-api';
+import { fetchCoffeeBeans } from '../../services/coffeeBean-api';
+import { addRecipe } from '../../services/recipe-api';
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';

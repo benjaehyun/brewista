@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
-import * as profilesApi from "../../utilities/profiles-api"
-import * as gearApi from "../../utilities/gear-api"
+import * as profilesApi from "../../services/profiles-api"
+import * as gearApi from "../../services/gear-api"
 import UserProfile from '../../components/Profile/UserProfile';
 import GearSection from '../../components/Profile/GearSection';
 import FollowersModal from '../../components/Profile/FollowersModal';

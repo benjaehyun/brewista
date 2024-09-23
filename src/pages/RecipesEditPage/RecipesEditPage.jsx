@@ -1,8 +1,8 @@
 import React, { useState, useEffect } from 'react';
 import { useParams, useNavigate } from 'react-router-dom';
-import { getUser } from '../../utilities/users-service';
-import { getCalculatedRecipe, clearCalculatedRecipe } from '../../utilities/localStorageUtils';
-import { fetchRecipeById, updateRecipe, addRecipe } from '../../utilities/recipe-api';
+import { getUser } from '../../services/users-service';
+import { getCalculatedRecipe, clearCalculatedRecipe } from '../../services/localStorageUtils';
+import { fetchRecipeById, updateRecipe, addRecipe } from '../../services/recipe-api';
 
 
 export default function RecipesEditPage() {

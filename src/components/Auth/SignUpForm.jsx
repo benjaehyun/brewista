@@ -1,21 +1,17 @@
 import { useState } from 'react'; 
-import { useNavigate } from 'react-router-dom';
-import { signUp } from '../../utilities/users-service';
 
-export default function SignUpForm({ setUser }) {
+export default function SignUpForm({ onSubmit }) {
     const [formData, setFormData] = useState({
-        username: '', // Now using username instead of name
+        username: '',
         email: '', 
         password: '', 
         confirm: ''
     });
     const [error, setError] = useState('');
 
-    const navigate = useNavigate();
-
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setError(''); // Reset error message on input change
+        setError('');
     }
 
     async function handleSubmit(e) {
@@ -25,13 +21,9 @@ export default function SignUpForm({ setUser }) {
             return;
         }
         try {
-            const user = await signUp(formData);
-            setUser(user);
-            navigate('/profile'); // Redirect user to their profile upon successful signup
+            await onSubmit(formData);
         } catch (err) {
-            // Assuming the backend sends back an error in the format of { error: "Username already exists" }
-            // Or { error: "Email already in use" }, adjust based on your backend's actual response format
-            setError(err.response?.data?.error || 'Sign up Failed - Try Again With a Unique Username and Email');
+            setError('Sign up Failed - Try Again With a Unique Username and Email');
         }
     }
 
@@ -58,7 +50,7 @@ export default function SignUpForm({ setUser }) {
                         </label>
                         <input 
                             className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                            type="email" // Ensuring proper keyboard on mobile devices
+                            type="email"
                             name="email" 
                             value={formData.email} 
                             onChange={handleChange} 

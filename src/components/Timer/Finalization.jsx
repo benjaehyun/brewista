@@ -1,7 +1,7 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { getUser } from '../../utilities/users-service';
-import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
+import { getUser } from '../../services/users-service';
+import { saveCalculatedRecipe } from '../../services/localStorageUtils';
 
 export default function FinalizationComponent ({ recipe, calculatedRecipe }) {
   const navigate = useNavigate();

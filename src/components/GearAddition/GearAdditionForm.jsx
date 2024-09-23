@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback } from 'react';
-import * as gearAPI from '../../utilities/gear-api';
+import * as gearAPI from '../../services/gear-api';
 import debounce from 'lodash.debounce';
 
 export default function GearAdditionForm({ onClose, getApiProfile }) {
