@@ -43,7 +43,7 @@ export default function TimerDisplay() {
 
   if (!currentStep.time) {
     return (
-      <div className="text-center text-xl font-bold mt-6">
+      <div className=" relative text-center w-40 h-40 mx-auto text-xl font-bold mt-6">
         This step has no timer. {autoNextStep ? 'Proceed when ready.' : 'Press next when ready.'}
       </div>
     );

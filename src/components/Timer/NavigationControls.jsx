@@ -10,7 +10,7 @@ export default function NavigationControls() {
   const isLastStep = currentStepIndex === stepsToUse.length;
 
   return (
-    <div className="flex justify-between items-center h-16 px-4 bg-gray-100">
+    <div className={`flex justify-between items-center h-16 px-4 bg-gray-100 rounded-lg`}>
       <button onClick={onPreviousStep} disabled={isFirstStep} className="w-12 h-12 flex items-center justify-center text-gray-600 disabled:text-gray-400">
         <FontAwesomeIcon icon={faStepBackward} size="lg" />
       </button>

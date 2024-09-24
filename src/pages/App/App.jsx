@@ -8,7 +8,6 @@ import ScrollToTop from "../../services/scroll-to-top";
 import RecipesIndexPage from "../RecipesIndexPage/RecipesIndexPage";
 import RecipesDetailsPage from "../RecipesDetailsPage/RecipesDetailsPage";
 import SavedRecipesIndex from "../SavedRecipesIndex/SavedRecipesIndex";
-import LoginModal from "../../components/LoginModal/LoginModal";
 import HomePageAuthenticated from "../HomePage/HomePageAuthenticated";
 import ProfilePage from "../ProfilePage/ProfilePage";
 import RecipeCreationPage from "../RecipeCreationPage/RecipeCreationPage";
@@ -18,6 +17,7 @@ import TimerPage from "../TimerPage/TimerPage";
 import RecipesEditPage from "../RecipesEditPage/RecipesEditPage";
 import ProtectedRoute from "./ProtectedRoute";
 import { AuthModalProvider, useAuthModal } from '../../utilities/auth-modal-context';
+import LoginModal from "../../components/LoginModal/LoginModal";
 
 function AppContent() {
   const { user } = useAuth();
