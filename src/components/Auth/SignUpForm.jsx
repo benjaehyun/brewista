@@ -27,74 +27,80 @@ export default function SignUpForm({ onSubmit }) {
         }
     }
 
+    const isDisabled = !formData.username || !formData.email || !formData.password || formData.password !== formData.confirm;
+
     return (
-        <div className="flex flex-col justify-center items-center bg-gray-100 p-4">
-            <div className="w-full max-w-xs">
-                <form autoComplete="off" onSubmit={handleSubmit} className="bg-white shadow-md rounded px-8 pt-6 pb-8 mb-4">
-                    <div className="mb-4">
-                        <label htmlFor="username" className="block text-gray-700 text-sm font-bold mb-2">
-                            Username
-                        </label>
-                        <input 
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                            type="text" 
-                            name="username" 
-                            value={formData.username} 
-                            onChange={handleChange} 
-                            required 
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="email" className="block text-gray-700 text-sm font-bold mb-2">
-                            Email
-                        </label>
-                        <input 
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                            type="email"
-                            name="email" 
-                            value={formData.email} 
-                            onChange={handleChange} 
-                            required 
-                        />
-                    </div>
-                    <div className="mb-4">
-                        <label htmlFor="password" className="block text-gray-700 text-sm font-bold mb-2">
-                            Password
-                        </label>
-                        <input 
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                            type="password" 
-                            name="password" 
-                            value={formData.password} 
-                            onChange={handleChange} 
-                            required 
-                        />
-                    </div>
-                    <div className="mb-6">
-                        <label htmlFor="confirm" className="block text-gray-700 text-sm font-bold mb-2">
-                            Confirm Password
-                        </label>
-                        <input 
-                            className="shadow appearance-none border rounded w-full py-2 px-3 text-gray-700 leading-tight focus:outline-none focus:shadow-outline" 
-                            type="password" 
-                            name="confirm" 
-                            value={formData.confirm} 
-                            onChange={handleChange} 
-                            required 
-                        />
-                    </div>
-                    <div className="flex items-center justify-center">
-                        <button 
-                            className={`bg-blue-500 hover:bg-blue-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline 
-                                        ${!formData.username || !formData.email || formData.password !== formData.confirm ? 'opacity-50 cursor-not-allowed' : ''}`}
-                            type="submit" 
-                            disabled={!formData.username || !formData.email || formData.password !== formData.confirm}>
-                            SIGN UP
-                        </button>
-                    </div>
-                </form>
-                {error && <p className="text-red-500 text-xs italic text-center">{error}</p>}
+        <form onSubmit={handleSubmit} className="space-y-4">
+            <div>
+                <label htmlFor="username" className="block text-sm font-medium text-gray-700">
+                    Username
+                </label>
+                <input
+                    id="username"
+                    name="username"
+                    type="text"
+                    required
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.username}
+                    onChange={handleChange}
+                />
             </div>
-        </div>
+            <div>
+                <label htmlFor="email" className="block text-sm font-medium text-gray-700">
+                    Email
+                </label>
+                <input
+                    id="email"
+                    name="email"
+                    type="email"
+                    required
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.email}
+                    onChange={handleChange}
+                />
+            </div>
+            <div>
+                <label htmlFor="password" className="block text-sm font-medium text-gray-700">
+                    Password
+                </label>
+                <input
+                    id="password"
+                    name="password"
+                    type="password"
+                    required
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.password}
+                    onChange={handleChange}
+                />
+            </div>
+            <div>
+                <label htmlFor="confirm" className="block text-sm font-medium text-gray-700">
+                    Confirm Password
+                </label>
+                <input
+                    id="confirm"
+                    name="confirm"
+                    type="password"
+                    required
+                    className="mt-1 block w-full px-3 py-2 bg-white border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500"
+                    value={formData.confirm}
+                    onChange={handleChange}
+                />
+            </div>
+            {error && <p className="text-red-500 text-sm">{error}</p>}
+            <div>
+                <button
+                    type="submit"
+                    className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
+                        ${isDisabled 
+                            ? 'bg-gray-300 cursor-not-allowed' 
+                            : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
+                        }`}
+                    disabled={isDisabled}
+                >
+                    Sign Up
+                </button>
+            </div>
+        </form>
     );
 }

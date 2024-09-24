@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import Switch from 'react-switch';
 import { useAuth } from '../../utilities/auth-context';
 import LogInForm from '../Auth/LogInForm';
 import SignUpForm from '../Auth/SignUpForm';
@@ -12,7 +13,7 @@ const LoginModal = ({ isOpen, onClose }) => {
       await login(credentials);
       onClose();
     } catch (error) {
-        console.error('Failed to login:', error);
+      console.error('Failed to login:', error);
     }
   };
 
@@ -21,39 +22,49 @@ const LoginModal = ({ isOpen, onClose }) => {
       await signup(userData);
       onClose();
     } catch (error) {
-        console.error('Failed to sign up:', error);
+      console.error('Failed to sign up:', error);
     }
   };
 
   if (!isOpen) return null;
 
   return (
-    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full" id="my-modal">
+    <div className="fixed inset-0 bg-gray-600 bg-opacity-50 overflow-y-auto h-full w-full z-50" id="my-modal">
       <div className="relative top-20 mx-auto p-5 border w-96 shadow-lg rounded-md bg-white">
-        <div className="mt-3 text-center">
-          <h3 className="text-lg leading-6 font-medium text-gray-900">
-            {isLogin ? 'Log In' : 'Sign Up'}
-          </h3>
-          <div className="mt-2 px-7 py-3">
+        <div className="mt-3">
+          <div className="flex justify-between items-center mb-4">
+            <h3 className="text-lg font-medium leading-6 text-gray-900">
+              {isLogin ? 'Log In' : 'Sign Up'}
+            </h3>
+            <div className="flex items-center">
+              <span className="mr-2 text-sm text-gray-600">Login</span>
+              <Switch
+                onChange={() => setIsLogin(!isLogin)}
+                checked={!isLogin}
+                onColor="#86d3ff"
+                onHandleColor="#2693e6"
+                handleDiameter={24}
+                uncheckedIcon={false}
+                checkedIcon={false}
+                boxShadow="0px 1px 5px rgba(0, 0, 0, 0.6)"
+                activeBoxShadow="0px 0px 1px 10px rgba(0, 0, 0, 0.2)"
+                height={20}
+                width={48}
+                className="react-switch"
+              />
+              <span className="ml-2 text-sm text-gray-600">Sign Up</span>
+            </div>
+          </div>
+          <div className="mt-2">
             {isLogin ? (
               <LogInForm onSubmit={handleLogin} />
             ) : (
               <SignUpForm onSubmit={handleSignup} />
             )}
           </div>
-          <div className="items-center px-4 py-3">
+          <div className="mt-4">
             <button
-              id="ok-btn"
-              className="px-4 py-2 bg-blue-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-blue-300"
-              onClick={() => setIsLogin(!isLogin)}
-            >
-              {isLogin ? 'Need to Sign Up?' : 'Already have an account?'}
-            </button>
-          </div>
-          <div className="items-center px-4 py-3">
-            <button
-              id="close-btn"
-              className="px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md w-full shadow-sm hover:bg-gray-700 focus:outline-none focus:ring-2 focus:ring-gray-300"
+              className="w-full px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
               onClick={onClose}
             >
               Close
