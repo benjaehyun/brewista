@@ -127,13 +127,16 @@ const RecipeEditPage = () => {
     };
 
     try {
+      let result;
       if (isOwner && !saveAsNew) {
-        await updateRecipe(recipe._id, recipeData);
+        result = await updateRecipe(recipe._id, recipeData);
       } else {
         delete recipeData._id;
-        await addRecipe(recipeData);
+        result = await addRecipe(recipeData);
       }
-      navigate('/recipes');
+      if (result.success) {
+        navigate(`/recipes/${result.recipeId}`);
+      }
     } catch (err) {
       console.error('Failed to save recipe:', err);
       setError('Failed to save recipe. Please try again.');

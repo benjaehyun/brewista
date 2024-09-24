@@ -15,6 +15,6 @@ export function addRecipe (recipe) {
     return sendRequest(`${BASE_URL}/add`, 'POST', recipe)
 }
 
-export function updateRecipe (recipe) {
-    return sendRequest(`${BASE_URL}/update`, 'POST', recipe)
+export function updateRecipe (id, recipeData) {
+    return sendRequest(`${BASE_URL}/${id}`, 'PUT', recipeData);
 }

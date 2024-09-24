@@ -7,6 +7,7 @@ module.exports = {
     addRecipe,
     getCurrentUserRecipes,
     getRecipeById,
+    updateRecipe,
 }
 
 
@@ -89,5 +90,40 @@ async function getRecipeById(req, res) {
     } catch (error) {
         console.error('Error fetching recipe:', error);
         res.status(500).json({ error: 'Internal server error' });
+    }
+}
+
+async function updateRecipe (req, res) {
+    const recipe = await Recipe.findById(req.params.id);
+  
+    if (recipe) {
+      if (recipe.userID._id.toString() !== req.user._id) {
+        res.status(403);
+        throw new Error('User not authorized to update this recipe');
+      }
+  
+      recipe.name = req.body.name || recipe.name;
+      recipe.gear = req.body.gear || recipe.gear;
+      recipe.coffeeBean = req.body.coffeeBean || recipe.coffeeBean;
+      recipe.grindSize = req.body.grindSize || recipe.grindSize;
+      recipe.coffeeAmount = req.body.coffeeAmount || recipe.coffeeAmount;
+      recipe.waterTemperature = req.body.waterTemperature || recipe.waterTemperature;
+      recipe.waterTemperatureUnit = req.body.waterTemperatureUnit || recipe.waterTemperatureUnit;
+      recipe.flowRate = req.body.flowRate || recipe.flowRate;
+      recipe.steps = req.body.steps || recipe.steps;
+      recipe.tastingNotes = req.body.tastingNotes || recipe.tastingNotes;
+      recipe.journal = req.body.journal || recipe.journal;
+      recipe.type = req.body.type || recipe.type;
+  
+      const updatedRecipe = await recipe.save();
+  
+      res.json({
+        success: true,
+        recipeId: updatedRecipe._id,
+        message: 'Recipe updated successfully'
+      });
+    } else {
+      res.status(404);
+      throw new Error('Recipe not found');
     }
 }

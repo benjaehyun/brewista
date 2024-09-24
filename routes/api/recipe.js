@@ -6,6 +6,7 @@ const ensureLoggedIn = require('../../config/ensureLoggedIn')
 router.get('/', ensureLoggedIn, recipeCtrl.getCurrentUserRecipes)
 router.get('/:id', recipeCtrl.getRecipeById)
 router.post('/add', ensureLoggedIn, recipeCtrl.addRecipe)
+router.put('/:id', ensureLoggedIn, recipeCtrl.updateRecipe)
 
 
 
