@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React from 'react';
 import { Routes, Route } from "react-router-dom";
 import { AuthProvider, useAuth } from "../../utilities/auth-context";
 import NavBar from "../../components/NavBar/NavBar";
@@ -21,7 +21,7 @@ import { AuthModalProvider, useAuthModal } from '../../utilities/auth-modal-cont
 
 function AppContent() {
   const { user } = useAuth();
-  const { isLoginModalOpen, openLoginModal, closeLoginModal} = useAuthModal()
+  const { isLoginModalOpen, closeLoginModal} = useAuthModal()
 
   return (
     <main className="App text-center">

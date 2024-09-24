@@ -1,4 +1,5 @@
 import React, { useState } from 'react';
+import { useNavigate } from 'react-router-dom';
 import Switch from 'react-switch';
 import { useAuth } from '../../utilities/auth-context';
 import LogInForm from '../Auth/LogInForm';
@@ -7,11 +8,12 @@ import SignUpForm from '../Auth/SignUpForm';
 const LoginModal = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
   const { login, signup } = useAuth();
+  const navigate = useNavigate()
 
   const handleLogin = async (credentials) => {
     try {
       await login(credentials);
-      onClose();
+      handleSuccessfulAuth();
     } catch (error) {
       console.error('Failed to login:', error);
     }
@@ -20,9 +22,24 @@ const LoginModal = ({ isOpen, onClose }) => {
   const handleSignup = async (userData) => {
     try {
       await signup(userData);
-      onClose();
+      handleSuccessfulAuth();
     } catch (error) {
       console.error('Failed to sign up:', error);
+    }
+  };
+
+  const handleClose = () => {
+    onClose();
+    // Optionally, could navigate to a specific page here
+    // navigate('/');
+  };
+
+  const handleSuccessfulAuth = () => {
+    onClose();
+    const intendedPath = sessionStorage.getItem('intendedPath');
+    if (intendedPath) {
+      sessionStorage.removeItem('intendedPath');
+      navigate(intendedPath);
     }
   };
 
@@ -65,7 +82,7 @@ const LoginModal = ({ isOpen, onClose }) => {
           <div className="mt-4">
             <button
               className="w-full px-4 py-2 bg-gray-500 text-white text-base font-medium rounded-md shadow-sm hover:bg-gray-600 focus:outline-none focus:ring-2 focus:ring-gray-300"
-              onClick={onClose}
+              onClick={handleClose}
             >
               Close
             </button>

@@ -77,7 +77,7 @@ export default function GearSection({ gear, onAddGear, removeGearItem }) {
                 className="absolute top-0 right-0 p-2 text-white bg-red-500 rounded-full hover:bg-red-600 focus:outline-none"
                 style={{ transform: 'translate(50%, -50%)', width: '30px', height: '30px', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
                 >
-                <FontAwesomeIcon icon={faTrashAlt} size="s" />
+                <FontAwesomeIcon icon={faTrashAlt} size="sm" />
                 </button>
                 <h3 className="text-md font-semibold">{item.brand}</h3>
                 <p className="text-sm">Model: {item.model}</p>
