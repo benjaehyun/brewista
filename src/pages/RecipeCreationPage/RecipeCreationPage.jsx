@@ -16,7 +16,7 @@ import FlowRateInput from '../../components/RecipeCreation/FlowRateInput';
 import JournalInput from '../../components/RecipeCreation/JournalInput';
 import { useNavigate } from 'react-router-dom';
 
-function Accordion({ title, children, isCompleted, isRequired }) {
+export function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
@@ -218,7 +218,7 @@ export default function RecipeCreationPage() {
                     <GearSelector gear={gear} selectedGear={selectedGear} setSelectedGear={setSelectedGear} onAddNewGear={() => setShowGearAdditionModal(true)}/>
                 </Accordion>
                 <Accordion title="Select Bean" isCompleted={selectedBean} isRequired={true}>
-                    <CoffeeBeanSelector coffeeBeanList={coffeeBeanList} selectedBean={selectedBean} setSelectedBean={setSelectedBean} onAddNewCoffee={() => setShowCoffeeAdditionModal(true)} />
+                    <CoffeeBeanSelector selectedBean={selectedBean} setSelectedBean={setSelectedBean} onAddNewCoffee={() => setShowCoffeeAdditionModal(true)} />
                 </Accordion>
                 <Accordion title="Grind Size" isCompleted={grindSize.steps !== 0} isRequired={true}>
                     <GrindSizeInput grindSize={grindSize} setGrindSize={setGrindSize} />

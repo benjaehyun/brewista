@@ -14,7 +14,21 @@ export default function FinalizationComponent ({ recipe, calculatedRecipe }) {
     if (selectedRecipe === 'original') {
       navigate(`/recipes/edit/${recipe._id}`);
     } else {
-      saveCalculatedRecipe(calculatedRecipe);
+      // saveCalculatedRecipe(calculatedRecipe);
+      // saveCalculatedRecipe({
+      //   ...calculatedRecipe,
+      //   _id: recipe._id, // Ensure the original recipe ID is included
+      //   userID: recipe.userID, // Preserve the original author
+      //   type: 'Explicit' // Mark as Explicit type since it's a calculated version
+      // });
+      const recipeToSave = {
+        ...calculatedRecipe,
+        _id: recipe._id,
+        userID: recipe.userID,
+        type: 'Explicit'
+      };
+      saveCalculatedRecipe(recipeToSave);
+      console.log('Saved calculated recipe to local storage:', recipeToSave);
       navigate(`/recipes/edit/${recipe._id}`);
     }
   };
