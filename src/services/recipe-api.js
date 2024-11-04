@@ -3,8 +3,8 @@ import sendRequest from "./send-request";
 const BASE_URL = '/api/recipe'
 
 
-export function fetchCurrentUserRecipes () {
-    return sendRequest(`${BASE_URL}`)
+export function fetchCurrentUserRecipes(page = 1, limit = 10) {
+    return sendRequest(`${BASE_URL}/me?page=${page}&limit=${limit}`);
 }
 
 export function fetchRecipeById (id) {

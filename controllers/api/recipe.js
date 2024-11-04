@@ -61,16 +61,45 @@ async function addRecipe(req, res) {
 
 async function getCurrentUserRecipes(req, res) {
     try {
-        const userId = req.user._id; 
+        const userId = req.user._id;
+        const page = Math.min(parseInt(req.query.page) || 1, MAX_USER_RECIPES_PAGES);
+        const limit = parseInt(req.query.limit) || 10;
+        const skip = (page - 1) * limit;
+
+        // Get total count of user's recipes first
+        const totalRecipes = await Recipe.countDocuments({ userID: userId });
+        
+        // Don't fetch if we're beyond possible pages
+        if (skip >= totalRecipes) {
+            return res.status(200).json({
+                recipes: [],
+                hasMore: false,
+                total: totalRecipes
+            });
+        }
+
         const recipes = await Recipe.find({ userID: userId })
-            .populate('userID', 'username') // Populate with the name of the user
-            .populate('coffeeBean') // Populate with the name of the bean
-            .sort({ createdAt: -1 }) // Sort by most recent
-            .limit(10); 
-        res.status(200).json(recipes);
+            .populate('userID', 'username')
+            .populate('coffeeBean')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit + 1)
+            .lean();
+
+        const hasMore = recipes.length > limit;
+        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
+
+        res.status(200).json({
+            recipes: recipesToSend,
+            hasMore,
+            total: totalRecipes
+        });
     } catch (error) {
         console.error('Error getting recipes:', error);
-        res.status(500).json({ error: 'Failed to fetch recipes' });
+        res.status(500).json({ 
+            error: 'Failed to fetch recipes',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 }
 
@@ -131,11 +160,11 @@ async function updateRecipe (req, res) {
 
 async function getAllRecipes(req, res) {
     try {
-        const page = Math.min(parseInt(req.query.page) || 1, 100);  // Limit to 100 pages
+        const page = parseInt(req.query.page) || 1;
         const limit = 10;
         const skip = (page - 1) * limit;
 
-        // First get total count
+        // Get total count
         const totalRecipes = await Recipe.countDocuments({});
         
         // Don't fetch if we're beyond possible pages
