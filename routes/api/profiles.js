@@ -6,5 +6,7 @@ const profilesCtrl = require('../../controllers/api/profiles')
 router.get ('/', profilesCtrl.details)
 router.post ('/', profilesCtrl.update)
 router.post ('/create', profilesCtrl.create)
+router.post('/saved-recipes', profilesCtrl.toggleSavedRecipe)
+
 
 module.exports = router;

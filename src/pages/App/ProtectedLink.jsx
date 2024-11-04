@@ -3,7 +3,7 @@ import { Link } from 'react-router-dom';
 import { useAuth } from '../../utilities/auth-context';
 import { useAuthModal } from '../../utilities/auth-modal-context';
 
-const ProtectedLink = ({ to, children, className }) => {
+const ProtectedLink = ({ to, children, className, onClick }) => {
     const { user } = useAuth();
     const { openLoginModal } = useAuthModal();
 
@@ -12,6 +12,8 @@ const ProtectedLink = ({ to, children, className }) => {
             e.preventDefault();
             openLoginModal();
         }
+        // Call the passed onClick handler if it exists
+        onClick?.(e);
     };
 
     return (

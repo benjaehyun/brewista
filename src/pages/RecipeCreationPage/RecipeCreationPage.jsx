@@ -20,7 +20,7 @@ export function Accordion({ title, children, isCompleted, isRequired }) {
     const [isOpen, setIsOpen] = useState(false);
 
     return (
-        <div className="mb-4">
+        <div className="mb-4 w-full">
             <button
                 type="button"
                 className={`w-full px-4 py-2 text-left font-medium focus:outline-none ${isRequired ? isCompleted ? 'bg-green-100 text-green-700':'bg-red-100 text-red-700' : 'bg-blue-100 text-blue-700'} hover:bg-blue-200 rounded-lg`}
@@ -35,8 +35,10 @@ export function Accordion({ title, children, isCompleted, isRequired }) {
                 </div>
             </button>
             {isOpen && (
-                <div className="mt-2 p-4 bg-white rounded-lg shadow">
-                    {children}
+                <div className="mt-2 bg-white rounded-lg shadow">
+                    <div className="p-4 w-full overflow-hidden">
+                        {children}
+                    </div>
                 </div>
             )}
         </div>

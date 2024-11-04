@@ -7,10 +7,13 @@ export function getProfile() {
 }
 
 export function createProfile() {
-    return sendRequest(`${BASE_URL}/create`, 'POST', );
-  }
+    return sendRequest(`${BASE_URL}/create`, 'POST');
+}
 
 export function updateProfile(form) {
     return sendRequest(`${BASE_URL}`, 'POST', {form});
 }
 
+export function toggleSavedRecipe(recipeId) {
+    return sendRequest(`${BASE_URL}/saved-recipes`, 'POST', { recipeId });
+}
