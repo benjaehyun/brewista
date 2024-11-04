@@ -18,3 +18,7 @@ export function addRecipe (recipe) {
 export function updateRecipe (id, recipeData) {
     return sendRequest(`${BASE_URL}/${id}`, 'PUT', recipeData);
 }
+
+export function fetchAllRecipes(page = 1, limit = 10) {
+    return sendRequest(`${BASE_URL}/all?page=${page}&limit=${limit}`);
+}

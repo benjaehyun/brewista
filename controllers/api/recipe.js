@@ -8,6 +8,7 @@ module.exports = {
     getCurrentUserRecipes,
     getRecipeById,
     updateRecipe,
+    getAllRecipes,
 }
 
 
@@ -125,5 +126,43 @@ async function updateRecipe (req, res) {
     } else {
       res.status(404);
       throw new Error('Recipe not found');
+    }
+}
+
+async function getAllRecipes(req, res) {
+    try {
+        const page = Math.min(parseInt(req.query.page) || 1, 100);  // Limit to 100 pages
+        const limit = 10;
+        const skip = (page - 1) * limit;
+
+        // First get total count
+        const totalRecipes = await Recipe.countDocuments({});
+        
+        // Don't fetch if we're beyond possible pages
+        if (skip >= totalRecipes) {
+            return res.status(200).json({
+                recipes: [],
+                hasMore: false
+            });
+        }
+
+        const recipes = await Recipe.find({})
+            .populate('userID', 'username')
+            .populate('coffeeBean')
+            .sort({ createdAt: -1 })
+            .skip(skip)
+            .limit(limit + 1)
+            .lean();
+
+        const hasMore = recipes.length > limit;
+        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
+
+        res.status(200).json({
+            recipes: recipesToSend,
+            hasMore
+        });
+    } catch (error) {
+        console.error('Error fetching recipes:', error);
+        res.status(500).json({ error: 'Failed to fetch recipes' });
     }
 }
