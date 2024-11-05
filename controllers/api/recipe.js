@@ -1,7 +1,11 @@
 const User = require('../../models/user')
 const Recipe = require('../../models/recipe')
+const Profile = require('../../models/profile')
 const CoffeeBean = require('../../models/coffeeBean')
 const Gear = require ('../../models/gear')
+
+const MAX_USER_RECIPES_PAGES = 200;
+const RECIPES_PER_PAGE = 10;
 
 module.exports = {
     addRecipe,
@@ -9,6 +13,7 @@ module.exports = {
     getRecipeById,
     updateRecipe,
     getAllRecipes,
+    getSavedRecipes,
 }
 
 
@@ -63,7 +68,7 @@ async function getCurrentUserRecipes(req, res) {
     try {
         const userId = req.user._id;
         const page = Math.min(parseInt(req.query.page) || 1, MAX_USER_RECIPES_PAGES);
-        const limit = parseInt(req.query.limit) || 10;
+        const limit = parseInt(req.query.limit) || RECIPES_PER_PAGE;
         const skip = (page - 1) * limit;
 
         // Get total count of user's recipes first
@@ -160,8 +165,8 @@ async function updateRecipe (req, res) {
 
 async function getAllRecipes(req, res) {
     try {
-        const page = parseInt(req.query.page) || 1;
-        const limit = 10;
+        const page = Math.min(parseInt(req.query.page) || 1, MAX_USER_RECIPES_PAGES);
+        const limit = parseInt(req.query.limit) || RECIPES_PER_PAGE;
         const skip = (page - 1) * limit;
 
         // Get total count
@@ -171,7 +176,8 @@ async function getAllRecipes(req, res) {
         if (skip >= totalRecipes) {
             return res.status(200).json({
                 recipes: [],
-                hasMore: false
+                hasMore: false,
+                total: totalRecipes
             });
         }
 
@@ -188,10 +194,66 @@ async function getAllRecipes(req, res) {
 
         res.status(200).json({
             recipes: recipesToSend,
-            hasMore
+            hasMore,
+            total: totalRecipes
         });
     } catch (error) {
         console.error('Error fetching recipes:', error);
-        res.status(500).json({ error: 'Failed to fetch recipes' });
+        res.status(500).json({ 
+            error: 'Failed to fetch recipes',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined 
+        });
+    }
+}
+
+async function getSavedRecipes(req, res) {
+    try {
+        const userId = req.user._id;
+        const page = Math.min(parseInt(req.query.page) || 1, MAX_USER_RECIPES_PAGES);
+        const limit = parseInt(req.query.limit) || RECIPES_PER_PAGE;
+        const skip = (page - 1) * limit;
+
+        // Get user's profile to get saved recipe IDs
+        const profile = await Profile.findOne({ user: userId });
+        if (!profile) {
+            return res.status(404).json({ error: 'Profile not found' });
+        }
+
+        // Get total count of saved recipes
+        const totalRecipes = profile.savedRecipes.length;
+        
+        // Don't fetch if we're beyond possible pages
+        if (skip >= totalRecipes) {
+            return res.status(200).json({
+                recipes: [],
+                hasMore: false,
+                total: totalRecipes
+            });
+        }
+
+        // Get the subset of recipe IDs for this page
+        const recipeIds = profile.savedRecipes.slice(skip, skip + limit + 1);
+
+        // Fetch the actual recipes
+        const recipes = await Recipe.find({ _id: { $in: recipeIds } })
+            .populate('userID', 'username')
+            .populate('coffeeBean')
+            .sort({ createdAt: -1 })
+            .lean();
+
+        const hasMore = recipes.length > limit;
+        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
+
+        res.status(200).json({
+            recipes: recipesToSend,
+            hasMore,
+            total: totalRecipes
+        });
+    } catch (error) {
+        console.error('Error getting saved recipes:', error);
+        res.status(500).json({ 
+            error: 'Failed to fetch saved recipes',
+            details: process.env.NODE_ENV === 'development' ? error.message : undefined
+        });
     }
 }

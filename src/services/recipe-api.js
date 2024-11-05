@@ -22,3 +22,7 @@ export function updateRecipe (id, recipeData) {
 export function fetchAllRecipes(page = 1, limit = 10) {
     return sendRequest(`${BASE_URL}/all?page=${page}&limit=${limit}`);
 }
+
+export function fetchSavedRecipes(page = 1, limit = 10) {
+    return sendRequest(`${BASE_URL}/saved?page=${page}&limit=${limit}`);
+}
