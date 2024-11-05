@@ -24,10 +24,17 @@ export default function SignUpForm({ onSubmit }) {
             const { confirm, ...submitData } = formData;
             await onSubmit(submitData);
         } catch (err) {
-            setError('Sign up Failed - Try Again With a Unique Username and Email');
+            // Handle the more specific error response
+            if (err.response?.data?.error) {
+                const fieldError = err.response.data;
+                setError({
+                    [fieldError.field]: fieldError.error
+                });
+            } else {
+                setError({ form: 'Sign up failed - Please try again' });
+            }
         }
     }
-
     const isDisabled = !formData.username || !formData.email || !formData.password || formData.password !== formData.confirm;
 
     return (

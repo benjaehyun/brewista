@@ -79,6 +79,17 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const updateProfile = async (formData) => {
+    try {
+      const updatedProfile = await profilesAPI.updateProfile(formData);
+      setUserProfile(updatedProfile);
+      return updatedProfile;
+    } catch (error) {
+      console.error('Failed to update profile:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     userProfile,
@@ -88,6 +99,7 @@ export const AuthProvider = ({ children }) => {
     logout,
     toggleSaveRecipe,
     removeGearFromProfile,
+    updateProfile,
     isLoading
   };
 
