@@ -1,8 +1,10 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import BookmarkButton from './BookmarkButton';
+import { useAuth } from '../../utilities/auth-context';
 
 export default function RecipeCard({ recipe }) {
+    const { user, userProfile } = useAuth();
     const { name, coffeeBean, type, coffeeAmount, tastingNotes, _id } = recipe;
 
     // Calculate brew volume
@@ -15,17 +17,30 @@ export default function RecipeCard({ recipe }) {
         ? `${coffeeAmount}:${brewVolume}`
         : `${coffeeAmount}g, ${brewVolume}mL`;
 
+    // Only apply margin if user is authenticated
+    const titleMarginClass = user && userProfile ? 'ml-10' : '';
+
     return (
         <div className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow duration-200 flex flex-col justify-between" style={{ minHeight: '260px' }}>
-            {/* Header section with title and bookmark */}
-            <div className="flex items-start justify-between mb-2 ml-10">
-                <Link to={`/recipes/${_id}`} className="block flex-1">
-                    <h3 className="text-xl font-bold">{name}</h3>
-                </Link>
-                <div className="flex-shrink-0">
+            {/* Header section with true centering */}
+            <div className="min-h-[40px] relative flex items-start">
+                {/* Left spacer - only visible when authenticated */}
+                {user && userProfile && <div className="w-[44px] flex-shrink-0" />}
+                
+                {/* Title container */}
+                <div className="flex-1 text-center">
+                    <Link to={`/recipes/${_id}`}>
+                        <h3 className="text-xl font-bold break-words">{name}</h3>
+                    </Link>
+                </div>
+                
+                {/* Right bookmark container or spacer */}
+                <div className=" flex-shrink-0 relative z-10">
                     <BookmarkButton recipeId={_id} />
                 </div>
             </div>
+
+
             
             <div>
                 <Link to={`/recipes/${_id}`} className="block">
