@@ -21,7 +21,8 @@ export default function SignUpForm({ onSubmit }) {
             return;
         }
         try {
-            await onSubmit(formData);
+            const { confirm, ...submitData } = formData;
+            await onSubmit(submitData);
         } catch (err) {
             setError('Sign up Failed - Try Again With a Unique Username and Email');
         }
