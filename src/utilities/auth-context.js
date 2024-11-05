@@ -69,6 +69,16 @@ export const AuthProvider = ({ children }) => {
     }
   };
 
+  const removeGearFromProfile = async (gearId) => {
+    try {
+      const updatedProfile = await profilesAPI.removeGear(gearId);
+      setUserProfile(updatedProfile);
+    } catch (error) {
+      console.error('Failed to remove gear:', error);
+      throw error;
+    }
+  };
+
   const value = {
     user,
     userProfile,
@@ -77,6 +87,7 @@ export const AuthProvider = ({ children }) => {
     signup,
     logout,
     toggleSaveRecipe,
+    removeGearFromProfile,
     isLoading
   };
 

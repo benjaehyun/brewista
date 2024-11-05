@@ -34,7 +34,7 @@ async function searchBrands(req, res) {
             }
         ];
 
-        // Execute the aggregation pipeline
+        // Execute the pipeline
         const brands = await Gear.aggregate(pipeline).exec();
 
         // Map the results to return an array of brand names
@@ -42,7 +42,7 @@ async function searchBrands(req, res) {
 
         res.json(brandNames);
     } catch (err) {
-        console.error(err); // Use console.error for better error logging
+        console.error(err); 
         res.status(400).json({ message: 'Error fetching brands', error: err });
     }
 }

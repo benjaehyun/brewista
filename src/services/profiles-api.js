@@ -17,3 +17,7 @@ export function updateProfile(form) {
 export function toggleSavedRecipe(recipeId) {
     return sendRequest(`${BASE_URL}/saved-recipes`, 'POST', { recipeId });
 }
+
+export function removeGear(gearId) {
+    return sendRequest(`${BASE_URL}/gear/${gearId}`, 'DELETE');
+}

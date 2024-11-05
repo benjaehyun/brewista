@@ -18,8 +18,8 @@ export default function HomePageUnauthenticated() {
                     <div className="bg-gray-200 p-4">
                         <h2 className="font-semibold text-xl mb-2">Discover New Recipes</h2>
                         <p>Explore a wide range of coffee recipes and brewing techniques from enthusiasts around the world.</p>
-                        <Link to="/auth" className="mt-3 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Sign Up to Explore
+                        <Link to="/recipes" className="mt-3 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            View All Recipes
                         </Link>
                     </div>
                 </div>

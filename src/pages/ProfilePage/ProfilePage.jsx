@@ -1,71 +1,135 @@
-import React, { useState, useEffect } from 'react';
-import * as profilesApi from "../../services/profiles-api"
-import * as gearApi from "../../services/gear-api"
+import React, { useState } from 'react';
+import { useAuth } from '../../utilities/auth-context';
+import { Loader2 } from 'lucide-react';
+
 import UserProfile from '../../components/Profile/UserProfile';
 import GearSection from '../../components/Profile/GearSection';
 import FollowersModal from '../../components/Profile/FollowersModal';
 import FollowingModal from '../../components/Profile/FollowingModal';
-import TabContent from '../../components/Profile/TabContent'; // Handles tab switching and content
 import GearAdditionModal from '../../components/GearAddition/GearAdditionModal';
+import CompactRecipeList from '../../components/Profile/CompactRecipeList';
+
+const ProfileSkeleton = () => (
+  <div className="animate-pulse space-y-4 p-4">
+    <div className="h-32 md:h-40 bg-gray-200 rounded-lg w-full" />
+    <div className="h-8 bg-gray-200 rounded w-1/3 mx-auto" />
+    <div className="h-4 bg-gray-200 rounded w-1/2 mx-auto" />
+    <div className="flex justify-center space-x-4">
+      <div className="h-6 bg-gray-200 rounded w-24" />
+      <div className="h-6 bg-gray-200 rounded w-24" />
+    </div>
+  </div>
+);
 
 export default function ProfilePage() {
-  const [activeTab, setActiveTab] = useState('posts');
-  const [profile, setProfile] = useState({ displayName: '', bio: '', followersCount: 0, followingCount: 0, gear: [], savedRecipes: [] });
-  const [isLoading, setIsLoading] = useState(true);
+  const { userProfile, isLoading } = useAuth();
+  const [activeTab, setActiveTab] = useState('recipes');
   const [showFollowersModal, setShowFollowersModal] = useState(false);
   const [showFollowingModal, setShowFollowingModal] = useState(false);
   const [showGearModal, setShowGearModal] = useState(false);
 
+  if (isLoading) return <ProfileSkeleton />;
 
-  useEffect(() => {
-      async function getApiProfile () {
-          const apiProfile = await profilesApi.getProfile()
-          // setProfile({...profile, ...apiProfile})
-          setProfile(profile => ({ ...profile, ...apiProfile })) // Functionally very similar to just passing the spread objects, however, the functional update via arrow function provides the most current states at the time of update and ensures that any recent updates that could have been made before this setter function would be applied 
-          setIsLoading(false);
-      }
-      getApiProfile()
-    }, [])
+  if (!userProfile) {
+    return (
+      <div className="flex justify-center items-center min-h-[50vh]">
+        <p className="text-gray-500">Please log in to view your profile</p>
+      </div>
+    );
+  }
 
-    async function getApiProfile () {
-        const apiProfile = await profilesApi.getProfile()
-        // setProfile({...profile, ...apiProfile})
-        setProfile(profile => ({ ...profile, ...apiProfile })) // Functionally very similar to just passing the spread objects, however, the functional update via arrow function provides the most current states at the time of update and ensures that any recent updates that could have been made before this setter function would be applied 
-        setIsLoading(false);
-    }
+  const tabs = [
+    { id: 'recipes', label: 'My Recipes' },
+    { id: 'saved', label: 'Saved Recipes' },
+    { id: 'gear', label: 'Gear' },
+    // Commented out for future implementation
+    // { id: 'posts', label: 'Posts' }
+  ];
 
-    async function removeGearItem(gearId) {
-      await gearApi.removeFromProfile(gearId)
-      getApiProfile()
-    }
-    
   return (
-    <>
-      { isLoading ? <h1>Loading profile...</h1> : 
-        <div className="container mx-auto p-4">
-          <UserProfile profile={profile} updateProfile={profilesApi.updateProfile} setProfile={setProfile}/>
-          <div className="my-4 flex justify-around">
-            <button onClick={() => setShowFollowersModal(true)} className="text-blue-500">
-              Followers: {profile.followersCount}
-            </button>
-            <button onClick={() => setShowFollowingModal(true)} className="text-blue-500">
-              Following: {profile.followingCount}
-            </button>
-          </div>
-          <FollowersModal isOpen={showFollowersModal} onClose={() => setShowFollowersModal(false)} profileId={profile._id} />
-          <FollowingModal isOpen={showFollowingModal} onClose={() => setShowFollowingModal(false)} profileId={profile._id} />
-          <GearSection gear={profile.gear} onAddGear={() => setShowGearModal(true)} removeGearItem={removeGearItem} />
-          <GearAdditionModal getApiProfile={getApiProfile} isOpen={showGearModal} onClose={() => setShowGearModal(false)} />
-          <div className="my-4">
-            <div className="flex justify-center space-x-4">
-              <button onClick={() => setActiveTab('posts')} className={`px-4 py-2 ${activeTab === 'posts' ? 'text-blue-500' : 'text-gray-500'}`}>Posts</button>
-              <button onClick={() => setActiveTab('recipes')} className={`px-4 py-2 ${activeTab === 'recipes' ? 'text-blue-500' : 'text-gray-500'}`}>Recipes</button>
-              <button onClick={() => setActiveTab('saved')} className={`px-4 py-2 ${activeTab === 'saved' ? 'text-blue-500' : 'text-gray-500'}`}>Saved</button>
-            </div>
-            <TabContent activeTab={activeTab} />
+    <div className="container max-w-4xl mx-auto px-4 sm:px-6 py-6 space-y-6">
+      {/* Profile Card */}
+      <div className="bg-white rounded-lg shadow-md p-6 md:p-8">
+        <UserProfile profile={userProfile} />
+        
+        <div className="flex justify-center space-x-8 mt-6">
+          <button 
+            onClick={() => setShowFollowersModal(true)}
+            className="text-sm md:text-base hover:text-blue-600 transition-colors group"
+          >
+            <span className="font-semibold group-hover:text-blue-600">{userProfile.followersCount}</span>
+            <span className="ml-1 text-gray-600 group-hover:text-blue-600">Followers</span>
+          </button>
+          <button 
+            onClick={() => setShowFollowingModal(true)}
+            className="text-sm md:text-base hover:text-blue-600 transition-colors group"
+          >
+            <span className="font-semibold group-hover:text-blue-600">{userProfile.followingCount}</span>
+            <span className="ml-1 text-gray-600 group-hover:text-blue-600">Following</span>
+          </button>
+        </div>
+      </div>
+
+      {/* Custom Tabs */}
+      <div className="space-y-4">
+        <div className="flex justify-center border-b border-gray-200">
+          <div className="flex space-x-1 md:space-x-2">
+            {tabs.map(tab => (
+              <button
+                key={tab.id}
+                onClick={() => setActiveTab(tab.id)}
+                className={`px-4 py-2 text-sm md:text-base font-medium whitespace-nowrap border-b-2 transition-colors duration-200 ease-in-out ${
+                  activeTab === tab.id
+                    ? 'border-blue-500 text-blue-600'
+                    : 'border-transparent text-gray-500 hover:text-gray-700 hover:border-gray-300'
+                }`}
+              >
+                {tab.label}
+              </button>
+            ))}
           </div>
         </div>
-      }
-    </>
+
+        {/* Tab Content */}
+        <div className="min-h-[400px]">
+          {activeTab === 'recipes' && (
+            <CompactRecipeList 
+              type="user"
+              emptyMessage="You haven't created any recipes yet"
+            />
+          )}
+          
+          {activeTab === 'saved' && (
+            <CompactRecipeList 
+              type="saved"
+              emptyMessage="You haven't saved any recipes yet"
+            />
+          )}
+          
+          {activeTab === 'gear' && (
+            <GearSection 
+              gear={userProfile.gear} 
+              onAddGear={() => setShowGearModal(true)} 
+            />
+          )}
+        </div>
+      </div>
+
+      {/* Modals */}
+      <FollowersModal 
+        isOpen={showFollowersModal} 
+        onClose={() => setShowFollowersModal(false)} 
+        profileId={userProfile._id} 
+      />
+      <FollowingModal 
+        isOpen={showFollowingModal} 
+        onClose={() => setShowFollowingModal(false)} 
+        profileId={userProfile._id} 
+      />
+      <GearAdditionModal 
+        isOpen={showGearModal} 
+        onClose={() => setShowGearModal(false)} 
+      />
+    </div>
   );
 }

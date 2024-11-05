@@ -18,8 +18,8 @@ export default function HomePageAuthenticated() {
                     <div className="bg-gray-200 p-4">
                         <h2 className="font-semibold text-xl mb-2">Discover New Recipes</h2>
                         <p>Explore a wide range of coffee recipes and brewing techniques from enthusiasts around the world.</p>
-                        <Link to="/myrecipes" className="mt-3 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
-                            Go To My Recipes
+                        <Link to="/recipes" className="mt-3 inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
+                            View All Recipes
                         </Link>
                     </div>
                 </div>
@@ -29,8 +29,8 @@ export default function HomePageAuthenticated() {
                     <div className="bg-gray-100 p-4">
                         <h2 className="font-semibold text-xl mb-2">Share Your Creations</h2>
                         <p>Join our community and share your own coffee recipes, experiences, and brewing tips.</p>
-                        <Link to="/recipes" className="mt-3 inline-block bg-green-500 text-white px-4 py-2 rounded hover:bg-green-600">
-                            View All Recipes
+                        <Link to="/myrecipes" className="mt-3 inline-block bg-blue-500 text-white px-4 py-2 rounded hover:bg-blue-600">
+                            Go To My Recipes
                         </Link>
                     </div>
                 </div>

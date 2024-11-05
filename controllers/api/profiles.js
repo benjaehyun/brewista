@@ -7,7 +7,7 @@ module.exports = {
     details, 
     update,  
     toggleSavedRecipe,
-
+    removeGear,
 }
 
 async function create (req, res) {
@@ -55,9 +55,8 @@ async function toggleSavedRecipe(req, res) {
             return res.status(400).json({ error: 'Recipe ID is required' });
         }
 
-        const profile = await Profile.findOne({ user: req.user._id });
+        const profile = await Profile.findOne({ user: req.user._id }).populate('gear');
         
-        // Check if recipe is already saved
         const recipeIndex = profile.savedRecipes.indexOf(recipeId);
         
         if (recipeIndex === -1) {
@@ -68,13 +67,43 @@ async function toggleSavedRecipe(req, res) {
             profile.savedRecipes.splice(recipeIndex, 1);
         }
 
-        // Save the updated profile
         await profile.save();
 
         // Return the updated profile with follower counts
         const updatedProfile = profile.toObject();
         const followersCount = await Relation.countDocuments({following: profile._id});
         const followingCount = await Relation.countDocuments({follower: profile._id});
+        updatedProfile.followersCount = followersCount;
+        updatedProfile.followingCount = followingCount;
+
+        res.json(updatedProfile);
+    } catch (err) {
+        console.log(err);
+        res.status(400).json(err);
+    }
+}
+
+async function removeGear(req, res) {
+    try {
+        const gearId = req.params.id;
+        if (!gearId) {
+            return res.status(400).json({ error: 'Gear ID is required' });
+        }
+
+        const profile = await Profile.findOne({ user: req.user._id });
+        
+        // Remove the gear from the profile's gear array
+        profile.gear = profile.gear.filter(item => !item.equals(gearId));
+        await profile.save();
+
+        // Return the updated profile with populated data and counts
+        const updatedProfile = await Profile.findOne({ user: req.user._id })
+            .lean()
+            .populate('gear');
+            
+        const followersCount = await Relation.countDocuments({following: profile._id});
+        const followingCount = await Relation.countDocuments({follower: profile._id});
+        
         updatedProfile.followersCount = followersCount;
         updatedProfile.followingCount = followingCount;
 

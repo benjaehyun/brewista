@@ -7,6 +7,7 @@ router.get ('/', profilesCtrl.details)
 router.post ('/', profilesCtrl.update)
 router.post ('/create', profilesCtrl.create)
 router.post('/saved-recipes', profilesCtrl.toggleSavedRecipe)
+router.delete('/gear/:id', profilesCtrl.removeGear) 
 
 
 module.exports = router;
