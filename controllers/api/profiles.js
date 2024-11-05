@@ -96,7 +96,7 @@ async function removeGear(req, res) {
         profile.gear = profile.gear.filter(item => !item.equals(gearId));
         await profile.save();
 
-        // Return the updated profile with populated data and counts
+        // Return the updated profile with data and counts
         const updatedProfile = await Profile.findOne({ user: req.user._id })
             .lean()
             .populate('gear');

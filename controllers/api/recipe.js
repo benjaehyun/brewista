@@ -231,7 +231,7 @@ async function getSavedRecipes(req, res) {
             });
         }
 
-        // Get the subset of recipe IDs for this page
+        // Get the set of recipe IDs for this page
         const recipeIds = profile.savedRecipes.slice(skip, skip + limit + 1);
 
         // Fetch the actual recipes
