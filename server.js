@@ -10,13 +10,21 @@ require('dotenv').config()
 require('./config/database')
    
 const app = express();
+
+if (process.env.NODE_ENV === 'production') {
+    app.use(favicon(path.join(__dirname, 'build', 'favicon.ico')));
+    app.use(express.static(path.join(__dirname, 'build')));
+} else {
+    app.use(favicon(path.join(__dirname, 'public', 'favicon.ico')));
+    app.use(express.static(path.join(__dirname, 'public')));
+}
    
 app.use(logger('dev'));
 app.use(express.json());
 // Configure both serve-favicon & static middleware
 // to serve from the production 'build' folder
-app.use(favicon(path.join(__dirname, 'build', 'favicon.ico')));
-app.use(express.static(path.join(__dirname, 'build')));
+// app.use(favicon(path.join(__dirname, 'build', 'favicon.ico')));
+// app.use(express.static(path.join(__dirname, 'build')));
 
 app.use(require('./config/checkToken'))
 
