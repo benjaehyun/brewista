@@ -5,7 +5,7 @@ import TimerDisplay from './TimerDisplay';
 import StepInstructions from './StepInstructions';
 import StepProgressBar from './StepProgressBar';
 
-export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep }) {
+export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
   return (
     <BrewStepProvider 
       currentStep={step} 
@@ -15,14 +15,17 @@ export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse
       currentStepIndex={currentStepIndex}
       autoStartTimer={autoStartTimer}
       autoNextStep={autoNextStep}
+      onSetStep={onSetStep}
     >
-      <div className="flex flex-col h-full">
+      <div className="flex flex-col min-h-[calc(100vh-10rem)]">
         <StepProgressBar />
-        <div className="flex-grow flex flex-col justify-center">
+        <div className="flex-1 flex flex-col">
           <TimerDisplay />
           <StepInstructions />
         </div>
-        <NavigationControls />
+        <div>
+          <NavigationControls className="mt-auto pt-4 pb-4"/>
+        </div>
       </div>
     </BrewStepProvider>
   );

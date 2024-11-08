@@ -1,8 +1,8 @@
 import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
-import { faCoffee, faTint, faWeight, faThermometerHalf, faBlender } from '@fortawesome/free-solid-svg-icons';
+import { faCoffee, faTint, faBlender } from '@fortawesome/free-solid-svg-icons';
 
-export default function PreparationOverview ({ recipe, coffeeAmount, brewVolume, onStartBrew }) {
+export default function PreparationOverview({ recipe, coffeeAmount, brewVolume, onStartBrew }) {
   if (!recipe || !coffeeAmount || !brewVolume) {
     return <div className="text-red-500">Error: Missing recipe information. Please go back and try again.</div>;
   }
@@ -14,7 +14,7 @@ export default function PreparationOverview ({ recipe, coffeeAmount, brewVolume,
     if (recipe.coffeeBean) {
       instructions.push({
         icon: faCoffee,
-        text: `Use ${coffeeAmount}g of ${recipe.coffeeBean.roaster} ${recipe.coffeeBean.origin} coffee (${recipe.coffeeBean.roastLevel} roast, ${recipe.coffeeBean.process} process).`
+        text: `Use ${coffeeAmount}g of ${recipe.coffeeBean.roaster} ${recipe.coffeeBean.origin} coffee (${recipe.coffeeBean.roastLevel} roast${recipe.coffeeBean.process ? `, ${recipe.coffeeBean.process} process` : ''}).`
       });
     } else {
       instructions.push({
@@ -84,11 +84,15 @@ export default function PreparationOverview ({ recipe, coffeeAmount, brewVolume,
           <h2 className="text-2xl font-semibold mb-4 text-gray-700">Preparation Instructions</h2>
           <ul className="space-y-4">
             {instructions.map((instruction, index) => (
-              <li key={index} className="flex items-start">
-                <span className="mr-4 mt-1">
-                  <FontAwesomeIcon icon={instruction.icon} className="text-blue-500" />
-                </span>
-                <span className="text-gray-600">{instruction.text}</span>
+              <li key={index} className="grid grid-cols-[24px_1fr] gap-4">
+                <div className="flex justify-center items-center h-full">
+                  <FontAwesomeIcon 
+                    icon={instruction.icon} 
+                    className="text-blue-500 min-w-[16px] w-4 h-4"
+                    fixedWidth 
+                  />
+                </div>
+                <span className="text-gray-600 leading-6 mr-8">{instruction.text}</span>
               </li>
             ))}
           </ul>
@@ -109,10 +113,7 @@ export default function PreparationOverview ({ recipe, coffeeAmount, brewVolume,
             <p className="text-gray-600 italic">{recipe.journal}</p>
           </div>
         )}
-
       </div>
     </div>
   );
-};
-
-
+}
