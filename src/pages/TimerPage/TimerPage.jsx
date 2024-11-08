@@ -55,6 +55,12 @@ export default function TimerPage() {
         }
     };
 
+    const handleSetStep = (stepIndex) => {
+        if (stepIndex >= 0 && stepIndex < stepsToUse.length) {
+            setCurrentStep(stepIndex);
+        }
+    };
+
     if (!recipe || !stepsToUse) {
         return null; // Avoid rendering if redirected
     }
@@ -132,6 +138,7 @@ export default function TimerPage() {
                     step={stepsToUse[currentStep]}
                     onNextStep={handleNextStep}
                     onPreviousStep={handlePreviousStep}
+                    onSetStep={handleSetStep}
                     stepsToUse={stepsToUse}
                     currentStepIndex={currentStep}
                     autoStartTimer={autoStartTimer}

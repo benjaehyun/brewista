@@ -2,15 +2,16 @@ import React from 'react';
 import { useBrewStep } from './BrewStepContext';
 
 export default function StepProgressBar() {
-  const { stepsToUse, currentStepIndex } = useBrewStep();
+  const { stepsToUse, currentStepIndex, onSetStep } = useBrewStep();
 
   return (
-    <div className="flex justify-center overflow-x-auto py-2 bg-gray-100">
-      <div className="flex">
+    <div className="w-full bg-gray-100 py-2">
+      <div className="flex gap-2 mx-4">
         {stepsToUse.map((step, index) => (
           <div
             key={index}
-            className={`flex-shrink-0 w-16 h-2 mx-1 rounded-full ${
+            onClick={() => onSetStep(index)}
+            className={`flex-1 h-2 rounded-full cursor-pointer transition-colors ${
               index <= currentStepIndex ? 'bg-blue-500' : 'bg-gray-300'
             }`}
           />

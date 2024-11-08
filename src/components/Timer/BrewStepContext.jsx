@@ -10,7 +10,7 @@ export const useBrewStep = () => {
   return context;
 };
 
-export function BrewStepProvider({ children, currentStep, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep }) {
+export function BrewStepProvider({ children, currentStep, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
   const [timerState, setTimerState] = useState(autoStartTimer ? 'running' : 'paused');
   const [timeRemaining, setTimeRemaining] = useState(currentStep.time || 0);
 
@@ -40,6 +40,14 @@ export function BrewStepProvider({ children, currentStep, onNextStep, onPrevious
     }
   }, [autoNextStep, onNextStep]);
 
+  const handleSetStep = useCallback((stepIndex) => {
+    if (stepIndex >= 0 && stepIndex < stepsToUse.length) {
+      onSetStep(stepIndex);
+      setTimerState('paused');
+      setTimeRemaining(stepsToUse[stepIndex].time || 0);
+    }
+  }, [stepsToUse, onSetStep]);
+
   const value = {
     currentStep,
     stepsToUse,
@@ -48,6 +56,7 @@ export function BrewStepProvider({ children, currentStep, onNextStep, onPrevious
     timeRemaining,
     onNextStep,
     onPreviousStep,
+    onSetStep: handleSetStep,
     toggleTimer,
     restartStep,
     setTimeRemaining,

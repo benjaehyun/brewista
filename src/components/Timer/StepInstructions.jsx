@@ -6,7 +6,6 @@ export default function StepInstructions() {
   const [isExpanded, setIsExpanded] = useState(false);
 
   return (
-    <div className='min-h-[30rem] md:min-h-60'>
       <div className="bg-white p-4 rounded-lg shadow mx-4 my-6">
         <h2 className="text-xl font-bold mb-2">Step {currentStepIndex + 1}</h2>
         {currentStep.waterAmount && (
@@ -19,6 +18,5 @@ export default function StepInstructions() {
           </button>
         )}
       </div>
-    </div>
   );
 }
