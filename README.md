@@ -1,7 +1,7 @@
 # Brewista: Coffee Brewing Companion
 
 ## Live App Link
-🚀 <a href="https://brewista-9c2f976eb426.herokuapp.com/" target="_blank" rel="noopener noreferrer">brewista</a>
+🔗 <a href="https://brewista-9c2f976eb426.herokuapp.com/" target="_blank" rel="noopener noreferrer">brewista</a>
 
 ## Project Overview
 
