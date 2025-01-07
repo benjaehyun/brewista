@@ -96,7 +96,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 
 - Smart device integration
 - Advanced recipe recommendations
-- Support for more brewing types beyong pour-overs
+- Support for more brewing types beyond pour-overs
 - Enhanced analytics and insights
 - Offline mode support
 
