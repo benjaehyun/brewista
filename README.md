@@ -1,5 +1,8 @@
 # Brewista: Coffee Brewing Companion
 
+## Live Demo
+[brewista]([https://your-app-url.com](https://brewista-9c2f976eb426.herokuapp.com/))
+
 ## Project Overview
 
 Brewista is a sophisticated coffee brewing companion application that changes the home brewing experience through precise calculations, interactive guidance, and community features. It combines technical precision with an intuitive user interface to help coffee enthusiasts achieve consistent, high-quality results while being able to track and share them.
@@ -117,6 +120,7 @@ DATABASE_URL=your_mongodb_url
 SECRET=your_secret
 NODE_ENV=development or production
 ```
+
 
 
 ---
