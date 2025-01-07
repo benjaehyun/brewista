@@ -104,7 +104,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/brewista.git
+git clone https://github.com/benjaehyun/brewista.git
 
 # Install dependencies
 cd brewista
