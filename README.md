@@ -1,4 +1,4 @@
-# Brewista: Advanced Coffee Brewing Companion
+# Brewista: Coffee Brewing Companion
 
 ## Project Overview
 
@@ -118,11 +118,6 @@ SECRET=your_secret
 NODE_ENV=development or production
 ```
 
-
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
