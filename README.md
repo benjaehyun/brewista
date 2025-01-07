@@ -1,7 +1,7 @@
 # Brewista: Coffee Brewing Companion
 
 ## Live Demo
-[brewista]([https://your-app-url.com](https://brewista-9c2f976eb426.herokuapp.com/))
+[brewista](https://brewista-9c2f976eb426.herokuapp.com/)
 
 ## Project Overview
 
