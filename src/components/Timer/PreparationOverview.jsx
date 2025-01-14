@@ -11,15 +11,16 @@ export default function PreparationOverview({ recipe, coffeeAmount, brewVolume, 
     const instructions = [];
 
     // Coffee Bean Information
+    const roundedCoffeeAmount = Number(coffeeAmount).toFixed(2);
     if (recipe.coffeeBean) {
       instructions.push({
         icon: faCoffee,
-        text: `Use ${coffeeAmount}g of ${recipe.coffeeBean.roaster} ${recipe.coffeeBean.origin} coffee (${recipe.coffeeBean.roastLevel} roast${recipe.coffeeBean.process ? `, ${recipe.coffeeBean.process} process` : ''}).`
+        text: `Use ${roundedCoffeeAmount}g of ${recipe.coffeeBean.roaster} ${recipe.coffeeBean.origin} coffee (${recipe.coffeeBean.roastLevel} roast${recipe.coffeeBean.process ? `, ${recipe.coffeeBean.process} process` : ''}).`
       });
     } else {
       instructions.push({
         icon: faCoffee,
-        text: `Use ${coffeeAmount}g of coffee.`
+        text: `Use ${roundedCoffeeAmount}g of coffee.`
       });
     }
 
@@ -41,7 +42,8 @@ export default function PreparationOverview({ recipe, coffeeAmount, brewVolume, 
     });
 
     // Water Preparation
-    let waterInstruction = `Prepare ${brewVolume}mL of water`;
+    const roundedBrewVolume = Number(brewVolume).toFixed(2);
+    let waterInstruction = `Prepare ${roundedBrewVolume}mL of water`;
     if (recipe.waterTemperature) {
       waterInstruction += ` at ${recipe.waterTemperature}°${recipe.waterTemperatureUnit}`;
     }

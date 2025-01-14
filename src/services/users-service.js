@@ -2,16 +2,32 @@ import * as usersAPI from './users-api'
 import * as profilesAPI from './profiles-api'
 
 export async function signUp (userData) {  // need to refactor to handle errors thrown by the backend to identify which field is a duplicate, which also needs to be refactored
-    const token = await usersAPI.signUp(userData)
-    localStorage.setItem('token', token)
-    const profile = await profilesAPI.createProfile()
-    return getUser()
+    try {
+        const token = await usersAPI.signUp(userData);
+        localStorage.setItem('token', token);
+        const profile = await profilesAPI.createProfile();
+        return getUser();
+      } catch (error) {
+        // Pass through the error details from the API
+        if (error.response?.data) {
+            throw error.response.data;
+        }
+        throw { error: 'Signup failed', details: error.message };
+    }
 }
 
 export async function login(credentials) {
-    const token = await usersAPI.login(credentials)
-    localStorage.setItem('token', token)
-    return getUser() 
+    try {
+        const token = await usersAPI.login(credentials);
+        localStorage.setItem('token', token);
+        return getUser();
+      } catch (error) {
+        // Improve error message for login failures
+        if (error.response?.status === 400) {
+          throw { error: 'Invalid email or password' };
+        }
+        throw { error: 'Login failed', details: error.message };
+    }
 }
 
 export function logOut() {
