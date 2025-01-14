@@ -1,4 +1,8 @@
-# Brewista: Advanced Coffee Brewing Companion
+# Brewista: Coffee Brewing Companion
+
+## Live App Link
+
+🔗 [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
 
 ## Project Overview
 
@@ -92,7 +96,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 
 - Smart device integration
 - Advanced recipe recommendations
-- Support for more brewing types beyong pour-overs
+- Support for more brewing types beyond pour-overs
 - Enhanced analytics and insights
 - Offline mode support
 
@@ -100,7 +104,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 
 ```bash
 # Clone the repository
-git clone https://github.com/yourusername/brewista.git
+git clone https://github.com/benjaehyun/brewista.git
 
 # Install dependencies
 cd brewista
@@ -119,10 +123,6 @@ NODE_ENV=development or production
 ```
 
 
-
-## License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
 
 ---
 
