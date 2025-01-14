@@ -55,7 +55,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Separate handling of bloom phases
 
 ### Timer Reliability
-- Wake Lock API implementation for preventing device sleep
+- Wake Lock API implementation for preventing device sleep (except for a known bug on ios devices when added to homescreen)
 - Cross-platform sleep prevention strategies
 
 ### Performance Optimization
@@ -72,7 +72,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - React Context API
 - GSAP and React Spring for animations
 - Lodash and FontAwesome utilities
-- Screen Wake Lock API for 
+- Screen Wake Lock API 
 
 ### Backend
 - Node.js with Express
