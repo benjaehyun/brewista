@@ -6,7 +6,7 @@
 
 ## Project Overview
 
-Brewista is a sophisticated coffee brewing companion application that changes the home brewing experience through precise calculations, interactive guidance, and community features. It combines technical precision with an intuitive user interface to help coffee enthusiasts achieve consistent, high-quality results while being able to track and share them.
+Brewista is a sophisticated coffee brewing companion application that changes the home brewing experience through precise calculations, interactive guidance, and community features. It combines brewing precision with an intuitive user interface to help coffee enthusiasts achieve consistent, high-quality results while being able to track and share them.
 
 ## Key Features
 
@@ -26,6 +26,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Responsive bottom sheets for step details
 - Spring-based animations for smooth interactions
 - Device-optimized viewing experience
+- Reliable timer operation with device sleep prevention
 
 ### Community Features
 - Recipe sharing and discovery
@@ -53,6 +54,10 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Preservation of critical ratios during scaling
 - Separate handling of bloom phases
 
+### Timer Reliability
+- Wake Lock API implementation for preventing device sleep
+- Cross-platform sleep prevention strategies
+
 ### Performance Optimization
 - Debounced calculations for real-time updates
 - Efficient component memoization strategies
@@ -67,6 +72,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - React Context API
 - GSAP and React Spring for animations
 - Lodash and FontAwesome utilities
+- Screen Wake Lock API for 
 
 ### Backend
 - Node.js with Express
