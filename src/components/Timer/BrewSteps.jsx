@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useEffect } from 'react';
 import { BrewStepProvider } from './BrewStepContext';
 import NavigationControls from './NavigationControls';
 import TimerDisplay from './TimerDisplay';
