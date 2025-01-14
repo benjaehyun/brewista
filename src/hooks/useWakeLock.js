@@ -1,9 +1,9 @@
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 
 export function useWakeLock() {
-  const [wakeLock, setWakeLock] = useState(null);
   const [isSupported, setIsSupported] = useState(false);
   const [error, setError] = useState(null);
+  const wakeLockRef = useRef(null);
 
   useEffect(() => {
     setIsSupported('wakeLock' in navigator && 'request' in navigator.wakeLock);
@@ -15,9 +15,18 @@ export function useWakeLock() {
       return false;
     }
 
+    if (wakeLockRef.current) {
+      return true;
+    }
+
     try {
       const lock = await navigator.wakeLock.request('screen');
-      setWakeLock(lock);
+      wakeLockRef.current = lock;
+      
+      lock.addEventListener('release', () => {
+        wakeLockRef.current = null;
+      });
+
       setError(null);
       return true;
     } catch (err) {
@@ -30,12 +39,12 @@ export function useWakeLock() {
     }
   }, [isSupported]);
 
-  // release lock
   const releaseWakeLock = useCallback(async () => {
-    if (wakeLock) {
+    const lock = wakeLockRef.current;
+    if (lock) {
       try {
-        await wakeLock.release();
-        setWakeLock(null);
+        await lock.release();
+        wakeLockRef.current = null;
         return true;
       } catch (err) {
         setError(`Failed to release wake lock: ${err.message}`);
@@ -43,12 +52,11 @@ export function useWakeLock() {
       }
     }
     return true;
-  }, [wakeLock]);
+  }, []);
 
-  // visibility change
   useEffect(() => {
     const handleVisibilityChange = async () => {
-      if (document.visibilityState === 'visible' && !wakeLock) {
+      if (document.visibilityState === 'visible' && !wakeLockRef.current) {
         await requestWakeLock();
       }
     };
@@ -57,20 +65,19 @@ export function useWakeLock() {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [wakeLock, requestWakeLock]);
+  }, [requestWakeLock]);
 
-  // cleanup 
   useEffect(() => {
     return () => {
-      if (wakeLock) {
+      if (wakeLockRef.current) {
         releaseWakeLock();
       }
     };
-  }, [wakeLock, releaseWakeLock]);
+  }, [releaseWakeLock]);
 
   return {
     isSupported,
-    isActive: !!wakeLock,
+    isActive: !!wakeLockRef.current,
     error,
     requestWakeLock,
     releaseWakeLock

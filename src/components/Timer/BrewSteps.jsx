@@ -9,24 +9,28 @@ import { useWakeLock } from '../../hooks/useWakeLock';
 export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
   const { requestWakeLock, releaseWakeLock, error: wakeLockError } = useWakeLock();
 
-  // request wake lock
+  // initialize wake lock
   useEffect(() => {
-    const enableWakeLock = async () => {
-      await requestWakeLock();
-    };
-    
-    enableWakeLock();
+    let isSubscribed = true;
 
-    // release wake lock on unmount
+    const initializeWakeLock = async () => {
+      if (isSubscribed) {
+        await requestWakeLock();
+      }
+    };
+
+    initializeWakeLock();
+
+    // release wake lock
     return () => {
+      isSubscribed = false;
       releaseWakeLock();
     };
   }, [requestWakeLock, releaseWakeLock]);
-  
 
   return (
-    <BrewStepProvider 
-      currentStep={step} 
+    <BrewStepProvider
+      currentStep={step}
       onNextStep={onNextStep}
       onPreviousStep={onPreviousStep}
       stepsToUse={stepsToUse}
