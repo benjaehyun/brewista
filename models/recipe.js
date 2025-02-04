@@ -90,9 +90,37 @@ const recipeSchema = new Schema ({
     tastingNotes: [{
         type: String 
     }],
+    originalRecipeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Recipe'
+      },
+      originalVersion: String,
+      currentVersion: {
+        type: String,
+        default: '1.0'
+      },
+      isArchived: {
+        type: Boolean,
+        default: false
+      }
 }, {
     timestamps: true 
 });
 
+
+// method to get full version history
+recipeSchema.methods.getVersionHistory = async function() {
+    return await RecipeVersion.find({ recipeId: this._id })
+      .sort({ createdAt: -1 })
+      .populate('createdBy', 'username');
+  };
+  
+// method to get specific version
+recipeSchema.methods.getVersion = async function(version) {
+    return await RecipeVersion.findOne({ 
+        recipeId: this._id,
+        version 
+    }).populate('createdBy', 'username');
+};
 
 module.exports = mongoose.model('Recipe', recipeSchema);
