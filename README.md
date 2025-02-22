@@ -62,7 +62,8 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Built responsive layouts for all screen sizes
 
 ### Timer Reliability
-- Wake Lock API implementation for preventing device sleep (except for a known bug on ios devices when added to homescreen)
+- Wake Lock API implementation for preventing device sleep (except for a known issue on ios devices)
+    - Issue: ios does not honor the wake lock api when PWA's are added to the home screen. 
 - Cross-platform sleep prevention strategies
 
 ### Performance Optimization
