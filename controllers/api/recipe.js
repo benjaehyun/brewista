@@ -140,7 +140,10 @@ async function getCurrentUserRecipes(req, res) {
                 const versionDoc = await RecipeVersion.findOne({
                     recipeId: recipe._id,
                     version: recipe.currentVersion
-                }).lean();
+                })
+                .populate('recipeData.coffeeBean') 
+                .populate('recipeData.gear') 
+                .lean();
 
                 const versionStats = await RecipeVersion.aggregate([
                     { $match: { recipeId: recipe._id } },
@@ -222,6 +225,8 @@ async function getRecipeById(req, res) {
             version: versionToFetch
         })
         .populate('createdBy', 'username')
+        .populate('recipeData.coffeeBean') 
+        .populate('recipeData.gear')       // optional
         .lean();
 
         if (!versionDoc) {
@@ -402,7 +407,10 @@ async function getAllRecipes(req, res) {
                 const versionDoc = await RecipeVersion.findOne({
                     recipeId: recipe._id,
                     version: recipe.currentVersion
-                }).lean();
+                })
+                .populate('recipeData.coffeeBean') 
+                .populate('recipeData.gear') 
+                .lean();
 
                 return {
                     ...recipe,
@@ -479,7 +487,10 @@ async function getSavedRecipes(req, res) {
                 const versionDoc = await RecipeVersion.findOne({
                     recipeId: recipe._id,
                     version: recipe.currentVersion
-                }).lean();
+                })
+                .populate('recipeData.coffeeBean') 
+                .populate('recipeData.gear') 
+                .lean();
 
                 return {
                     ...recipe,

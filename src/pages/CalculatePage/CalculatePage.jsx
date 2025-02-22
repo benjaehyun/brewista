@@ -6,6 +6,7 @@ import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
+import NumericInput from '../../components/CalculatePage/NumericInput';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 
@@ -190,7 +191,7 @@ export default function CalculatePage() {
             </div>
 
             <div className="mb-4">
-                {inputType === 'coffeeAmount' ? (
+                {/* {inputType === 'coffeeAmount' ? (
                     <div className="mb-2">
                         <label className="block mb-2 text-center">Enter Desired Coffee Amount (g):</label>
                         <input
@@ -210,7 +211,15 @@ export default function CalculatePage() {
                             className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
                         />
                     </div>
-                )}
+                )} */}
+                <NumericInput
+                    value={userInput}
+                    onChange={handleInputChange}
+                    label={inputType === 'coffeeAmount' ? "Enter Desired Coffee Amount (g)" : "Enter Desired Brew Volume (mL)"}
+                    placeholder={inputType === 'coffeeAmount' ? "Enter coffee amount in grams" : "Enter brew volume in mL"}
+                    required
+                    className="text-center sm:w-1/2 mx-auto"
+                />
             </div>
 
             <button

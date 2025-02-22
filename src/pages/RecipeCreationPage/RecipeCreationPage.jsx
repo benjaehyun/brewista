@@ -124,23 +124,31 @@ export default function RecipeCreationPage() {
             coffeeBean: selectedBean._id,
             grindSize,
             coffeeAmount,
-            waterTemperature: waterTemp ?  waterTemp : null,
+            waterTemperature: waterTemp ? waterTemp : null,
             waterTemperatureUnit: waterTemp ? waterTempUnit : null,
             flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
             journal,
             type: isRatio ? 'Ratio' : 'Explicit',
+            // Initial version information
+            versionInfo: {
+                changes: [{
+                    field: 'recipe',
+                    description: 'Initial recipe creation'
+                }]
+            }
         };
 
         try {
             console.log('Submitting recipe:', recipeData);
             const result = await addRecipe(recipeData);
             if (result.success && result.recipeId) {
-                navigate(`/recipes/${result.recipeId}`)
+                navigate(`/recipes/${result.recipeId}`);
             }
         } catch (error) {
             console.error('Error submitting recipe:', error);
+            // maybe maybe need to add error handling ui later
         }
     };
 

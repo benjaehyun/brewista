@@ -1,38 +1,74 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import { useParams, Link } from 'react-router-dom';
-import { fetchRecipeById } from '../../services/recipe-api';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faUser, faBalanceScale, faRuler, faWeight, faFlask, faThermometerHalf, faTint, faBlender, faWineGlass, faBook, faSeedling, faCubesStacked, faVideo, faLayerGroup } from '@fortawesome/free-solid-svg-icons';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import BookmarkButton from '../../components/RecipeIndex/BookmarkButton';
 import { useAuth } from '../../utilities/auth-context';
+import { fetchRecipeById, fetchVersionHistory } from '../../services/recipe-api';
+import { VersionHistory } from '../../components/RecipeDetails/VersionHistory';
+import { GitBranch } from 'lucide-react';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 
 export default function RecipeOverviewPage() {
-    const { user, userProfile } = useAuth();
     const { id } = useParams();
     const [recipe, setRecipe] = useState(null);
+    const [versions, setVersions] = useState([]);
+    const [selectedVersion, setSelectedVersion] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
+    const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
     const [error, setError] = useState(null);
+    const { user, userProfile } = useAuth();
 
     
 
+    // useEffect(() => {
+    //     async function loadRecipe() {
+    //         try {
+    //             const fetchedRecipe = await fetchRecipeById(id);
+    //             setRecipe(fetchedRecipe);
+    //             setIsLoading(false);
+    //         } catch (error) {
+    //             console.error('Failed to fetch recipe:', error);
+    //             setError('Failed to load recipe');
+    //             setIsLoading(false);
+    //         }
+    //     }
+
+    //     loadRecipe();
+    // }, [id]);
     useEffect(() => {
-        async function loadRecipe() {
+        async function loadRecipeAndVersions() {
             try {
-                const fetchedRecipe = await fetchRecipeById(id);
-                setRecipe(fetchedRecipe);
-                setIsLoading(false);
-            } catch (error) {
-                console.error('Failed to fetch recipe:', error);
+                setIsLoading(true);
+                const [recipeData, versionHistory] = await Promise.all([
+                    fetchRecipeById(id, selectedVersion),
+                    fetchVersionHistory(id)
+                ]);
+                
+                setRecipe(recipeData);
+                setVersions(versionHistory.versions);
+                
+                if (!selectedVersion) {
+                    setSelectedVersion(recipeData.versionInfo.version);
+                }
+                
+                setError(null);
+            } catch (err) {
+                console.error('Error loading recipe:', err);
                 setError('Failed to load recipe');
+            } finally {
                 setIsLoading(false);
             }
         }
 
-        loadRecipe();
-    }, [id]);
+        loadRecipeAndVersions();
+    }, [id, selectedVersion]);
+
+    const handleVersionSelect = async (version) => {
+        setSelectedVersion(version);
+    };
 
     const brewVolume = useMemo(() => {
         if (!recipe) return 0;
@@ -89,11 +125,43 @@ export default function RecipeOverviewPage() {
         steps,
         tastingNotes,
         journal,
-        gear
+        gear,
+        versionInfo
     } = recipe;
+
+    const isOwner = user && userID._id === user._id;
+    const hasMultipleVersions = versions.length > 1;
 
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
+            {hasMultipleVersions && (
+                <div className="mb-4 bg-gray-50 rounded-lg p-4 flex items-center justify-between">
+                    <div className="flex items-center gap-2">
+                        <span className="text-sm text-gray-600">Version:</span>
+                        <span className="font-medium">v{versionInfo.version}</span>
+                        {!versionInfo.version.endsWith('.0') && (
+                            <GitBranch className="h-4 w-4 text-green-500" />
+                        )}
+                    </div>
+                    <button
+                        onClick={() => setIsVersionHistoryOpen(!isVersionHistoryOpen)}
+                        className="text-sm text-blue-600 hover:text-blue-800"
+                    >
+                        {isVersionHistoryOpen ? 'Hide History' : 'Show History'}
+                    </button>
+                </div>
+            )}
+
+            {/* Version History Panel */}
+            {isVersionHistoryOpen && (
+                <div className="mb-6">
+                    <VersionHistory
+                        versions={versions}
+                        currentVersion={versionInfo.version}
+                        onVersionSelect={handleVersionSelect}
+                    />
+                </div>
+            )}
         {/* Title section with true centering */}
             <div className="min-h-[48px] relative flex items-start mb-2">
                 {/* Left spacer - only visible when authenticated */}

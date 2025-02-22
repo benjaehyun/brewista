@@ -1,39 +1,143 @@
 const CALC_RECIPE_KEY = 'calculatedRecipe';
+const RECIPE_VERSION_KEY = 'recipeVersionInfo';
 
-export const saveCalculatedRecipe = (recipe) => {
+
+export const saveCalculatedRecipe = (recipe, versionInfo = null) => {
   try {
-    const recipeWithTimestamp = {
-      recipe,
-      timestamp: Date.now()
-    };
-    localStorage.setItem(CALC_RECIPE_KEY, JSON.stringify(recipeWithTimestamp));
+      const recipeWithMeta = {
+          recipe,
+          versionInfo: versionInfo || {
+              sourceVersion: recipe.versionInfo?.version || '1.0',
+              sourceRecipeId: recipe._id,
+              isCalculatedVariant: true,
+              calculatedAt: Date.now(),
+              changes: [{
+                  field: 'recipe',
+                  description: 'Created from brewing calculation'
+              }]
+          },
+          timestamp: Date.now()
+      };
+      localStorage.setItem(CALC_RECIPE_KEY, JSON.stringify(recipeWithMeta));
   } catch (error) {
-    console.error('Error saving calculated recipe to local storage:', error);
+      console.error('Error saving calculated recipe to local storage:', error);
   }
 };
 
 export const getCalculatedRecipe = () => {
   try {
-    const storedRecipe = localStorage.getItem(CALC_RECIPE_KEY);
-    if (storedRecipe) {
-      const parsedRecipe = JSON.parse(storedRecipe);
-      if (Date.now() - parsedRecipe.timestamp > 24 * 60 * 60 * 1000) {
-        clearCalculatedRecipe();
-        return null;
+      const storedData = localStorage.getItem(CALC_RECIPE_KEY);
+      if (storedData) {
+          const parsedData = JSON.parse(storedData);
+          
+          // Check if stored data is expired (24 hours)
+          if (Date.now() - parsedData.timestamp > 24 * 60 * 60 * 1000) {
+              clearCalculatedRecipe();
+              return null;
+          }
+
+          // Add version info if it doesn't exist (backward compatibility)
+          if (!parsedData.versionInfo) {
+              parsedData.versionInfo = {
+                  sourceVersion: '1.0',
+                  sourceRecipeId: parsedData.recipe._id,
+                  isCalculatedVariant: true,
+                  calculatedAt: parsedData.timestamp,
+                  changes: [{
+                      field: 'recipe',
+                      description: 'Created from brewing calculation'
+                  }]
+              };
+          }
+
+          return parsedData;
       }
-      return parsedRecipe.recipe;
-    }
-    return null;
+      return null;
   } catch (error) {
-    console.error('Error retrieving calculated recipe from local storage:', error);
-    return null;
+      console.error('Error retrieving calculated recipe from local storage:', error);
+      return null;
   }
 };
 
 export const clearCalculatedRecipe = () => {
   try {
-    localStorage.removeItem(CALC_RECIPE_KEY);
+      localStorage.removeItem(CALC_RECIPE_KEY);
   } catch (error) {
-    console.error('Error clearing calculated recipe from local storage:', error);
+      console.error('Error clearing calculated recipe from local storage:', error);
   }
+};
+
+// New functions for handling version information during brewing process
+
+export const saveBrewingVersionInfo = (recipeId, version, changes = []) => {
+  try {
+      const versionInfo = {
+          recipeId,
+          version,
+          changes,
+          timestamp: Date.now()
+      };
+      localStorage.setItem(RECIPE_VERSION_KEY, JSON.stringify(versionInfo));
+  } catch (error) {
+      console.error('Error saving brewing version info:', error);
+  }
+};
+
+export const getBrewingVersionInfo = () => {
+  try {
+      const storedInfo = localStorage.getItem(RECIPE_VERSION_KEY);
+      if (storedInfo) {
+          const parsedInfo = JSON.parse(storedInfo);
+          
+          // Check if stored info is expired (1 hour)
+          if (Date.now() - parsedInfo.timestamp > 60 * 60 * 1000) {
+              clearBrewingVersionInfo();
+              return null;
+          }
+          
+          return parsedInfo;
+      }
+      return null;
+  } catch (error) {
+      console.error('Error retrieving brewing version info:', error);
+      return null;
+  }
+};
+
+export const clearBrewingVersionInfo = () => {
+  try {
+      localStorage.removeItem(RECIPE_VERSION_KEY);
+  } catch (error) {
+      console.error('Error clearing brewing version info:', error);
+  }
+};
+
+
+// Helper functions for version handling
+
+export const isCalculatedRecipe = (recipe) => {
+  return recipe?.versionInfo?.isCalculatedVariant || false;
+};
+
+export const getRecipeSourceInfo = (recipe) => {
+  if (!recipe?.versionInfo) return null;
+  
+  return {
+      sourceRecipeId: recipe.versionInfo.sourceRecipeId,
+      sourceVersion: recipe.versionInfo.sourceVersion,
+      calculatedAt: recipe.versionInfo.calculatedAt
+  };
+};
+
+export const shouldCreateNewVersion = (originalRecipe, calculatedRecipe) => {
+  // Compare recipe specs to determine if a new version is needed
+  const relevantFields = [
+      'coffeeAmount',
+      'waterAmount',
+      'steps'
+  ];
+
+  return relevantFields.some(field => 
+      JSON.stringify(originalRecipe[field]) !== JSON.stringify(calculatedRecipe[field])
+  );
 };
