@@ -42,17 +42,24 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Optimistic UI updates for seamless interaction
 - Efficient data flow patterns for real-time calculations
 
-### Animation System
-- GSAP-powered timeline animations
-- React Spring for interactive transitions
-- Optimized performance on mobile devices
-- Smooth visual feedback for user actions
-
 ### Complex Calculations
 - Non-linear time scaling for different brewing methods
-- Real-time recipe parameter adjustments
+- Real-time recipe parameter adjustments using debounced updates
 - Preservation of critical ratios during scaling
 - Separate handling of bloom phases
+- Built flexible support for multiple recipe types
+
+### Interactive Timeline System
+- Custom timeline visualization with GSAP animations
+- Dynamic step management with drag-and-drop reordering
+- React Spring for interactive transitions
+- Responsive design adapting to recipe complexity
+
+### Mobile Experience
+- Implemented touch-friendly brewing controls
+- Created custom bottom sheets for step details
+- Optimized animations for mobile performance
+- Built responsive layouts for all screen sizes
 
 ### Timer Reliability
 - Wake Lock API implementation for preventing device sleep (except for a known bug on ios devices when added to homescreen)
@@ -79,28 +86,12 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - MongoDB database
 - JWT authentication
 
-## Technical Details
+## Currently
+- Working on update to recipe storage and handling to track changes to recipes and display versioning history with the ability to brew with past versions. 
 
-### Recipe Engine
-- Developed scaling algorithms for precise measurements
-- Implemented real-time calculation updates with debouncing
-- Built flexible support for multiple recipe types
-
-### Interactive Timeline System
-- Custom timeline visualization with GSAP animations
-- Dynamic step management with drag-and-drop reordering
-- Responsive design adapting to recipe complexity
-- Optimized performance for mobile devices
-
-### Mobile Experience
-- Implemented touch-friendly brewing controls
-- Created custom bottom sheets for step details
-- Optimized animations for mobile performance
-- Built responsive layouts for all screen sizes
 
 ## Future Development
 
-- Smart device integration
 - Advanced recipe recommendations
 - Support for more brewing types beyond pour-overs
 - Enhanced analytics and insights
