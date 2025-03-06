@@ -219,13 +219,13 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
         <div className="w-full space-y-4">
             <div className="space-y-4">
                 <div>
-                    <label className="block text-sm font-medium text-gray-700">Description *</label>
+                    <label className="block text-sm font-medium text-gray-700">Description (*required) </label>
                     <textarea
                         value={description}
                         onChange={(e) => setDescription(e.target.value)}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm resize-y min-h-[60px]"
                         placeholder="Describe this step"
-                        required
+                        // required
                     />
                 </div>
                 {isTimed && (
@@ -233,6 +233,8 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
                         <label className="block text-sm font-medium text-gray-700">Time (seconds)</label>
                         <input
                             type="number"
+                            inputMode="numeric"
+                            pattern="[0-9]*"
                             value={time}
                             onChange={(e) => setTime(e.target.value)}
                             className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
@@ -247,6 +249,8 @@ export default function RecipeStepForm({ steps, setSteps, isTimed, isRatio }) {
                     </label>
                     <input
                         type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         value={waterAmount}
                         onChange={(e) => setWaterAmount(e.target.value)}
                         className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"
