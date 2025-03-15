@@ -12,14 +12,24 @@ export default function TimerPage() {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const { recipe, coffeeAmount, brewVolume, stepsToUse, scalingFactor } = location.state || {};
+    
+    // Extract recipe and version information
+    const { 
+        recipe, 
+        coffeeAmount, 
+        brewVolume, 
+        stepsToUse, 
+        scalingFactor,
+        version  // Extract version if passed from CalculatePage
+    } = location.state || {};
 
-    const calculatedRecipe = {
+    // Create the calculated recipe 
+    const calculatedRecipe = recipe ? {
         ...recipe, 
         coffeeAmount: coffeeAmount,
         steps: stepsToUse,
         type: "Explicit"
-    }
+    } : null;
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);
@@ -37,7 +47,7 @@ export default function TimerPage() {
     }, [recipe, stepsToUse, navigate, id]);
 
     const handleStartBrew = () => {
-        clearCalculatedRecipe()
+        clearCalculatedRecipe();    //be sure to clear previous calculations when starting ne wbrew 
         setIsBrewStarted(true);
     };
 
