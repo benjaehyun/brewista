@@ -6,7 +6,8 @@ module.exports = {
     getSpecificVersion,
     createVersion,
     createBranch,
-    copyRecipe
+    copyRecipe,
+    isCurrentVersion
 };
 
 async function getVersionHistory(req, res) {
@@ -24,7 +25,10 @@ async function getVersionHistory(req, res) {
             .lean();
 
         // Build version tree structure
-        const versionTree = versions.map(version => ({
+        const versionTree = await RecipeVersion.getVersionTree(recipeId);
+        
+        // Add metadata to each version
+        const versionsWithMeta = versions.map(version => ({
             ...version,
             isCurrent: version.version === recipe.currentVersion,
             isMainVersion: version.version.endsWith('.0')
@@ -34,7 +38,8 @@ async function getVersionHistory(req, res) {
             currentVersion: recipe.currentVersion,
             originalRecipe: recipe.originalRecipeId,
             originalVersion: recipe.originalVersion,
-            versions: versionTree
+            versions: versionsWithMeta,
+            versionTree
         });
     } catch (error) {
         console.error('Error fetching version history:', error);
@@ -58,7 +63,17 @@ async function getSpecificVersion(req, res) {
             return res.status(404).json({ error: 'Version not found' });
         }
 
-        res.json(versionDoc);
+        // Get recipe metadata
+        const recipe = await Recipe.findById(id);
+        
+        // Check if this is the current version
+        const isCurrent = recipe.currentVersion === version;
+
+        res.json({
+            ...versionDoc.toObject(),
+            isCurrent,
+            currentVersion: recipe.currentVersion
+        });
     } catch (error) {
         console.error('Error fetching specific version:', error);
         res.status(500).json({ error: 'Failed to fetch version' });
@@ -75,13 +90,23 @@ async function createVersion(req, res) {
             return res.status(404).json({ error: 'Recipe not found' });
         }
 
-        // check if current user is recipe owner
+        // Verify user is recipe owner
         if (recipe.userID.toString() !== req.user._id.toString()) {
             return res.status(403).json({ error: 'Not authorized to create version' });
         }
 
+        // Check if we're editing the current version - only allow main version creation then
+        const isEditingCurrentVersion = await RecipeVersion.isCurrentVersion(id, req.body.sourceVersion);
+        
+        if (!isEditingCurrentVersion) {
+            return res.status(400).json({ 
+                error: 'Cannot create main version from non-current version. Use branch instead.',
+                shouldBranch: true
+            });
+        }
+
         // Get next main version number
-        const nextVersion = await RecipeVersion.getNextVersion(id);
+        const nextVersion = await RecipeVersion.getNextMainVersion(id);
 
         const versionDoc = new RecipeVersion({
             recipeId: id,
@@ -97,7 +122,10 @@ async function createVersion(req, res) {
         recipe.currentVersion = nextVersion;
         await recipe.save();
 
-        res.status(201).json(versionDoc);
+        res.status(201).json({
+            ...versionDoc.toObject(),
+            isCurrent: true
+        });
     } catch (error) {
         console.error('Error creating version:', error);
         res.status(500).json({ error: 'Failed to create version' });
@@ -112,6 +140,21 @@ async function createBranch(req, res) {
         const recipe = await Recipe.findById(id);
         if (!recipe) {
             return res.status(404).json({ error: 'Recipe not found' });
+        }
+
+        // Verify user is recipe owner
+        if (recipe.userID.toString() !== req.user._id.toString()) {
+            return res.status(403).json({ error: 'Not authorized to create branch' });
+        }
+
+        // Check if parent is current version - if so, suggest creating main version instead
+        const isParentCurrent = await RecipeVersion.isCurrentVersion(id, parentVersion);
+        
+        if (isParentCurrent) {
+            return res.status(400).json({ 
+                error: 'Cannot create branch from current version. Use main version instead.',
+                shouldUseMain: true 
+            });
         }
 
         // Get next branch version number
@@ -182,5 +225,18 @@ async function copyRecipe(req, res) {
     } catch (error) {
         console.error('Error copying recipe:', error);
         res.status(500).json({ error: 'Failed to copy recipe' });
+    }
+}
+
+async function isCurrentVersion(req, res) {
+    try {
+        const { id, version } = req.params;
+        
+        const isCurrent = await RecipeVersion.isCurrentVersion(id, version);
+        
+        res.json({ isCurrent });
+    } catch (error) {
+        console.error('Error checking current version:', error);
+        res.status(500).json({ error: 'Failed to check version status' });
     }
 }
