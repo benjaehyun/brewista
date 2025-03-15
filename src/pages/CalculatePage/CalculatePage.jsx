@@ -1,5 +1,5 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
-import { useParams, useNavigate } from 'react-router-dom';
+import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { fetchRecipeById } from '../../services/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import debounce from 'lodash.debounce';
@@ -13,6 +13,11 @@ const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 export default function CalculatePage() {
     const navigate = useNavigate();
     const { id } = useParams();
+    const [searchParams] = useSearchParams();
+    
+    // Get version from URL query params if available
+    const versionParam = searchParams.get('version');
+    
     const [recipe, setRecipe] = useState(null);
     const [isLoading, setIsLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -81,7 +86,8 @@ export default function CalculatePage() {
     useEffect(() => {
         async function loadRecipeAndCalculate() {
             try {
-                const fetchedRecipe = await fetchRecipeById(id);
+                setIsLoading(true);
+                const fetchedRecipe = await fetchRecipeById(id, versionParam);
                 setRecipe(fetchedRecipe);
                 setIsLoading(false);
                 const initialResult = calculateValues('', inputType, fetchedRecipe);
@@ -94,8 +100,7 @@ export default function CalculatePage() {
         }
 
         loadRecipeAndCalculate();
-    // }, [id, inputType, calculateValues]);
-    }, [id, calculateValues]);
+    }, [id, versionParam, calculateValues]);
 
     useEffect(() => {
         if (recipe) {
@@ -125,13 +130,20 @@ export default function CalculatePage() {
             return step.waterAmount ? total + step.waterAmount : total;
         }, 0);
 
+        // Pass version information to the Timer page
         navigate(`/timer/${id}`, {
             state: {
                 recipe: recipe,
                 coffeeAmount: coffeeValue,
-                brewVolume: calculationResult.calculatedValue !== null && inputType === 'coffeeAmount' ? calculationResult.calculatedValue : originalBrewVolume,
-                stepsToUse: calculationResult.calculatedSteps.length > 0 ? calculationResult.calculatedSteps : recipe.steps,
-                scalingFactor: calculationResult.scalingFactor
+                brewVolume: calculationResult.calculatedValue !== null && inputType === 'coffeeAmount' 
+                    ? calculationResult.calculatedValue 
+                    : originalBrewVolume,
+                stepsToUse: calculationResult.calculatedSteps.length > 0 
+                    ? calculationResult.calculatedSteps 
+                    : recipe.steps,
+                scalingFactor: calculationResult.scalingFactor,
+                // Pass version information 
+                version: versionParam || recipe.versionInfo?.version || recipe.currentVersion
             },
         });
     };
@@ -151,9 +163,25 @@ export default function CalculatePage() {
         return step.waterAmount ? total + step.waterAmount : total;
     }, 0);
 
+    // Display version information if brewing a specific version
+    const versionInfo = versionParam 
+        ? `Version ${versionParam}` 
+        : recipe.versionInfo?.version 
+            ? `Version ${recipe.versionInfo.version}` 
+            : '';
+
     return (
         <div className="max-w-4xl mx-auto p-4">
             <h1 className="text-3xl font-bold mb-4 text-center">Calculate Brew</h1>
+            
+            {/* Version indicator */}
+            {versionInfo && (
+                <div className="mb-4 text-center">
+                    <span className="inline-block bg-blue-100 text-blue-800 px-3 py-1 rounded-full text-sm">
+                        {versionInfo}
+                    </span>
+                </div>
+            )}
 
             <div className="mb-4 text-center">
                 {recipe.type === 'Ratio' ? (
@@ -191,27 +219,6 @@ export default function CalculatePage() {
             </div>
 
             <div className="mb-4">
-                {/* {inputType === 'coffeeAmount' ? (
-                    <div className="mb-2">
-                        <label className="block mb-2 text-center">Enter Desired Coffee Amount (g):</label>
-                        <input
-                            type="number"
-                            value={userInput}
-                            onChange={handleInputChange}
-                            className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
-                        />
-                    </div>
-                ) : (
-                    <div className="mb-2">
-                        <label className="block mb-2 text-center">Enter Desired Brew Volume (mL):</label>
-                        <input
-                            type="number"
-                            value={userInput}
-                            onChange={handleInputChange}
-                            className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 sm:w-1/2 mx-auto"
-                        />
-                    </div>
-                )} */}
                 <NumericInput
                     value={userInput}
                     onChange={handleInputChange}
