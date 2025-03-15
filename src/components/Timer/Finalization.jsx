@@ -3,6 +3,7 @@ import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utilities/auth-context';
 import { saveCalculatedRecipe } from '../../services/localStorageUtils';
 import { Tag, GitCommit, GitBranch } from 'lucide-react';
+import { clearCalculatedRecipe } from '../../services/localStorageUtils';
 
 export default function FinalizationComponent({ recipe, calculatedRecipe }) {
     const navigate = useNavigate();

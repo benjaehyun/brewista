@@ -7,116 +7,37 @@ import {
   faThermometerHalf, faFlask, faWeight, faBalanceScale, faUser,
   faRuler
 } from '@fortawesome/free-solid-svg-icons';
-import { fetchRecipeById, fetchVersionHistory } from '../../services/recipe-api';
+import { 
+  fetchRecipeById, 
+  fetchVersionHistory,
+  compareVersions 
+} from '../../services/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import BookmarkButton from '../../components/RecipeIndex/BookmarkButton';
 import { useAuth } from '../../utilities/auth-context';
-import { GitBranch, Clock, AlertCircle, GitCommit } from 'lucide-react';
+import { 
+  GitBranch, 
+  Clock, 
+  AlertCircle, 
+  GitCommit, 
+  ChevronDown, 
+  ChevronUp,
+  History,
+  Tag
+} from 'lucide-react';
+import { VersionHistory } from '../../components/RecipeDetails/VersionHistory';
 
-// Version History Component
-function VersionHistory({ versions, currentVersion, onVersionSelect }) {
-    // Group versions by major version
-    const groupedVersions = versions.reduce((acc, ver) => {
-        const [major] = ver.version.split('.');
-        if (!acc[major]) acc[major] = [];
-        acc[major].push(ver);
-        return acc;
-    }, {});
-
-    // Sort versions within groups
-    Object.keys(groupedVersions).forEach(major => {
-        groupedVersions[major].sort((a, b) => {
-            const [, minorA] = a.version.split('.');
-            const [, minorB] = b.version.split('.');
-            return parseInt(minorB) - parseInt(minorA);
-        });
-    });
-
-    // Sort major version groups
-    const sortedMajors = Object.keys(groupedVersions).sort((a, b) => parseInt(b) - parseInt(a));
-
-    return (
-        <div className="bg-white rounded-lg shadow-md p-4">
-            <h3 className="text-lg font-semibold mb-4">Version History</h3>
-            <div className="space-y-4">
-                {sortedMajors.map(major => (
-                    <div key={major} className="border-l-2 border-gray-200 pl-4">
-                        {groupedVersions[major].map((version) => (
-                            <div 
-                                key={version.version}
-                                className={`relative mb-4 cursor-pointer transition-colors ${
-                                    version.version === currentVersion 
-                                        ? 'bg-blue-50' 
-                                        : 'hover:bg-gray-50'
-                                } rounded-lg p-3`}
-                                onClick={() => onVersionSelect(version.version)}
-                            >
-                                {/* Version indicator line */}
-                                <div className="absolute -left-[21px] top-1/2 transform -translate-y-1/2">
-                                    {version.version.endsWith('.0') ? (
-                                        <GitCommit className="w-5 h-5 text-blue-500" />
-                                    ) : (
-                                        <GitBranch className="w-5 h-5 text-green-500" />
-                                    )}
-                                </div>
-
-                                {/* Version content */}
-                                <div className="flex justify-between items-start">
-                                    <div>
-                                        <div className="flex items-center gap-2">
-                                            <span className="font-medium">v{version.version}</span>
-                                            {version.version === currentVersion && (
-                                                <span className="text-xs bg-blue-100 text-blue-800 px-2 py-0.5 rounded-full">
-                                                    Current
-                                                </span>
-                                            )}
-                                        </div>
-                                        <div className="text-sm text-gray-600 mt-1">
-                                            {version.createdBy?.username || 'Unknown'} • {
-                                                new Date(version.createdAt).toLocaleDateString()
-                                            }
-                                        </div>
-                                    </div>
-                                </div>
-
-                                {/* Changes */}
-                                {version.changes?.length > 0 && (
-                                    <div className="mt-2 space-y-1">
-                                        {version.changes.map((change, idx) => (
-                                            <div key={idx} className="text-sm text-gray-600">
-                                                • {change.description}
-                                            </div>
-                                        ))}
-                                    </div>
-                                )}
-
-                                {/* Parent version reference */}
-                                {version.parentVersion && (
-                                    <div className="mt-2 text-xs text-gray-500">
-                                        Branched from v{version.parentVersion}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                    </div>
-                ))}
-            </div>
-        </div>
-    );
-}
-
-const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
-
-export default function RecipeDetailsPage() {
+export default function RecipesDetailsPage() {
     const { id } = useParams();
-    const [searchParams, setSearchParams] = useSearchParams();
     const navigate = useNavigate();
+    const [searchParams, setSearchParams] = useSearchParams();
     
     // State for recipe and versions
     const [recipe, setRecipe] = useState(null);
     const [versions, setVersions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
+    const [isVersionHistoryLoading, setIsVersionHistoryLoading] = useState(false);
     const [error, setError] = useState(null);
     const { user } = useAuth();
 
@@ -130,18 +51,14 @@ export default function RecipeDetailsPage() {
                 setIsLoading(true);
                 setError(null);
                 
-                // Fetch both recipe and version history in parallel
-                const [recipeData, versionHistory] = await Promise.all([
-                    fetchRecipeById(id, versionParam),
-                    fetchVersionHistory(id)
-                ]);
-                
+                // Fetch recipe with specific version if requested
+                const recipeData = await fetchRecipeById(id, versionParam);
                 setRecipe(recipeData);
-                setVersions(versionHistory.versions || []);
                 
                 // Auto-open version history if URL has version parameter
                 if (versionParam) {
                     setIsVersionHistoryOpen(true);
+                    await loadVersionHistory();
                 }
             } catch (err) {
                 console.error('Error loading recipe data:', err);
@@ -154,6 +71,32 @@ export default function RecipeDetailsPage() {
         loadRecipeAndVersions();
     }, [id, versionParam]);
 
+    // Load version history
+    const loadVersionHistory = useCallback(async () => {
+        if (!id) return;
+        
+        try {
+            setIsVersionHistoryLoading(true);
+            const versionHistory = await fetchVersionHistory(id);
+            setVersions(versionHistory.versions || []);
+        } catch (err) {
+            console.error('Error loading version history:', err);
+        } finally {
+            setIsVersionHistoryLoading(false);
+        }
+    }, [id]);
+
+    // Toggle version history display
+    const toggleVersionHistory = useCallback(async () => {
+        const newState = !isVersionHistoryOpen;
+        setIsVersionHistoryOpen(newState);
+        
+        // Load version history if opening and not loaded yet
+        if (newState && versions.length === 0) {
+            await loadVersionHistory();
+        }
+    }, [isVersionHistoryOpen, versions.length, loadVersionHistory]);
+
     // Handle version selection
     const handleVersionSelect = useCallback((version) => {
         if (!recipe) return;
@@ -165,9 +108,18 @@ export default function RecipeDetailsPage() {
         } else {
             setSearchParams({ version });
         }
-    }, [recipe, setSearchParams]);
+        
+        // Reload recipe with selected version
+        navigate(`/recipes/${id}?version=${version}`, { replace: true });
+    }, [recipe, id, navigate, setSearchParams]);
+    
+    // Handle brew button click
+    const handleBrewClick = () => {
+        // Navigate to calculate page with version param if viewing a non-current version
+        navigate(`/calculate/${id}${versionParam ? `?version=${versionParam}` : ''}`);
+    };
 
-    if (isLoading && !recipe) {
+    if (isLoading) {
         return <div className="flex justify-center p-8">Loading...</div>;
     }
     
@@ -197,14 +149,18 @@ export default function RecipeDetailsPage() {
         currentVersion, // from the recipe base document
     } = recipe;
 
-    // Determine if recipe has different versions available
-    const hasMultipleVersions = versions.length > 1;
-    
     // Determine if viewing a non-current version
     const isViewingOldVersion = versionParam && versionParam !== (currentVersion || versionInfo?.version);
-
+    
     // Determine if current user is recipe owner
     const isOwner = user && userID._id === user._id;
+
+    // Determine if recipe has version history
+    const hasVersionHistory = versions.length > 0 || versionInfo || currentVersion;
+    
+    // Get current version information
+    const currentVersionInfo = versionParam || versionInfo?.version || currentVersion || '1.0';
+    const isMainVersion = currentVersionInfo.endsWith('.0');
 
     // Calculate brew volume
     const brewVolume = steps.reduce((total, step) => {
@@ -250,12 +206,13 @@ export default function RecipeDetailsPage() {
             )}
 
             {/* Version Bar */}
-            {hasMultipleVersions && (
+            {hasVersionHistory && (
                 <div className="mb-4 bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
+                        <Tag size={16} className="text-blue-500" />
                         <span className="text-sm text-gray-600">Version:</span>
-                        <span className="font-medium">v{versionInfo?.version}</span>
-                        {versionInfo?.version && !versionInfo.version.endsWith('.0') && (
+                        <span className="font-medium">v{currentVersionInfo}</span>
+                        {!isMainVersion && (
                             <GitBranch className="h-4 w-4 text-green-500" />
                         )}
                         {versionInfo?.createdAt && (
@@ -266,9 +223,10 @@ export default function RecipeDetailsPage() {
                         )}
                     </div>
                     <button
-                        onClick={() => setIsVersionHistoryOpen(!isVersionHistoryOpen)}
-                        className="text-sm text-blue-600 hover:text-blue-800"
+                        onClick={toggleVersionHistory}
+                        className="flex items-center gap-1 text-sm text-blue-600 hover:text-blue-800"
                     >
+                        <History size={16} />
                         {isVersionHistoryOpen ? 'Hide History' : 'Show History'}
                     </button>
                 </div>
@@ -277,11 +235,18 @@ export default function RecipeDetailsPage() {
             {/* Version History Panel */}
             {isVersionHistoryOpen && (
                 <div className="mb-6">
-                    <VersionHistory
-                        versions={versions}
-                        currentVersion={versionParam || currentVersion || versionInfo?.version}
-                        onVersionSelect={handleVersionSelect}
-                    />
+                    {isVersionHistoryLoading ? (
+                        <div className="text-center py-4">
+                            <div className="animate-spin h-6 w-6 border-4 border-blue-500 border-t-transparent rounded-full inline-block"></div>
+                            <p className="mt-2 text-gray-600">Loading version history...</p>
+                        </div>
+                    ) : (
+                        <VersionHistory
+                            versions={versions}
+                            currentVersion={versionParam || currentVersion || versionInfo?.version}
+                            onVersionSelect={handleVersionSelect}
+                        />
+                    )}
                 </div>
             )}
 
@@ -309,7 +274,7 @@ export default function RecipeDetailsPage() {
             {/* Brew Button section */}
             <div className="flex justify-end w-full mb-6">
                 <button
-                    onClick={() => navigate(`/calculate/${id}${versionParam ? `?version=${versionParam}` : ''}`)}
+                    onClick={handleBrewClick}
                     className="bg-blue-500 text-white py-2 px-4 rounded-lg shadow-md hover:bg-blue-600 transition"
                 >
                     Brew Recipe
@@ -444,7 +409,7 @@ export default function RecipeDetailsPage() {
             <h2 className="text-2xl font-semibold mb-4">Steps</h2>
             <div className="mb-8">
                 {!isLoading && recipe?.steps && (
-                    <MemoizedAnimatedTimeline steps={steps} />
+                    <AnimatedTimeline steps={steps} />
                 )}
             </div>
 
@@ -455,6 +420,20 @@ export default function RecipeDetailsPage() {
                         <p className="text-sm font-semibold">Journal</p>
                         <p className="text-sm">{journal}</p>
                     </div>
+                </div>
+            )}
+            
+            {/* Version changes section */}
+            {versionInfo?.changes?.length > 0 && (
+                <div className="bg-blue-50 p-4 rounded-lg shadow-md mb-8">
+                    <h3 className="text-lg font-semibold mb-2">Changes in this version</h3>
+                    <ul className="space-y-1">
+                        {versionInfo.changes.map((change, index) => (
+                            <li key={index} className="text-sm text-gray-700">
+                                • {change.description}
+                            </li>
+                        ))}
+                    </ul>
                 </div>
             )}
         </div>

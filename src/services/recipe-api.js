@@ -62,6 +62,10 @@ export async function copyRecipeWithVersion(sourceRecipeId, sourceVersion) {
     });
 }
 
+export async function isCurrentVersion(recipeId, version) {
+    return sendRequest(`${VERSION_URL}/${recipeId}/isCurrentVersion/${version}`);
+}
+
 // Utility functions for working with versions
 export function generateChangeDescription(field, oldValue, newValue) {
     switch (field) {
@@ -72,8 +76,8 @@ export function generateChangeDescription(field, oldValue, newValue) {
         case 'flowRate':
             return `Changed flow rate from ${oldValue} ml/s to ${newValue} ml/s`;
         case 'grindSize':
-            return oldValue.steps !== newValue.steps
-                ? `Changed grind size from ${oldValue.steps} to ${newValue.steps} steps`
+            return oldValue?.steps !== newValue?.steps
+                ? `Changed grind size from ${oldValue?.steps || 'unknown'} to ${newValue?.steps || 'unknown'} steps`
                 : 'Modified grind settings';
         case 'steps':
             return 'Modified brewing steps';
@@ -86,7 +90,12 @@ export function generateChangeDescription(field, oldValue, newValue) {
     }
 }
 
+// Calculate changes between two recipe versions
 export function calculateRecipeChanges(oldRecipe, newRecipe) {
+    if (!oldRecipe || !newRecipe) {
+        return [];
+    }
+
     const changes = [];
     const fields = [
         'name',
@@ -104,8 +113,39 @@ export function calculateRecipeChanges(oldRecipe, newRecipe) {
         const oldValue = oldRecipe[field];
         const newValue = newRecipe[field];
 
-        // Handle nested objects and arrays
-        if (JSON.stringify(oldValue) !== JSON.stringify(newValue)) {
+        // Skip undefined fields
+        if (oldValue === undefined || newValue === undefined) {
+            return;
+        }
+
+        // Handle different field types appropriately
+        let hasChanged = false;
+        
+        if (field === 'steps') {
+            // For steps, compare length and waterAmount values
+            if (oldValue?.length !== newValue?.length) {
+                hasChanged = true;
+            } else if (oldValue && newValue) {
+                // Compare each step's water amount
+                hasChanged = oldValue.some((step, index) => {
+                    return (
+                        newValue[index]?.waterAmount !== step?.waterAmount || 
+                        newValue[index]?.time !== step?.time
+                    );
+                });
+            }
+        } else if (typeof oldValue === 'object' && oldValue !== null) {
+            // For objects like grindSize, do JSON comparison
+            hasChanged = JSON.stringify(oldValue) !== JSON.stringify(newValue);
+        } else if (Array.isArray(oldValue)) {
+            // For arrays like tastingNotes
+            hasChanged = JSON.stringify(oldValue) !== JSON.stringify(newValue);
+        } else {
+            // For primitive values
+            hasChanged = oldValue !== newValue;
+        }
+
+        if (hasChanged) {
             changes.push({
                 field,
                 oldValue,
@@ -118,12 +158,12 @@ export function calculateRecipeChanges(oldRecipe, newRecipe) {
     return changes;
 }
 
-// Helper function to detect if recipe has changed
+// Helper function to see if recipe has changed
 export function hasRecipeChanged(oldRecipe, newRecipe) {
     return calculateRecipeChanges(oldRecipe, newRecipe).length > 0;
 }
 
-// Helper functions for version comparison and formatting
+// version comparison and formatting
 export function compareVersions(v1, v2) {
     const [major1, minor1] = v1.split('.').map(Number);
     const [major2, minor2] = v2.split('.').map(Number);
@@ -134,6 +174,10 @@ export function compareVersions(v1, v2) {
 
 export function isMainVersion(version) {
     return version.endsWith('.0');
+}
+
+export function isBranchVersion(version) {
+    return !isMainVersion(version);
 }
 
 export function getNextMainVersion(currentVersion) {
@@ -147,9 +191,4 @@ export function formatVersionNumber(version) {
 
 export function getVersionType(version) {
     return isMainVersion(version) ? 'Main Version' : 'Branch Version';
-}
-
-export function getVersionBreadcrumb(version, parentVersion) {
-    if (!parentVersion) return formatVersionNumber(version);
-    return `${formatVersionNumber(parentVersion)} → ${formatVersionNumber(version)}`;
 }
