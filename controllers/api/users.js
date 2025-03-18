@@ -8,43 +8,61 @@ module.exports = {
     checkToken
 }
 
-async function create (req, res) {
+async function create(req, res) {
     try {
-        const user = await User.create(req.body)
-        const token = createJWT(user)
-        res.json(token)
+        const user = await User.create(req.body);
+        const token = createJWT(user);
+        res.json(token);
     } catch (error) {
-        console.log('User creation error:', error); // More detailed error logging
-        console.log('Error code:', error.code);
-        console.log('Error keyPattern:', error.keyPattern);
-        console.log('Error keyValue:', error.keyValue);
+        console.log('User creation error:', error);
+        
         if (error.code === 11000) {
+            // MongoDB duplicate key error
             const field = Object.keys(error.keyPattern)[0];
-            console.log('Duplicate field:', field); // Debug log
-            res.status(400).json({
-                error: `${field} already exists`,
+            return res.status(400).json({
+                error: `This ${field} is already in use`,
                 field: field
             });
-        } else {
-            res.status(500).json({
-                error: 'Failed to create user',
-                details: error.message
-            })
+        } 
+        
+        // Validation errors
+        if (error.name === 'ValidationError') {
+            const fieldErrors = {};
+            
+            for (const field in error.errors) {
+                fieldErrors[field] = error.errors[field].message;
+            }
+            
+            return res.status(400).json({
+                error: 'Validation error',
+                fields: fieldErrors
+            });
         }
+        
+        res.status(500).json({
+            error: 'Failed to create user',
+            details: error.message
+        });
     }
 }
 
-async function login (req, res) {
+async function login(req, res) {
     try {
-        const user = await User.findOne({email: req.body.email})
-        if (!user) throw new Error()
-        const match = await bcrypt.compare(req.body.password, user.password)
-        if (!match) throw new Error()
-        const token = createJWT(user)
-        res.json(token)
+        const user = await User.findOne({ email: req.body.email });
+        if (!user) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        
+        const match = await bcrypt.compare(req.body.password, user.password);
+        if (!match) {
+            return res.status(401).json({ error: 'Invalid email or password' });
+        }
+        
+        const token = createJWT(user);
+        res.json(token);
     } catch (err) {
-        console.log(err)
-        res.status(400).json('Bad Credentials')
+        console.log(err);
+        res.status(400).json({ error: 'Login failed' });
     }
 }
 
