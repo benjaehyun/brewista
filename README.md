@@ -1,6 +1,6 @@
 # Brewista: Coffee Brewing Companion
 
-# Note: Application is under active development, please refer to feature branch for ongoing changes
+## Note: Application is under active development, please refer to feature branch for ongoing changes
 
 ## Live App Link
 
