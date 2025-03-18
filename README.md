@@ -1,5 +1,7 @@
 # Brewista: Coffee Brewing Companion
 
+## Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
+
 ## Live App Link
 
 🔗 [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
@@ -116,8 +118,11 @@ git clone https://github.com/benjaehyun/brewista.git
 cd brewista
 npm install
 
-# Start development server
-npm run dev
+# Start the React frontend development server
+npm start
+
+# In a new terminal, start the backend server
+node server.js
 ```
 
 ## Environment Setup
