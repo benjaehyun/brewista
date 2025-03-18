@@ -108,19 +108,5 @@ const recipeSchema = new Schema ({
 });
 
 
-// method to get full version history
-recipeSchema.methods.getVersionHistory = async function() {
-    return await RecipeVersion.find({ recipeId: this._id })
-      .sort({ createdAt: -1 })
-      .populate('createdBy', 'username');
-  };
-  
-// method to get specific version
-recipeSchema.methods.getVersion = async function(version) {
-    return await RecipeVersion.findOne({ 
-        recipeId: this._id,
-        version 
-    }).populate('createdBy', 'username');
-};
 
 module.exports = mongoose.model('Recipe', recipeSchema);

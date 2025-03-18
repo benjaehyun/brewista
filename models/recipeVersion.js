@@ -92,10 +92,10 @@ recipeVersionSchema.index({ recipeId: 1, createdAt: -1 });
 // Determine if this is a main version (x.0)
 recipeVersionSchema.virtual('isMainVersion').get(function() {
     return this.version.endsWith('.0');
-  });
+});
   
   // Static method to get the next version number based on versioning rules
-  recipeVersionSchema.statics.getNextVersion = async function(recipeId, parentVersion = null) {
+recipeVersionSchema.statics.getNextVersion = async function(recipeId, parentVersion = null) {
     const Recipe = mongoose.model('Recipe');
     
     // Get the recipe to find the current version
@@ -137,17 +137,17 @@ recipeVersionSchema.virtual('isMainVersion').get(function() {
     
     // Return next minor version
     return `${major}.${highestMinor + 1}`;
-  };
+};
   
   // Check if a version is the current version of the recipe
-  recipeVersionSchema.statics.isCurrentVersion = async function(recipeId, version) {
+recipeVersionSchema.statics.isCurrentVersion = async function(recipeId, version) {
     const Recipe = mongoose.model('Recipe');
     const recipe = await Recipe.findById(recipeId);
     return recipe && recipe.currentVersion === version;
-  };
+};
   
   // Get the next main version number for a recipe
-  recipeVersionSchema.statics.getNextMainVersion = async function(recipeId) {
+recipeVersionSchema.statics.getNextMainVersion = async function(recipeId) {
     const Recipe = mongoose.model('Recipe');
     const recipe = await Recipe.findById(recipeId);
     if (!recipe) throw new Error('Recipe not found');
@@ -155,10 +155,10 @@ recipeVersionSchema.virtual('isMainVersion').get(function() {
     const currentVersion = recipe.currentVersion || '1.0';
     const [major] = currentVersion.split('.');
     return `${parseInt(major) + 1}.0`;
-  };
+};
   
   // Get the version tree for visualization
-  recipeVersionSchema.statics.getVersionTree = async function(recipeId) {
+recipeVersionSchema.statics.getVersionTree = async function(recipeId) {
     const versions = await this.find({ recipeId })
       .sort({ version: 1 })
       .populate('createdBy', 'username')
@@ -175,7 +175,7 @@ recipeVersionSchema.virtual('isMainVersion').get(function() {
     });
     
     return versionTree;
-  };
+};
 
 const RecipeVersion = mongoose.model('RecipeVersion', recipeVersionSchema);
 

@@ -226,11 +226,17 @@ async function getRecipeById(req, res) {
         })
         .populate('createdBy', 'username')
         .populate('recipeData.coffeeBean') 
-        .populate('recipeData.gear')       // optional
+        .populate('recipeData.gear')       // optional, could remove
         .lean();
 
+        // Improved error handling for missing versions to be better handled in frontend
         if (!versionDoc) {
-            return res.status(404).json({ error: 'Version not found' });
+            return res.status(404).json({ 
+                error: 'The requested version was not found',
+                currentVersion: recipe.currentVersion, 
+                requestedVersion: requestedVersion,
+                availableVersions: await RecipeVersion.distinct('version', { recipeId })
+            });
         }
 
         // Merge recipe metadata with version data
@@ -366,7 +372,14 @@ function generateChangeDescription(field, oldValue, newValue) {
         case 'tastingNotes':
             return `Updated tasting notes`;
         case 'grindSize':
+            if (oldValue?.steps !== newValue?.steps) {
+                return `Changed grind size from ${oldValue?.steps || 0} to ${newValue?.steps || 0} steps`;
+            }
             return `Modified grind settings`;
+        case 'waterTemperature':
+            return `Changed water temperature from ${oldValue}° to ${newValue}°`;
+        case 'name':
+            return `Renamed from "${oldValue}" to "${newValue}"`;
         default:
             return `Updated ${field}`;
     }

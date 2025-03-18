@@ -59,10 +59,24 @@ async function getSpecificVersion(req, res) {
         .populate('recipeData.gear')
         .populate('recipeData.coffeeBean');
 
+        // return additional info in 404 response for debugging and also to be implemented for enhanced error handling in frontend 
         if (!versionDoc) {
-            return res.status(404).json({ error: 'Version not found' });
+            const recipe = await Recipe.findById(id);
+            if (!recipe) {
+                return res.status(404).json({ error: 'Recipe not found' });
+            }
+            
+            const availableVersions = await RecipeVersion.distinct('version', { recipeId: id });
+            
+            return res.status(404).json({ 
+                error: 'The requested version was not found',
+                recipeId: id,
+                recipeName: recipe.name,
+                currentVersion: recipe.currentVersion, 
+                requestedVersion: version,
+                availableVersions: availableVersions
+            });
         }
-
         // Get recipe metadata
         const recipe = await Recipe.findById(id);
         
