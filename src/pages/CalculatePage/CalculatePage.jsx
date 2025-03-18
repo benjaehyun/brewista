@@ -29,6 +29,8 @@ export default function CalculatePage() {
         calculatedSteps: []
     });
 
+    const didCalculate = userInput !== '' && calculationResult.scalingFactor !== 1;
+
     const calculateValues = useCallback((input, type, recipeData) => {
         if (!recipeData || !input) {
             return {
@@ -143,7 +145,8 @@ export default function CalculatePage() {
                     : recipe.steps,
                 scalingFactor: calculationResult.scalingFactor,
                 // Pass version information 
-                version: versionParam || recipe.versionInfo?.version || recipe.currentVersion
+                version: versionParam || recipe.versionInfo?.version || recipe.currentVersion,
+                didCalculate: didCalculate
             },
         });
     };

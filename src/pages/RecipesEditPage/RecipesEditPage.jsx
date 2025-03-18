@@ -51,6 +51,8 @@ const RecipeEditPage = () => {
   const [sourceIsCurrentVersion, setSourceIsCurrentVersion] = useState(false);
   const [versionActionRequired, setVersionActionRequired] = useState(false);
   const [versionActionType, setVersionActionType] = useState(null);
+  const [hasChanges, setHasChanges] = useState(false);
+  const [initialRecipeData, setInitialRecipeData] = useState(null);
 
   // Form state for recipe fields
   const [name, setName] = useState('');
@@ -103,10 +105,12 @@ const RecipeEditPage = () => {
         
         if (fromBrew && isCalculated) {
           // Get calculated recipe from local storage if coming from brewing flow
-          calculatedData = getCalculatedRecipe();
+          let localStorageRecipe = getCalculatedRecipe();
+          calculatedData = localStorageRecipe.recipe
           if (calculatedData) {
             loadedRecipe = calculatedData;
             setIsCalculatedRecipe(true);
+            setHasChanges(true)
           } else {
             // Fallback to API if local storage doesn't have data
             loadedRecipe = await fetchRecipeById(id, sourceVersion);
@@ -153,7 +157,7 @@ const RecipeEditPage = () => {
         setName(loadedRecipe.name);
         setIsRatio(loadedRecipe.type === 'Ratio');
         setCoffeeAmount(loadedRecipe.coffeeAmount);
-        setSelectedGear(loadedRecipe.gear.map(g => g._id));
+        setSelectedGear(loadedRecipe?.gear?.map(g => g._id));
         setSelectedBean(loadedRecipe.coffeeBean);
         setGrindSize(loadedRecipe.grindSize);
         setWaterTemp(loadedRecipe.waterTemperature);
@@ -162,6 +166,22 @@ const RecipeEditPage = () => {
         setSteps(loadedRecipe.steps);
         setTastingNotes(loadedRecipe.tastingNotes);
         setJournal(loadedRecipe.journal);
+
+        // Store initial recipe data for change detection
+        setInitialRecipeData({
+          name: loadedRecipe.name,
+          type: loadedRecipe.type,
+          coffeeAmount: loadedRecipe.coffeeAmount,
+          gear: loadedRecipe.gear.map(g => g._id),
+          coffeeBean: loadedRecipe.coffeeBean._id,
+          grindSize: loadedRecipe.grindSize,
+          waterTemperature: loadedRecipe.waterTemperature,
+          waterTemperatureUnit: loadedRecipe.waterTemperatureUnit,
+          flowRate: loadedRecipe.flowRate,
+          steps: loadedRecipe.steps,
+          tastingNotes: loadedRecipe.tastingNotes,
+          journal: loadedRecipe.journal
+        });
 
         // Check ownership
         setIsOwner(loadedRecipe.userID._id === user?._id);
@@ -185,6 +205,52 @@ const RecipeEditPage = () => {
     loadRecipeAndResources();
   }, [id, sourceVersion, fromBrew, isCalculated, user, checkVersionStatus]);
 
+  // Check for changes whenever form fields update
+  useEffect(() => {
+    if (initialRecipeData) {
+
+        if (isCalculatedRecipe) {
+            setHasChanges(true);
+            return; // Skip the comparison logic
+          }
+        const currentData = {
+            name,
+            type: isRatio ? 'Ratio' : 'Explicit',
+            coffeeAmount,
+            gear: selectedGear,
+            coffeeBean: selectedBean?._id,
+            grindSize,
+            waterTemperature: waterTemp,
+            waterTemperatureUnit: waterTempUnit,
+            flowRate,
+            steps,
+            tastingNotes,
+            journal
+        };
+        
+        // Deep comparison would be better, but for simplicity:
+        const formChanged = 
+            name !== initialRecipeData.name ||
+            isRatio !== (initialRecipeData.type === 'Ratio') ||
+            coffeeAmount !== initialRecipeData.coffeeAmount ||
+            JSON.stringify(selectedGear.sort()) !== JSON.stringify([...initialRecipeData.gear].sort()) ||
+            selectedBean?._id !== initialRecipeData.coffeeBean ||
+            JSON.stringify(grindSize) !== JSON.stringify(initialRecipeData.grindSize) ||
+            waterTemp !== initialRecipeData.waterTemperature ||
+            waterTempUnit !== initialRecipeData.waterTemperatureUnit ||
+            flowRate !== initialRecipeData.flowRate ||
+            JSON.stringify(steps) !== JSON.stringify(initialRecipeData.steps) ||
+            JSON.stringify(tastingNotes.sort()) !== JSON.stringify([...initialRecipeData.tastingNotes].sort()) ||
+            journal !== initialRecipeData.journal;
+        
+        setHasChanges(formChanged);
+    }
+  }, [
+    initialRecipeData, name, isRatio, coffeeAmount, selectedGear, 
+    selectedBean, grindSize, waterTemp, waterTempUnit, flowRate, 
+    steps, tastingNotes, journal
+  ]);
+
   const updateGearList = async () => {
     const updatedGearList = await fetchUserGear();
     setAvailableGear(updatedGearList);
@@ -193,6 +259,13 @@ const RecipeEditPage = () => {
   // Handle form submission
   const handleSubmit = async (e, actionOverride = null) => {
     e.preventDefault();
+    
+    // Don't proceed if no changes (except for copy action)
+    if (!hasChanges && actionOverride !== 'copy' && !createCopy) {
+      setError('No changes detected. Make some changes before saving.');
+      return;
+    }
+    
     setIsLoading(true);
     setError(null);
 
@@ -309,6 +382,18 @@ const RecipeEditPage = () => {
             }`} size={20} />
             <p className={versionBanner.type === 'warning' ? 'text-amber-800' : 'text-blue-800'}>
               {versionBanner.message}
+            </p>
+          </div>
+        </div>
+      )}
+      
+      {/* No changes warning */}
+      {!hasChanges && !createCopy && !versionActionRequired && (
+        <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
+          <div className="flex items-center">
+            <AlertCircle className="mr-2 text-amber-500" size={20} />
+            <p className="text-amber-800">
+              No changes detected. Make changes before saving to create a new version.
             </p>
           </div>
         </div>
@@ -451,8 +536,12 @@ const RecipeEditPage = () => {
           {!versionActionRequired && (
             <button
               type="submit"
-              className="py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-              disabled={!isFormValid}
+              className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
+                !isFormValid || (!hasChanges && !createCopy) 
+                  ? 'bg-gray-400 cursor-not-allowed' 
+                  : 'bg-indigo-600 hover:bg-indigo-700'
+              }`}
+              disabled={!isFormValid || (!hasChanges && !createCopy)}
             >
               {isOwner 
                 ? sourceIsCurrentVersion 

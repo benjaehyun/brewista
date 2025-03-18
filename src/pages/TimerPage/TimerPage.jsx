@@ -20,16 +20,17 @@ export default function TimerPage() {
         brewVolume, 
         stepsToUse, 
         scalingFactor,
+        didCalculate,
         version  // Extract version if passed from CalculatePage
     } = location.state || {};
 
     // Create the calculated recipe 
-    const calculatedRecipe = recipe ? {
+    const calculatedRecipe = (recipe && didCalculate) ? {
         ...recipe, 
         coffeeAmount: coffeeAmount,
         steps: stepsToUse,
         type: "Explicit"
-    } : null;
+      } : null;
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);

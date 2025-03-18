@@ -1,5 +1,7 @@
 # Brewista: Coffee Brewing Companion
 
+# Note: Application is under active development, please refer to feature branch for ongoing changes
+
 ## Live App Link
 
 🔗 [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
@@ -93,7 +95,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 
 ## Future Development
 
-- Advanced recipe recommendations
+- Share Recipes via post or link sharing 
 - Support for more brewing types beyond pour-overs
 - Enhanced analytics and insights
 - Offline mode support
@@ -108,9 +110,13 @@ git clone https://github.com/benjaehyun/brewista.git
 cd brewista
 npm install
 
-# Start development server
-npm run dev
+# Start the React frontend development server
+npm start
+
+# In a new terminal, start the backend server
+node server.js
 ```
+
 
 ## Environment Setup
 Create a `.env` file with the following variables:
