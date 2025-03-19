@@ -8,6 +8,7 @@
 ## Links
 
 🔗 Live deployment: [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
+<br>
 🔗 Read more about the project's challenges, implementation details, and more! [Project Details](https://www.benjaelee.com/projects/brewista/)
 
 ## Project Overview
