@@ -29,14 +29,14 @@ export const AuthProvider = ({ children }) => {
 
     const login = async (credentials) => {
         try {
-          const user = await usersService.login(credentials);
-          setUser(user);
-          // Fetch profile after successful login
-          const profile = await profilesAPI.getProfile();
-          setUserProfile(profile);
-          return user;
+            const user = await usersService.login(credentials);
+            setUser(user);
+            // Fetch profile after successful login
+            const profile = await profilesAPI.getProfile();
+            setUserProfile(profile);
+            return user;
         } catch (error) {
-          throw error;
+            throw error;
         }
     };
 

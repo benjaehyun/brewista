@@ -19,6 +19,12 @@ export default async function sendRequest(url, method = 'GET', payload = null) {
     }
 
     const res = await fetch(url, options);
+
     if (res.ok) return res.json();
-    throw new Error('Bad Request');
+
+    const errorData = await res.json().catch(() => ({
+        error: 'Request failed'
+    }));
+    
+    throw errorData; // Pass through the server's error message
 }

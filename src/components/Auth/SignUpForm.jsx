@@ -1,6 +1,8 @@
 import { useState } from 'react'; 
+import { useAuth } from '../../utilities/auth-context';
 
-export default function SignUpForm({ onSubmit }) {
+export default function SignUpForm({ onSuccess }) {
+    const { signup } = useAuth();
     const [formData, setFormData] = useState({
         username: '',
         email: '', 
@@ -8,6 +10,7 @@ export default function SignUpForm({ onSubmit }) {
         confirm: ''
     });
     const [errors, setErrors] = useState({});
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -16,22 +19,36 @@ export default function SignUpForm({ onSubmit }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
-        setErrors({});
+        
+        // Validate passwords match
         if (formData.password !== formData.confirm) {
             setErrors({ confirm: 'Passwords do not match' });
             return;
         }
+        
+        setIsSubmitting(true);
+        setErrors({});
+        
         try {
             const { confirm, ...submitData } = formData;
-            await onSubmit(submitData);
+            await signup(submitData);
+            onSuccess(); // Call the success callback
         } catch (err) {
-            if (err.field) {
-                // Handle field-specific errors (e.g., duplicate email)
-                setErrors({ [err.field]: err.error });
-              } else {
-                // Handle general errors
-                setErrors({ form: err.error || 'Sign up failed - Please try again' });
+            console.error('Signup error:', err);
+            
+            // Handle different error formats
+            if (err.fields) {
+                // Handle the fields object directly
+                setErrors(err.fields);
+            } else if (typeof err === 'object') {
+                // Handle general error object
+                setErrors({ form: err.error || err.message || 'Sign up failed - Please try again' });
+            } else {
+                // Handle string error
+                setErrors({ form: err || 'Sign up failed - Please try again' });
             }
+        } finally {
+            setIsSubmitting(false);
         }
     }
     const isDisabled = !formData.username || !formData.email || !formData.password || formData.password !== formData.confirm;

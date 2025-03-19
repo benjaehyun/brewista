@@ -9,10 +9,7 @@ export async function signUp (userData) {  // need to refactor to handle errors 
         return getUser();
       } catch (error) {
         // Pass through the error details from the API
-        if (error.response?.data) {
-            throw error.response.data;
-        }
-        throw { error: 'Signup failed', details: error.message };
+        throw error;
     }
 }
 
@@ -23,10 +20,10 @@ export async function login(credentials) {
         return getUser();
       } catch (error) {
         // Improve error message for login failures
-        if (error.response?.status === 400) {
-          throw { error: 'Invalid email or password' };
-        }
-        throw { error: 'Login failed', details: error.message };
+        console.error('Login error in service:', error);
+        // Forward structured errors or create new ones
+        if (error.error) throw error;
+        throw { error: 'Login failed. Please try again.' };
     }
 }
 

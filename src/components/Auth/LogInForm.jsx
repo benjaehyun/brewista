@@ -1,11 +1,14 @@
 import { useState } from 'react'; 
+import { useAuth } from '../../utilities/auth-context';
 
-export default function LogInForm({ onSubmit }) {
+export default function LogInForm({ onSuccess }) {
+    const { login } = useAuth();
     const [credentials, setCredentials] = useState({
         email: '', 
         password: ''
     });
     const [error, setError] = useState('');
+    const [isSubmitting, setIsSubmitting] = useState(false);
 
     function handleChange(e) {
         setCredentials({...credentials, [e.target.name]: e.target.value});
@@ -14,10 +17,27 @@ export default function LogInForm({ onSubmit }) {
 
     async function handleSubmit(e) {
         e.preventDefault();
+        
+        if (!credentials.email || !credentials.password) {
+            return;
+        }
+        
+        setIsSubmitting(true);
+        setError('');
+        
         try {
-            await onSubmit(credentials);
+            await login(credentials);
+            onSuccess(); // Call the success callback
         } catch (err) {
-            setError(err.error || 'Login Failed - Try Again');
+            console.error('Login error:', err);
+            // Handle different error formats
+            if (typeof err === 'object') {
+                setError(err.error || err.message || 'Login failed. Please try again.');
+            } else {
+                setError(err || 'Login failed. Please try again.');
+            }
+        } finally {
+            setIsSubmitting(false);
         }
     }
 
@@ -39,6 +59,7 @@ export default function LogInForm({ onSubmit }) {
                     }`}
                     value={credentials.email}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                 />
             </div>
 
@@ -56,6 +77,7 @@ export default function LogInForm({ onSubmit }) {
                     }`}
                     value={credentials.password}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                 />
             </div>
 
@@ -71,9 +93,9 @@ export default function LogInForm({ onSubmit }) {
                         ? 'bg-gray-300 cursor-not-allowed'
                         : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                         }`}
-                    disabled={!credentials.email || !credentials.password}
+                    disabled={!credentials.email || !credentials.password || isSubmitting}
                 >
-                    Log In
+                    {isSubmitting ? 'Logging in...' : 'Log In'}
                 </button>
             </div>
         </form>
