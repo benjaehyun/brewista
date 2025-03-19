@@ -1,6 +1,9 @@
 # Brewista: Coffee Brewing Companion
 
 ## Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
+### What's being worked on now: Refactoring front to back handling of recipes to include recipe versions 
+- This way users can make changes to a recipe and keep track of them 
+- For ex. If I got a new coffee bean that I've recorded a recipe for before, I can go back and use that particular version of the recipe
 
 ## Live App Link
 
