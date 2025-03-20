@@ -6,7 +6,7 @@ import StepInstructions from './StepInstructions';
 import StepProgressBar from './StepProgressBar';
 import { useWakeLock } from '../../hooks/useWakeLock';
 
-export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
+export default function BrewSteps({ step, onNextStep, onPreviousStep, steps, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
     const { requestWakeLock, releaseWakeLock, error: wakeLockError } = useWakeLock();
 
     // initialize wake lock
@@ -33,7 +33,7 @@ export default function BrewSteps({ step, onNextStep, onPreviousStep, stepsToUse
         currentStep={step}
         onNextStep={onNextStep}
         onPreviousStep={onPreviousStep}
-        stepsToUse={stepsToUse}
+        steps={steps} 
         currentStepIndex={currentStepIndex}
         autoStartTimer={autoStartTimer}
         autoNextStep={autoNextStep}

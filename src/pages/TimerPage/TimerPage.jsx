@@ -6,31 +6,31 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewSteps from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
-import { clearCalculatedRecipe } from '../../services/localStorageUtils';
+import { clearCalculatedRecipe, getCalculatedRecipe } from '../../services/localStorageUtils';
 
 export default function TimerPage() {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
     
-    // Extract recipe and version information
-    const { 
-        recipe, 
-        coffeeAmount, 
-        brewVolume, 
-        stepsToUse, 
-        scalingFactor,
-        didCalculate,
-        version  // Extract version if passed from CalculatePage
-    } = location.state || {};
+
+    const getRecipeData = () => {
+        // First try from route state
+        if (location.state?.calculatedRecipe) {
+            return location.state.calculatedRecipe;
+        }
+        
+        // Fall back to localStorage if available
+        const storedRecipe = getCalculatedRecipe();
+        if (storedRecipe?.recipe) {
+            return storedRecipe.recipe;
+        }
+        
+        return null;
+    };
 
     // Create the calculated recipe 
-    const calculatedRecipe = (recipe && didCalculate) ? {
-        ...recipe, 
-        coffeeAmount: coffeeAmount,
-        steps: stepsToUse,
-        type: "Explicit"
-      } : null;
+    const calculatedRecipe = getRecipeData()
 
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(false);
@@ -40,12 +40,12 @@ export default function TimerPage() {
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     useEffect(() => {
-        if (!recipe || !stepsToUse) {
+        if (!calculatedRecipe || !calculatedRecipe.steps || calculatedRecipe.steps.length === 0) {
             navigate(`/calculate/${id}`, { 
                 state: { error: "Missing recipe information. Please recalculate." }
             });
         }
-    }, [recipe, stepsToUse, navigate, id]);
+    }, [calculatedRecipe, navigate, id]);
 
     const handleStartBrew = () => {
         clearCalculatedRecipe();    //be sure to clear previous calculations when starting ne wbrew 
@@ -53,7 +53,7 @@ export default function TimerPage() {
     };
 
     const handleNextStep = () => {
-        if (currentStep < stepsToUse.length - 1) {
+        if (currentStep < calculatedRecipe.steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
             setIsBrewFinished(true);
@@ -67,12 +67,12 @@ export default function TimerPage() {
     };
 
     const handleSetStep = (stepIndex) => {
-        if (stepIndex >= 0 && stepIndex < stepsToUse.length) {
+        if (stepIndex >= 0 && stepIndex < calculatedRecipe.steps.length) {
             setCurrentStep(stepIndex);
         }
     };
 
-    if (!recipe || !stepsToUse) {
+    if (!calculatedRecipe) {
         return null; // Avoid rendering if redirected
     }
 
@@ -134,23 +134,20 @@ export default function TimerPage() {
 
             {!isBrewStarted ? (
                 <PreparationOverview
-                    recipe={recipe}
-                    coffeeAmount={coffeeAmount}
-                    brewVolume={brewVolume}
+                    calculatedRecipe={calculatedRecipe}
                     onStartBrew={handleStartBrew}
                 />
             ) : isBrewFinished ? (
                 <FinalizationComponent
-                    recipe={recipe}
                     calculatedRecipe={calculatedRecipe}
                 />
             ) : (
                 <BrewSteps
-                    step={stepsToUse[currentStep]}
+                    step={calculatedRecipe.steps[currentStep]}
                     onNextStep={handleNextStep}
                     onPreviousStep={handlePreviousStep}
                     onSetStep={handleSetStep}
-                    stepsToUse={stepsToUse}
+                    steps={calculatedRecipe.steps}
                     currentStepIndex={currentStep}
                     autoStartTimer={autoStartTimer}
                     autoNextStep={autoNextStep}

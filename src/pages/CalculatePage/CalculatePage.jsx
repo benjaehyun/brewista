@@ -7,6 +7,7 @@ import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
 import NumericInput from '../../components/CalculatePage/NumericInput';
+import { saveCalculatedRecipe } from '../../services/localStorageUtils';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 
@@ -23,6 +24,7 @@ export default function CalculatePage() {
     const [error, setError] = useState(null);
     const [inputType, setInputType] = useState('coffeeAmount');
     const [userInput, setUserInput] = useState('');
+    const [originalBrewVolume, setOriginalBrewVolume] = useState(0);
     const [calculationResult, setCalculationResult] = useState({
         calculatedValue: null,
         scalingFactor: 1,
@@ -42,9 +44,6 @@ export default function CalculatePage() {
 
         const { coffeeAmount: originalCoffeeAmount, steps, type: recipeType } = recipeData;
 
-        const originalBrewVolume = steps.reduce((total, step) => {
-            return step.waterAmount ? total + step.waterAmount : total;
-        }, 0);
 
         let calculatedValue;
         let scalingFactor = 1;
@@ -70,8 +69,8 @@ export default function CalculatePage() {
 
         const updatedSteps = steps.map((step) => ({
             ...step,
-            waterAmount: step.waterAmount ? parseFloat((step.waterAmount * scalingFactor).toFixed(2)) : undefined,
-            time: step.isBloom ? step.time : (step.time ? parseFloat((step.time * Math.pow(scalingFactor, 0.35)).toFixed()) : undefined),
+            waterAmount: step.waterAmount ? Number((step.waterAmount * scalingFactor).toFixed(2)) : undefined,
+            time: step.isBloom ? step.time : (step.time ? Number((step.time * Math.pow(scalingFactor, 0.35)).toFixed()) : undefined),
         }));
 
         return { calculatedValue, scalingFactor, calculatedSteps: updatedSteps };
@@ -90,6 +89,12 @@ export default function CalculatePage() {
             try {
                 setIsLoading(true);
                 const fetchedRecipe = await fetchRecipeById(id, versionParam);
+
+                const calcOriginalBrewVolume = fetchedRecipe.steps.reduce((total, step) => {
+                    return step.waterAmount ? total + step.waterAmount : total;
+                }, 0);
+                setOriginalBrewVolume(calcOriginalBrewVolume);
+
                 setRecipe(fetchedRecipe);
                 setIsLoading(false);
                 const initialResult = calculateValues('', inputType, fetchedRecipe);
@@ -128,25 +133,37 @@ export default function CalculatePage() {
             coffeeValue = recipe.coffeeAmount;
         }
 
-        const originalBrewVolume = recipe.steps.reduce((total, step) => {
-            return step.waterAmount ? total + step.waterAmount : total;
-        }, 0);
+
+
+        const brewVolume = calculationResult.calculatedValue !== null && inputType === 'coffeeAmount' 
+        ? calculationResult.calculatedValue 
+        : originalBrewVolume;
+
+        const calculatedRecipe = {
+            ...recipe,                
+            coffeeAmount: coffeeValue, // Override with calculated coffee amount
+            originalSteps: recipe.steps, // keep original steps intact for reference
+            steps: calculationResult.calculatedSteps.length > 0 
+                ? calculationResult.calculatedSteps 
+                : recipe.steps,
+            type: "Explicit",
+            calculationMetadata: {
+                originalRecipeId: recipe._id,
+                originalVersion: versionParam || recipe.versionInfo?.version || recipe.currentVersion,
+                scalingFactor: calculationResult.scalingFactor,
+                brewVolume: brewVolume,
+                calculatedAt: new Date().toISOString(),
+                didCalculate: didCalculate,
+                inputType: inputType
+            }
+        };
+
+        saveCalculatedRecipe(calculatedRecipe);
 
         // Pass version information to the Timer page
         navigate(`/timer/${id}`, {
             state: {
-                recipe: recipe,
-                coffeeAmount: coffeeValue,
-                brewVolume: calculationResult.calculatedValue !== null && inputType === 'coffeeAmount' 
-                    ? calculationResult.calculatedValue 
-                    : originalBrewVolume,
-                stepsToUse: calculationResult.calculatedSteps.length > 0 
-                    ? calculationResult.calculatedSteps 
-                    : recipe.steps,
-                scalingFactor: calculationResult.scalingFactor,
-                // Pass version information 
-                version: versionParam || recipe.versionInfo?.version || recipe.currentVersion,
-                didCalculate: didCalculate
+                calculatedRecipe: calculatedRecipe
             },
         });
     };
@@ -162,9 +179,6 @@ export default function CalculatePage() {
     if (error) return <div>{error}</div>;
     if (!recipe) return <div>Recipe not found</div>;
 
-    const originalBrewVolume = recipe.steps.reduce((total, step) => {
-        return step.waterAmount ? total + step.waterAmount : total;
-    }, 0);
 
     // Display version information if brewing a specific version
     const versionInfo = versionParam 

@@ -2,12 +2,12 @@ import React from 'react';
 import { useBrewStep } from './BrewStepContext';
 
 export default function StepProgressBar() {
-  const { stepsToUse, currentStepIndex, onSetStep } = useBrewStep();
+  const { steps, currentStepIndex, onSetStep } = useBrewStep();
 
   return (
     <div className="w-full bg-gray-100 py-2">
       <div className="flex gap-2 mx-4">
-        {stepsToUse.map((step, index) => (
+        {steps.map((step, index) => (
           <div
             key={index}
             onClick={() => onSetStep(index)}

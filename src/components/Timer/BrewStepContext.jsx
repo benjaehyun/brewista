@@ -10,16 +10,16 @@ export const useBrewStep = () => {
     return context;
 };
 
-export function BrewStepProvider({ children, currentStep, onNextStep, onPreviousStep, stepsToUse, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
+export function BrewStepProvider({ children, currentStep, onNextStep, onPreviousStep, steps, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
     const [timerState, setTimerState] = useState(autoStartTimer ? 'running' : 'paused');
     const [timeRemaining, setTimeRemaining] = useState(currentStep.time || 0);
 
     useEffect(() => {
         setTimeRemaining(currentStep.time || 0);
         if (autoStartTimer) {
-        setTimerState('running');
+            setTimerState('running');
         } else {
-        setTimerState('paused');
+            setTimerState('paused');
         }
     }, [currentStep, autoStartTimer]);
 
@@ -34,23 +34,23 @@ export function BrewStepProvider({ children, currentStep, onNextStep, onPrevious
 
     const handleTimerEnd = useCallback(() => {
         if (autoNextStep) {
-        onNextStep();
+            onNextStep();
         } else {
-        setTimerState('paused');
+            setTimerState('paused');
         }
     }, [autoNextStep, onNextStep]);
 
     const handleSetStep = useCallback((stepIndex) => {
-        if (stepIndex >= 0 && stepIndex < stepsToUse.length) {
-        onSetStep(stepIndex);
-        setTimerState('paused');
-        setTimeRemaining(stepsToUse[stepIndex].time || 0);
+        if (stepIndex >= 0 && stepIndex < steps.length) {  
+            onSetStep(stepIndex);
+            setTimerState('paused');
+            setTimeRemaining(steps[stepIndex].time || 0);  
         }
-    }, [stepsToUse, onSetStep]);
+    }, [steps, onSetStep]);  
 
     const value = {
         currentStep,
-        stepsToUse,
+        steps,  
         currentStepIndex,
         timerState,
         timeRemaining,
@@ -65,5 +65,5 @@ export function BrewStepProvider({ children, currentStep, onNextStep, onPrevious
         autoNextStep
     };
 
-  return <BrewStepContext.Provider value={value}>{children}</BrewStepContext.Provider>;
+    return <BrewStepContext.Provider value={value}>{children}</BrewStepContext.Provider>;
 }
