@@ -14,7 +14,7 @@ export default function SignUpForm({ onSuccess }) {
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
-        setErrors(prev => ({ ...prev, [e.target.name]: '' }));
+        setErrors(prev => ({ ...prev, [e.target.name]: '', form: '' }));
     }
 
     async function handleSubmit(e) {
