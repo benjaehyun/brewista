@@ -29,9 +29,9 @@ export function VersionHistory({ versions, currentVersion, onVersionSelect }) {
                                 {/* Version indicator line */}
                                 <div className="absolute -left-[21px] top-1/2 transform -translate-y-1/2">
                                     {version.version.endsWith('.0') ? (
-                                        <GitCommit className="w-5 h-5 text-blue-500" />
+                                        <GitCommit className="w-5 h-5 text-blue-500" style={{ transform: 'rotate(90deg) translateY(30%)'}}/>
                                     ) : version.parentVersion ? (
-                                        <GitBranch className="w-5 h-5 text-green-500" />
+                                        <GitBranch className="w-5 h-5 text-green-500" style={{ transform: 'translateX(-5%)'}}/>
                                     ) : (
                                         <GitMerge className="w-5 h-5 text-purple-500" />
                                     )}
