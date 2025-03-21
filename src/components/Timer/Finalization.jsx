@@ -2,57 +2,57 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utilities/auth-context';
 import { saveCalculatedRecipe } from '../../services/localStorageUtils';
-import { Tag, GitCommit, GitBranch } from 'lucide-react';
+import { Tag, GitBranch } from 'lucide-react';
 import { clearCalculatedRecipe } from '../../services/localStorageUtils';
 
-export default function FinalizationComponent({ recipe, calculatedRecipe }) {
+export default function FinalizationComponent({ calculatedRecipe }) {
     const navigate = useNavigate();
     const { user } = useAuth();
     const [selectedRecipe, setSelectedRecipe] = useState('calculated');
 
+    if (!calculatedRecipe) {
+        return <div className="text-red-500">Missing recipe information. Please go back and try again.</div>;
+    }
+
     const currentUser = user;
     const isAuthenticated = !!currentUser;
-    const isAuthor = isAuthenticated && currentUser._id === recipe?.userID?._id;
-
-    // Extract version information from recipe if available
-    const sourceVersion = recipe?.versionInfo?.version || recipe?.currentVersion || '1.0';
-    const isCurrentVersion = sourceVersion === recipe?.currentVersion;
-    const isMainVersion = sourceVersion.endsWith('.0');
-    const didCalculate = calculatedRecipe && 
-                         (calculatedRecipe.coffeeAmount !== recipe.coffeeAmount || 
-                          JSON.stringify(calculatedRecipe.steps) !== JSON.stringify(recipe.steps));
+    
+    // Extract metadata from calculatedRecipe
+    const {
+        _id: recipeId,
+        userID,
+        calculationMetadata
+    } = calculatedRecipe;
+    
+    // Check if user is the original author
+    const isAuthor = isAuthenticated && currentUser._id === userID?._id;
+    
+    // Extract version information
+    const sourceVersion = calculationMetadata?.originalVersion || '1.0';
+    const isCurrentVersion = calculationMetadata?.isFromCurrentVersion || false;
+    const didCalculate = calculationMetadata?.didCalculate || false;
 
     const handleEditOrSave = () => {
         if (selectedRecipe === 'original') {
-        // Clear any calculated recipe in storage since we're using original
-        clearCalculatedRecipe();
-        // Navigate to edit page with original recipe
-        navigate(`/recipes/edit/${recipe._id}?from=brew&version=${sourceVersion}`);
-        } else {
-        // Save calculated recipe to localStorage
-        const recipeToSave = {
-            ...calculatedRecipe,
-            _id: recipe._id,
-            userID: recipe.userID,
-            type: 'Explicit',
-            versionInfo: {
-                sourceVersion,
-                sourceRecipeId: recipe._id,
-                isCalculatedVariant: true,
-                calculatedAt: Date.now(),
-                isFromCurrentVersion: isCurrentVersion
+            clearCalculatedRecipe();
+            if (isAuthor) {
+                // author editing original recipe
+                navigate(`/recipes/edit/${recipeId}?from=brew&version=${sourceVersion}`);
+            } else {
+                // Non-author copying original recipe
+                navigate(`/recipes/edit/${recipeId}?from=brew&copy=true&version=${sourceVersion}`);
             }
-        };
-        
-        saveCalculatedRecipe(recipeToSave);
-        
-        if (isAuthor) {
-            // If author, decide whether to create main or branch version in edit page
-            navigate(`/recipes/edit/${recipe._id}?from=brew&calculated=true&version=${sourceVersion}`);
         } else {
-            // If not author, prepare for copy creation
-            navigate(`/recipes/edit/${recipe._id}?from=brew&copy=true&version=${sourceVersion}`);
-        }
+            // Using calculated recipe, make sure it's in localStorage for retrieval on next page
+            saveCalculatedRecipe(calculatedRecipe);
+            
+            if (isAuthor) {
+                // author saving calculated version
+                navigate(`/recipes/edit/${recipeId}?from=brew&calculated=true&version=${sourceVersion}`);
+            } else {
+                // Non-author copying calculated version
+                navigate(`/recipes/edit/${recipeId}?from=brew&calculated=true&copy=true&version=${sourceVersion}`);
+            }
         }
     };
 
@@ -68,7 +68,6 @@ export default function FinalizationComponent({ recipe, calculatedRecipe }) {
                 </div>
                 
                 <div className="p-6">
-                    {/* Source version info */}
                     <div className="mb-6 p-3 bg-gray-50 rounded-lg">
                         <div className="flex items-center justify-center gap-2">
                             <span className="text-gray-600">Brewed from:</span>
@@ -80,7 +79,7 @@ export default function FinalizationComponent({ recipe, calculatedRecipe }) {
                                         Current Version
                                     </span>
                                 )}
-                                {!isMainVersion && (
+                                {!sourceVersion.endsWith('.0') && (
                                     <div className="ml-2 flex items-center">
                                         <GitBranch size={14} className="text-green-500 mr-1" />
                                         <span className="text-xs text-green-600">branch</span>
@@ -97,38 +96,36 @@ export default function FinalizationComponent({ recipe, calculatedRecipe }) {
                                     <p className="text-center text-gray-700 text-lg mb-6">
                                         {isAuthor
                                             ? "Would you like to make changes to the recipe or save a new copy?"
-                                            : "Would you like to save an editable copy of this recipe?"}
+                                            : "Would you like to save a copy of this recipe?"}
                                     </p>
                                     
-                                    {isAuthor && (
-                                        <div className="mb-6">
-                                            <p className="text-center text-gray-600 mb-4">Choose a recipe version:</p>
-                                            <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
-                                                <label className="inline-flex items-center cursor-pointer">
-                                                    <input
-                                                        type="radio"
-                                                        className="form-radio text-blue-600 h-5 w-5"
-                                                        name="recipeVersion"
-                                                        value="original"
-                                                        checked={selectedRecipe === 'original'}
-                                                        onChange={() => setSelectedRecipe('original')}
-                                                    />
-                                                    <span className="ml-2 text-gray-700">Original Recipe</span>
-                                                </label>
-                                                <label className="inline-flex items-center cursor-pointer">
-                                                    <input
-                                                        type="radio"
-                                                        className="form-radio text-blue-600 h-5 w-5"
-                                                        name="recipeVersion"
-                                                        value="calculated"
-                                                        checked={selectedRecipe === 'calculated'}
-                                                        onChange={() => setSelectedRecipe('calculated')}
-                                                    />
-                                                    <span className="ml-2 text-gray-700">Calculated Recipe</span>
-                                                </label>
-                                            </div>
+                                    <div className="mb-6">
+                                        <p className="text-center text-gray-600 mb-4">Choose a recipe version:</p>
+                                        <div className="flex flex-col sm:flex-row justify-center space-y-4 sm:space-y-0 sm:space-x-6">
+                                            <label className="inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    className="form-radio text-blue-600 h-5 w-5"
+                                                    name="recipeVersion"
+                                                    value="original"
+                                                    checked={selectedRecipe === 'original'}
+                                                    onChange={() => setSelectedRecipe('original')}
+                                                />
+                                                <span className="ml-2 text-gray-700">Original Recipe</span>
+                                            </label>
+                                            <label className="inline-flex items-center cursor-pointer">
+                                                <input
+                                                    type="radio"
+                                                    className="form-radio text-blue-600 h-5 w-5"
+                                                    name="recipeVersion"
+                                                    value="calculated"
+                                                    checked={selectedRecipe === 'calculated'}
+                                                    onChange={() => setSelectedRecipe('calculated')}
+                                                />
+                                                <span className="ml-2 text-gray-700">Calculated Recipe</span>
+                                            </label>
                                         </div>
-                                    )}
+                                    </div>
                                 </>
                             ) : (
                                 <div className="mb-6">
@@ -152,7 +149,7 @@ export default function FinalizationComponent({ recipe, calculatedRecipe }) {
                                     {didCalculate 
                                         ? (isAuthor 
                                             ? (selectedRecipe === 'original' ? "Edit Original Recipe" : "Save Calculated Version")
-                                            : "Save as My Copy")
+                                            : (selectedRecipe === 'original' ? "Copy Original Recipe" : "Copy Calculated Recipe"))
                                         : (isAuthor 
                                             ? "Edit Original Recipe" 
                                             : "Create a Copy")}
