@@ -87,10 +87,10 @@ const RecipeEditPage = () => {
         if (!recipeId || !version) return false;
         
         try {
-        const result = await isCurrentVersion(recipeId, version);
+            const result = await isCurrentVersion(recipeId, version);
         return result.isCurrent;
         } catch (error) {
-        console.error('Error checking version status:', error);
+            console.error('Error checking version status:', error);
         return false;
         }
     }, []);
@@ -137,17 +137,17 @@ const RecipeEditPage = () => {
             
             // Determine if version action is required based on context
             if (fromBrew && isCalculated) {
-            setVersionActionRequired(true);
-            // Owner of current version -> main version
-            // Owner of older version -> branch version
-            // Non-owner -> copy
-            if (!user || (loadedRecipe.userID._id !== user._id)) {
-                setVersionActionType('copy');
-            } else if (sourceIsCurrentVersion) {
-                setVersionActionType('main');
-            } else {
-                setVersionActionType('branch');
-            }
+                setVersionActionRequired(true);
+                // Owner of current version -> main version
+                // Owner of older version -> branch version
+                // Non-owner -> copy
+                if (!user || (loadedRecipe.userID._id !== user._id)) {
+                    setVersionActionType('copy');
+                } else if (sourceIsCurrentVersion) {
+                    setVersionActionType('main');
+                } else {
+                    setVersionActionType('branch');
+                }
             }
             
             // Set recipe data
@@ -263,12 +263,9 @@ const RecipeEditPage = () => {
         // Don't proceed if no changes (except for copy action)
         if (!hasChanges && actionOverride !== 'copy' && !createCopy) {
             setError('No changes detected. Make some changes before saving.');
-        return;
+            return;
         }
         
-        setIsLoading(true);
-        setError(null);
-
         // recipe data to be submitted
         const recipeData = {
             name,
@@ -291,6 +288,41 @@ const RecipeEditPage = () => {
         try {
             let result;
             
+            // calculate changes based on what we used to brew
+            let changes = [];
+            
+            if (fromBrew && isCalculatedRecipe) {
+                // Use the original recipe snapshot if available
+                if (recipe.calculationMetadata?.originalRecipeSnapshot) {
+                    const originalRecipe = recipe.calculationMetadata.originalRecipeSnapshot;
+                    
+                    // Calculate changes from original (pre-calculation) to final form data
+                    changes = calculateRecipeChanges(originalRecipe, recipeData);
+                    
+                    // If no specific changes detected but we know scaling was applied
+                    if (changes.length === 0 && recipe.calculationMetadata.didCalculate) {
+                        changes.push({
+                            field: 'recipe',
+                            description: `Scaled recipe by factor of ${recipe.calculationMetadata.scalingFactor.toFixed(2)}`
+                        });
+                    }
+                } else {
+                    // fallback to the recipe that we calculated as a fallback
+                    changes = calculateRecipeChanges(recipe, recipeData);
+                    
+                    // generic note
+                    if (recipe.calculationMetadata?.didCalculate) {
+                        changes.push({
+                            field: 'recipe',
+                            description: `Includes brewing calculations`
+                        });
+                    }
+                }
+            } else {
+                // if we're editing the original version calculate changes from current version
+                changes = calculateRecipeChanges(recipe, recipeData);
+            }
+            
             // API calls based on action type
             switch (action) {
                 case 'main':
@@ -299,11 +331,6 @@ const RecipeEditPage = () => {
                         throw new Error('Not authorized to create main version');
                     }
                     
-                    // Calculate changes if from brew calculation
-                    const changes = fromBrew && isCalculatedRecipe 
-                        ? calculateRecipeChanges(recipe, recipeData)
-                        : [];
-                        
                     result = await createNewVersion(
                         recipe._id, 
                         recipeData,
@@ -312,7 +339,7 @@ const RecipeEditPage = () => {
                     
                     navigate(`/recipes/${recipe._id}`);
                     break;
-                
+                    
                 case 'branch':
                     // Create branch version (if owner and source is not current version)
                     if (!isOwner) {
@@ -323,12 +350,12 @@ const RecipeEditPage = () => {
                         recipe._id,
                         recipeData,
                         sourceVersion || recipe.versionInfo?.version || recipe.currentVersion,
-                        []
+                        changes
                     );
                     
                     navigate(`/recipes/${recipe._id}?version=${result.version}`);
                     break;
-                
+                    
                 case 'copy':
                     // Create copy (for anyone)
                     result = await copyRecipeWithVersion(

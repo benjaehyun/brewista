@@ -142,7 +142,6 @@ export default function CalculatePage() {
         const calculatedRecipe = {
             ...recipe,                
             coffeeAmount: coffeeValue, // Override with calculated coffee amount
-            originalSteps: recipe.steps, // keep original steps intact for reference
             steps: calculationResult.calculatedSteps.length > 0 
                 ? calculationResult.calculatedSteps 
                 : recipe.steps,
@@ -154,7 +153,8 @@ export default function CalculatePage() {
                 brewVolume: brewVolume,
                 calculatedAt: new Date().toISOString(),
                 didCalculate: didCalculate,
-                inputType: inputType
+                inputType: inputType,
+                originalRecipeSnapshot: JSON.parse(JSON.stringify(recipe)) // to use to calculate changes later on 
             }
         };
 
