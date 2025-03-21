@@ -29,12 +29,17 @@ export default function TimerPage() {
         return null;
     };
 
+    // if we navigate back from the edit page, try to get the relevant state so they go back to finalization component
+    const locationState = location.state || {};
+    const initialIsBrewStarted = locationState.isBrewStarted || false;
+    const initialIsBrewFinished = locationState.isBrewFinished || false;
+
     // Create the calculated recipe 
     const calculatedRecipe = getRecipeData()
 
     const [currentStep, setCurrentStep] = useState(0);
-    const [isBrewStarted, setIsBrewStarted] = useState(false);
-    const [isBrewFinished, setIsBrewFinished] = useState(false);
+    const [isBrewStarted, setIsBrewStarted] = useState(initialIsBrewStarted);
+    const [isBrewFinished, setIsBrewFinished] = useState(initialIsBrewFinished);
     const [autoStartTimer, setAutoStartTimer] = useState(true);
     const [autoNextStep, setAutoNextStep] = useState(true);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
