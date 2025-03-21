@@ -228,7 +228,7 @@ const RecipeEditPage = () => {
                 journal
             };
             
-            // Deep comparison would be better, but for simplicity:
+            // Deep comparison would be better in future
             const formChanged = 
                 name !== initialRecipeData.name ||
                 isRatio !== (initialRecipeData.type === 'Ratio') ||
@@ -357,7 +357,7 @@ const RecipeEditPage = () => {
                     break;
                     
                 case 'copy':
-                    // Create copy (for anyone)
+                    // create copy (for anyone)
                     result = await copyRecipeWithVersion(
                         recipe._id, 
                         sourceVersion || recipe.versionInfo?.version || recipe.currentVersion
@@ -395,11 +395,11 @@ const RecipeEditPage = () => {
             <h1 className="text-3xl font-bold mb-6 text-center">
                 {isOwner ? 'Edit Recipe' : 'Save New Recipe Copy'}
             </h1>
-            
+        
             {/* Version action banner */}
             {versionBanner.show && (
                 <div className={`mb-6 p-4 rounded-lg ${
-                versionBanner.type === 'warning' 
+                    versionBanner.type === 'warning' 
                     ? 'bg-amber-50 border border-amber-200' 
                     : 'bg-blue-50 border border-blue-200'
                 }`}>
@@ -408,12 +408,12 @@ const RecipeEditPage = () => {
                         versionBanner.type === 'warning' ? 'text-amber-500' : 'text-blue-500'
                         }`} size={20} />
                         <p className={versionBanner.type === 'warning' ? 'text-amber-800' : 'text-blue-800'}>
-                            {versionBanner.message}
+                        {versionBanner.message}
                         </p>
                     </div>
                 </div>
             )}
-            
+        
             {/* No changes warning */}
             {!hasChanges && !createCopy && !versionActionRequired && (
                 <div className="mb-6 p-4 bg-amber-50 border border-amber-200 rounded-lg">
@@ -425,54 +425,8 @@ const RecipeEditPage = () => {
                     </div>
                 </div>
             )}
-            
-            {/* Version action buttons for calculated recipes */}
-            {versionActionRequired && (
-                <div className="mb-6 p-4 bg-blue-50 rounded-lg border border-blue-100">
-                    <h3 className="font-semibold text-lg mb-2">Save Brewing Changes</h3>
-                    <p className="text-gray-700 mb-4">
-                        How would you like to save the changes you made during brewing?
-                    </p>
-                    
-                    <div className="flex flex-wrap gap-3 mb-4">
-                        {/* Main version button - only if owner and source is current version */}
-                        {isOwner && sourceIsCurrentVersion && (
-                            <button
-                                type="button"
-                                onClick={(e) => handleSubmit(e, 'main')}
-                                className="flex items-center gap-2 px-4 py-2 bg-blue-100 hover:bg-blue-200 text-blue-700 rounded-lg"
-                            >
-                                <GitCommit size={18} />
-                                <span>Create New Main Version</span>
-                            </button>
-                        )}
-                        
-                        {/* Branch version button - only if owner and source is not current version */}
-                        {isOwner && !sourceIsCurrentVersion && (
-                            <button
-                                type="button"
-                                onClick={(e) => handleSubmit(e, 'branch')}
-                                className="flex items-center gap-2 px-4 py-2 bg-green-100 hover:bg-green-200 text-green-700 rounded-lg"
-                            >
-                                <GitBranch size={18} />
-                                <span>Create Branch Version</span>
-                            </button>
-                        )}
-                        
-                        {/* Copy button - always available */}
-                        <button
-                        type="button"
-                        onClick={(e) => handleSubmit(e, 'copy')}
-                        className="flex items-center gap-2 px-4 py-2 bg-purple-100 hover:bg-purple-200 text-purple-700 rounded-lg"
-                        >
-                            <Copy size={18} />
-                            <span>Save as New Copy</span>
-                        </button>
-                    </div>
-                </div>
-            )}
-            
-            <form onSubmit={(e) => handleSubmit(e)} className="space-y-6">
+        
+            <form onSubmit={(e) => e.preventDefault()} className="space-y-6">
                 <div>
                     <label className="block text-sm font-medium text-gray-700">Recipe Name *</label>
                     <input
@@ -558,34 +512,78 @@ const RecipeEditPage = () => {
                     <JournalInput journal={journal} setJournal={setJournal} />
                 </Accordion>
 
-                {/* Form submission buttons */}
-                <div className="flex justify-between">
-                    {!versionActionRequired && (
-                        <button
-                        type="submit"
-                        className={`py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white ${
-                            !isFormValid || (!hasChanges && !createCopy) 
-                            ? 'bg-gray-400 cursor-not-allowed' 
-                            : 'bg-indigo-600 hover:bg-indigo-700'
-                        }`}
-                        disabled={!isFormValid || (!hasChanges && !createCopy)}
-                        >
-                            {isOwner ?
-                                sourceIsCurrentVersion ? 
-                                    "Update Recipe" 
-                                    : "Create Branch Version"
-                                : "Save as Copy"
-                            }
-                        </button>
-                    )}
+                    {/* Form submission buttons */}
+                <div className="border-t border-gray-200 mt-8 pt-6">
                     
-                    <button
-                        type="button"
-                        onClick={() => navigate(-1)}
-                        className="py-2 px-4 border border-gray-300 rounded-md shadow-sm text-sm font-medium text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
-                    >
-                        Cancel
-                    </button>
+                    <div className="flex flex-wrap gap-3 justify-between">
+                        {/* Cancel button */}
+                        <button
+                            type="button"
+                            onClick={() => navigate(-1)}
+                            className="py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
+                        >
+                            Cancel
+                        </button>
+                        
+                        <div className="flex flex-wrap gap-3">
+                            {/* Copy button - always available */}
+                            <button
+                            type="button"
+                            onClick={(e) => handleSubmit(e, 'copy')}
+                            className={`
+                                flex items-center gap-2 py-2 px-4 border rounded-md text-sm font-medium
+                                ${!isFormValid 
+                                ? 'border-gray-300 text-gray-400 bg-gray-50 cursor-not-allowed hover:bg-gray-50' 
+                                : 'border-purple-300 text-purple-700 bg-purple-50 hover:bg-purple-100'
+                                }
+                            `}
+                            disabled={!isFormValid}
+                            >
+                                <Copy size={16} />
+                                <span>Save as Copy</span>
+                            </button>
+                            
+                            {/* Branch version button - only if owner and source is not current version */}
+                            {isOwner && !sourceIsCurrentVersion && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleSubmit(e, 'branch')}
+                                    // className="flex items-center gap-2 py-2 px-4 border border-green-300 rounded-md text-sm font-medium text-green-700 bg-green-50 hover:bg-green-100"
+                                    className={`
+                                        flex items-center gap-2 py-2 px-4 border rounded-md text-sm font-medium
+                                        ${!isFormValid || (!hasChanges && !(fromBrew && isCalculatedRecipe)) 
+                                          ? 'border-gray-300 text-gray-400 bg-gray-50 cursor-not-allowed hover:bg-gray-50' 
+                                          : 'border-green-300 text-green-700 bg-green-50 hover:bg-green-100'
+                                        }
+                                    `}
+                                    disabled={!isFormValid || (!hasChanges && !(fromBrew && isCalculatedRecipe))}
+                                >
+                                    <GitBranch size={16} />
+                                    <span>Save Changes</span>
+                                </button>
+                            )}
+                            
+                            {/* Main version button - only if owner and source is current version */}
+                            {isOwner && sourceIsCurrentVersion && (
+                                <button
+                                    type="button"
+                                    onClick={(e) => handleSubmit(e, 'main')}
+                                    // className="flex items-center gap-2 py-2 px-4 border border-blue-300 rounded-md text-sm font-medium text-blue-700 bg-blue-50 hover:bg-blue-100"
+                                    className={`
+                                        flex items-center gap-2 py-2 px-4 border rounded-md text-sm font-medium
+                                        ${!isFormValid || (!hasChanges && !(fromBrew && isCalculatedRecipe)) 
+                                          ? 'border-gray-300 text-gray-400 bg-gray-50 cursor-not-allowed hover:bg-gray-50' 
+                                          : 'border-blue-300 text-blue-700 bg-blue-50 hover:bg-blue-100'
+                                        }
+                                    `}
+                                    disabled={!isFormValid || (!hasChanges && !(fromBrew && isCalculatedRecipe))}
+                                >
+                                    <GitCommit size={16} />
+                                    <span>Save Version</span>
+                                </button>
+                            )}
+                        </div>
+                    </div>
                 </div>
             </form>
             
