@@ -1,6 +1,6 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
 import RecipeCard from '../../components/RecipeIndex/RecipeCard';
-import { fetchSavedRecipes } from '../../services/recipe-api';
+import { fetchSavedRecipes } from '../../services/api/recipe-api';
 import { useAuth } from '../../utilities/auth-context';
 import { Loader2, RefreshCw } from 'lucide-react';
 import debounce from 'lodash/debounce';

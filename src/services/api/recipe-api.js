@@ -1,4 +1,4 @@
-import sendRequest from "./send-request";
+import sendRequest from "../send-request";
 
 const BASE_URL = '/api/recipe'
 const VERSION_URL = '/api/recipe/version';

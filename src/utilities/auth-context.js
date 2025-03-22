@@ -1,6 +1,6 @@
 import React, { createContext, useState, useContext, useEffect } from 'react';
 import * as usersService from '../services/users-service';
-import * as profilesAPI from '../services/profiles-api';
+import * as profilesAPI from '../services/api/profiles-api';
 
 const AuthContext = createContext(null);
 
@@ -32,8 +32,8 @@ export const AuthProvider = ({ children }) => {
             const user = await usersService.login(credentials);
             setUser(user);
             // Fetch profile after successful login
-            const profile = await profilesAPI.getProfile();
-            setUserProfile(profile);
+            // const profile = await profilesAPI.getProfile();
+            // setUserProfile(profile);
             return user;
         } catch (error) {
             throw error;

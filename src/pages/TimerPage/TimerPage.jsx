@@ -6,7 +6,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewSteps from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
-import { clearCalculatedRecipe, getCalculatedRecipe } from '../../services/localStorageUtils';
+import { clearCalculatedRecipe, getCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 export default function TimerPage() {
     const { id } = useParams();

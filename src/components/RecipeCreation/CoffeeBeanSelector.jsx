@@ -1,6 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import debounce from 'lodash.debounce';
-import * as coffeeBeanAPI from '../../services/coffeeBean-api';
+import * as coffeeBeanAPI from '../../services/api/coffeeBean-api';
 
 export default function CoffeeBeanSelector({ selectedBean, setSelectedBean, onAddNewCoffee }) {
     const [beans, setBeans] = useState([]);

@@ -5,7 +5,7 @@ import {
   getCalculatedRecipe, 
   clearCalculatedRecipe,
   getBrewingVersionInfo
-} from '../../services/localStorageUtils';
+} from '../../utilities/localStorageUtils';
 import { 
   fetchRecipeById, 
   updateRecipe, 
@@ -15,8 +15,8 @@ import {
   copyRecipeWithVersion,
   isCurrentVersion,
   calculateRecipeChanges
-} from '../../services/recipe-api';
-import { fetchUserGear } from '../../services/gear-api';
+} from '../../services/api/recipe-api';
+import { fetchUserGear } from '../../services/api/gear-api';
 import { Accordion } from '../../pages/RecipeCreationPage/RecipeCreationPage';
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import CoffeeBeanSelector from '../../components/RecipeCreation/CoffeeBeanSelector';

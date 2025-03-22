@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../utilities/auth-context';
-import { saveCalculatedRecipe } from '../../services/localStorageUtils';
+import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
 import { Tag, GitBranch } from 'lucide-react';
-import { clearCalculatedRecipe } from '../../services/localStorageUtils';
+import { clearCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 export default function FinalizationComponent({ calculatedRecipe }) {
     const navigate = useNavigate();

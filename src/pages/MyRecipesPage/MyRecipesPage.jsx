@@ -1,5 +1,5 @@
 import React, { useEffect, useState, useCallback, useMemo } from 'react';
-import { fetchCurrentUserRecipes } from '../../services/recipe-api';
+import { fetchCurrentUserRecipes } from '../../services/api/recipe-api';
 import RecipeCard from '../../components/RecipeIndex/RecipeCard';
 import { Loader2, RefreshCw } from 'lucide-react';
 import debounce from 'lodash/debounce';

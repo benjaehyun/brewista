@@ -1,13 +1,13 @@
 import React, { useState, useEffect, useCallback, useMemo } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
-import { fetchRecipeById } from '../../services/recipe-api';
+import { fetchRecipeById } from '../../services/api/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
 import NumericInput from '../../components/CalculatePage/NumericInput';
-import { saveCalculatedRecipe } from '../../services/localStorageUtils';
+import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 

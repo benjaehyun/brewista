@@ -1,5 +1,5 @@
-import * as usersAPI from './users-api'
-import * as profilesAPI from './profiles-api'
+import * as usersAPI from './api/users-api'
+import * as profilesAPI from './api/profiles-api'
 
 export async function signUp (userData) {  // need to refactor to handle errors thrown by the backend to identify which field is a duplicate, which also needs to be refactored
     try {
