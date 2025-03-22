@@ -1,8 +1,8 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { 
-  faCoffee, faTint, faEquals, faBlender, faWineGlass, 
+  faTint, faBlender, faWineGlass, 
   faBook, faSeedling, faCubesStacked, faVideo, faLayerGroup,
   faThermometerHalf, faFlask, faWeight, faBalanceScale, faUser,
   faRuler
@@ -19,11 +19,9 @@ import {
   GitBranch, 
   Clock, 
   AlertCircle, 
-  GitCommit, 
-  ChevronDown, 
-  ChevronUp,
   History,
-  Tag
+  Tag,
+  Loader
 } from 'lucide-react';
 import { VersionHistory } from '../../components/RecipeDetails/VersionHistory';
 
@@ -32,48 +30,55 @@ export default function RecipesDetailsPage() {
     const navigate = useNavigate();
     const [searchParams, setSearchParams] = useSearchParams();
     
-    // State for recipe and versions
     const [recipe, setRecipe] = useState(null);
     const [versions, setVersions] = useState([]);
     const [isLoading, setIsLoading] = useState(true);
     const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
     const [isVersionHistoryLoading, setIsVersionHistoryLoading] = useState(false);
+    const [isVersionLoading, setIsVersionLoading] = useState(false);
     const [error, setError] = useState(null);
     const { user } = useAuth();
 
-    // Get version from URL query param or use null for current version
+    // Use refs to help prevent redundant API calls
+    const lastFetchedVersionRef = useRef(null);
+    const isMountingRef = useRef(true);
+
+    // version from URL query param or use null if its current version
     const versionParam = searchParams.get('version');
 
-    // Load recipe and version history
+    // get initial recipe data only on component mount or when id changes
     useEffect(() => {
-        async function loadRecipeAndVersions() {
+        async function initialLoad() {
             try {
                 setIsLoading(true);
                 setError(null);
                 
-                // Fetch recipe with specific version if requested
                 const recipeData = await fetchRecipeById(id, versionParam);
                 setRecipe(recipeData);
                 
-                // Auto-open version history if URL has version parameter
+                // tracj the version we just fetched
+                lastFetchedVersionRef.current = versionParam;
+                
+                // open version history by default if URL has version parameter ie. we're not on the current vers
                 if (versionParam) {
                     setIsVersionHistoryOpen(true);
-                    await loadVersionHistory();
                 }
             } catch (err) {
                 console.error('Error loading recipe data:', err);
                 setError('Failed to load recipe data');
             } finally {
                 setIsLoading(false);
+                isMountingRef.current = false;
             }
         }
         
-        loadRecipeAndVersions();
-    }, [id, versionParam]);
+        initialLoad();
+    }, [id]); // only load with id since subsequent calls are handled for versions
 
-    // Load version history
+    // load version history separately when explicitly called
     const loadVersionHistory = useCallback(async () => {
-        if (!id) return;
+        // stop fetch call if already loaded
+        if (versions.length > 0) return;
         
         try {
             setIsVersionHistoryLoading(true);
@@ -84,42 +89,58 @@ export default function RecipesDetailsPage() {
         } finally {
             setIsVersionHistoryLoading(false);
         }
-    }, [id]);
+    }, [id, versions.length]);
 
-    // Toggle version history display
-    const toggleVersionHistory = useCallback(async () => {
+    const toggleVersionHistory = useCallback(() => {
         const newState = !isVersionHistoryOpen;
         setIsVersionHistoryOpen(newState);
         
-        // Load version history if opening and not loaded yet
+        // load version history if opening and not loaded yet
         if (newState && versions.length === 0) {
-            await loadVersionHistory();
+            loadVersionHistory();
         }
     }, [isVersionHistoryOpen, versions.length, loadVersionHistory]);
 
-    // Handle version selection
-    const handleVersionSelect = useCallback((version) => {
+    // Handle version selection  with safeguards against redundant fetches
+    const handleVersionSelect = useCallback(async (version) => {
         if (!recipe) return;
         
-        // Update URL with version parameter
-        if (version === recipe.currentVersion) {
-            // Remove version param if selecting current version
-            setSearchParams({});
-        } else {
-            setSearchParams({ version });
-        }
+        // dont do anything if we're already on the version clicked
+        if (version === lastFetchedVersionRef.current) return;
         
-        // Reload recipe with selected version
-        navigate(`/recipes/${id}?version=${version}`, { replace: true });
-    }, [recipe, id, navigate, setSearchParams]);
+        try {
+            setIsVersionLoading(true);
+            
+            // update URL parameter without WITH the refs so that we can conditionally fetch
+            if (version === recipe.currentVersion) {
+                setSearchParams({});
+                lastFetchedVersionRef.current = null;
+            } else {
+                setSearchParams({ version });
+                lastFetchedVersionRef.current = version;
+            }
+            
+            // Fetch the specific version directly (only if it's different from current)
+            const versionToFetch = version === recipe.currentVersion ? null : version;
+            const recipeData = await fetchRecipeById(id, versionToFetch);
+            setRecipe(recipeData);
+        } catch (err) {
+            console.error('Error loading version:', err);
+            setError('Failed to load version data');
+        } finally {
+            setIsVersionLoading(false);
+        }
+    }, [recipe, id, setSearchParams]);
     
-    // Handle brew button click
-    const handleBrewClick = () => {
-        // Navigate to calculate page with version param if viewing a non-current version
-        navigate(`/calculate/${id}${versionParam ? `?version=${versionParam}` : ''}`);
-    };
+  
+    const isViewingOldVersion = versionParam && recipe && versionParam !== (recipe.currentVersion || recipe.versionInfo?.version);
+    
 
-    if (isLoading) {
+    const handleBrewClick = useCallback(() => {
+        navigate(`/calculate/${id}${versionParam ? `?version=${versionParam}` : ''}`);
+    }, [navigate, id, versionParam]);
+
+    if (isLoading && !recipe) {
         return <div className="flex justify-center p-8">Loading...</div>;
     }
     
@@ -149,25 +170,22 @@ export default function RecipesDetailsPage() {
         currentVersion, // from the recipe base document
     } = recipe;
 
-    // Determine if viewing a non-current version
-    const isViewingOldVersion = versionParam && versionParam !== (currentVersion || versionInfo?.version);
-    
-    // Determine if current user is recipe owner
+    // current user is recipe owner
     const isOwner = user && userID._id === user._id;
 
-    // Determine if recipe has version history
+    // recipe has version history
     const hasVersionHistory = versions.length > 0 || versionInfo || currentVersion;
     
-    // Get current version information
+    // get current version information
     const currentVersionInfo = versionParam || versionInfo?.version || currentVersion || '1.0';
     const isMainVersion = currentVersionInfo.endsWith('.0');
 
-    // Calculate brew volume
+    // calculate brew volume
     const brewVolume = steps.reduce((total, step) => {
         return step.waterAmount ? total + step.waterAmount : total;
     }, 0);
 
-    // Helper function for the gear icon
+    // helper function for the gear icon
     const getGearIcon = (gearType) => {
         switch (gearType) {
             case 'Brewer':
@@ -187,7 +205,7 @@ export default function RecipesDetailsPage() {
 
     return (
         <div className="max-w-4xl mx-auto p-4 sm:p-6 md:p-8">
-            {/* Version Warning Banner when viewing old version */}
+            {/* version Warning Banner when viewing old version */}
             {isViewingOldVersion && (
                 <div className="mb-4 bg-amber-50 border border-amber-200 rounded-lg p-4 flex items-center">
                     <AlertCircle className="text-amber-500 mr-2 shrink-0" />
@@ -205,7 +223,15 @@ export default function RecipesDetailsPage() {
                 </div>
             )}
 
-            {/* Version Bar */}
+            {/* loading versions or current version selected */}
+            {isVersionLoading && (
+                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-center">
+                    <Loader className="animate-spin text-blue-500 mr-2" size={16} />
+                    <span className="text-blue-700">Loading version data...</span>
+                </div>
+            )}
+
+            {/* bar with version info */}
             {hasVersionHistory && (
                 <div className="mb-4 bg-gray-50 rounded-lg p-4 flex items-center justify-between">
                     <div className="flex items-center gap-2">
@@ -232,7 +258,7 @@ export default function RecipesDetailsPage() {
                 </div>
             )}
 
-            {/* Version History Panel */}
+            {/* Version history dropdown */}
             {isVersionHistoryOpen && (
                 <div className="mb-6">
                     {isVersionHistoryLoading ? (
@@ -252,10 +278,10 @@ export default function RecipesDetailsPage() {
 
             {/* Recipe Title Section */}
             <div className="min-h-[48px] relative flex items-start mb-2">
-                {/* Left spacer - only visible when authenticated */}
+                {/* Left spacer - only when authenticated */}
                 {user && <div className="w-[44px] flex-shrink-0" />}
                 
-                {/* Title container */}
+                {/* Title  */}
                 <div className="flex-1 text-center">
                     <h1 className="text-3xl font-bold break-words">{name}</h1>
                     {versionInfo?.parentVersion && (
@@ -265,13 +291,13 @@ export default function RecipesDetailsPage() {
                     )}
                 </div>
                 
-                {/* Right bookmark container */}
+                {/* Right bookmark */}
                 <div className="relative z-10">
                     <BookmarkButton recipeId={id} />
                 </div>
             </div>
 
-            {/* Brew Button section */}
+            {/* Brew button  */}
             <div className="flex justify-end w-full mb-6">
                 <button
                     onClick={handleBrewClick}
@@ -281,7 +307,7 @@ export default function RecipesDetailsPage() {
                 </button>
             </div>
 
-            {/* Recipe Information Cards */}
+            {/* cards with recipe info */}
             <div className="flex flex-wrap gap-4 mb-4 items-center">
                 <div className="flex items-center bg-blue-100 text-blue-800 p-3 rounded-lg shadow-md sm:p-[1.375rem]">
                     <FontAwesomeIcon icon={faUser} className="mr-2" />
@@ -408,7 +434,7 @@ export default function RecipesDetailsPage() {
 
             <h2 className="text-2xl font-semibold mb-4">Steps</h2>
             <div className="mb-8">
-                {!isLoading && recipe?.steps && (
+                {recipe?.steps && (
                     <AnimatedTimeline steps={steps} />
                 )}
             </div>
