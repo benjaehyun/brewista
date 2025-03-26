@@ -16,7 +16,7 @@ export default function CalculatePage() {
     const { id } = useParams();
     const [searchParams] = useSearchParams();
     
-    // Get version from URL query params if available
+    // get the version from URL query params if available
     const versionParam = searchParams.get('version');
     
     const [recipe, setRecipe] = useState(null);
@@ -44,9 +44,14 @@ export default function CalculatePage() {
 
         const { coffeeAmount: originalCoffeeAmount, steps, type: recipeType } = recipeData;
 
+        // const numericInput = parseFloat(input);
 
         let calculatedValue;
         let scalingFactor = 1;
+
+        const originalBrewVolume = steps.reduce((total, step) => {
+            return step.waterAmount ? total + step.waterAmount : total;
+          }, 0);
 
         if (recipeType === 'Ratio') {
             const ratio = originalBrewVolume / originalCoffeeAmount;
@@ -66,6 +71,27 @@ export default function CalculatePage() {
                 calculatedValue = scalingFactor * originalCoffeeAmount;
             }
         }
+        // if (recipeType === 'Ratio') {
+        //     const ratio = originalBrewVolume / originalCoffeeAmount;
+        //     if (type === 'coffeeAmount') {
+        //         calculatedValue = numericInput * ratio;
+        //         scalingFactor = numericInput / originalCoffeeAmount;
+        //     } else if (type === 'brewVolume') {
+        //         calculatedValue = numericInput / ratio;
+        //         scalingFactor = numericInput / originalBrewVolume;
+        //     }
+        // } else {
+        //     if (type === 'coffeeAmount') {
+        //         scalingFactor = numericInput / originalCoffeeAmount;
+        //         console.log(numericInput)
+        //         console.log(originalBrewVolume)
+        //         console.log(typeof(numericInput))
+        //         calculatedValue = scalingFactor * originalBrewVolume;
+        //     } else if (type === 'brewVolume') {
+        //         scalingFactor = numericInput / originalBrewVolume;
+        //         calculatedValue = scalingFactor * originalCoffeeAmount;
+        //     }
+        // }
 
         const updatedSteps = steps.map((step) => ({
             ...step,
@@ -236,13 +262,25 @@ export default function CalculatePage() {
             </div>
 
             <div className="mb-4">
-                <NumericInput
+                <label className="block text-sm font-medium text-gray-700 mb-1 text-center">
+                    {inputType === 'coffeeAmount' 
+                    ? "Enter Desired Coffee Amount (g)" 
+                    : "Enter Desired Brew Volume (mL)"}
+                </label>
+                <input
+                    type="number"
+                    inputMode="decimal"
+                    pattern="[0-9]*"
+                    min="0"
+                    step="any"
                     value={userInput}
                     onChange={handleInputChange}
-                    label={inputType === 'coffeeAmount' ? "Enter Desired Coffee Amount (g)" : "Enter Desired Brew Volume (mL)"}
-                    placeholder={inputType === 'coffeeAmount' ? "Enter coffee amount in grams" : "Enter brew volume in mL"}
-                    required
-                    className="text-center sm:w-1/2 mx-auto"
+                    placeholder={inputType === 'coffeeAmount' 
+                    ? "Enter coffee amount in grams" 
+                    : "Enter brew volume in mL"}
+                    className="p-2 border rounded w-full text-center text-gray-800 bg-gray-100 
+                            focus:outline-none focus:ring-2 focus:ring-blue-500 focus:border-blue-500 
+                            sm:w-1/2 mx-auto"
                 />
             </div>
 
