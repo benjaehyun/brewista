@@ -97,7 +97,7 @@ async function getSpecificVersion(req, res) {
 async function createVersion(req, res) {
     try {
         const { id } = req.params;
-        const { changes, recipeData } = req.body;
+        const { changes, recipeData, sourceVersion } = req.body;
         
         const recipe = await Recipe.findById(id);
         if (!recipe) {
@@ -110,7 +110,7 @@ async function createVersion(req, res) {
         }
 
         // Check if we're editing the current version - only allow main version creation then
-        const isEditingCurrentVersion = await RecipeVersion.isCurrentVersion(id, req.body.sourceVersion);
+        const isEditingCurrentVersion = await RecipeVersion.isCurrentVersion(id, sourceVersion);
         
         if (!isEditingCurrentVersion) {
             return res.status(400).json({ 

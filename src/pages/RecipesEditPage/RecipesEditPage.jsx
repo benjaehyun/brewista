@@ -334,6 +334,7 @@ const RecipeEditPage = () => {
                     result = await createNewVersion(
                         recipe._id, 
                         recipeData,
+                        sourceVersion || recipe.calculationMetadata?.originalVersion || recipe.versionInfo?.version,
                         changes
                     );
                     

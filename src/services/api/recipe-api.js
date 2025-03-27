@@ -40,9 +40,10 @@ export async function fetchSpecificVersion(recipeId, version) {
     return sendRequest(`${VERSION_URL}/${recipeId}/version/${version}`);
 }
 
-export async function createNewVersion(recipeId, recipeData, changes) {
+export async function createNewVersion(recipeId, recipeData, sourceVersion, changes) {
     return sendRequest(`${VERSION_URL}/${recipeId}/version`, 'POST', {
         recipeData,
+        sourceVersion,
         changes
     });
 }

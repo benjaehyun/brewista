@@ -6,7 +6,6 @@ import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
-import NumericInput from '../../components/CalculatePage/NumericInput';
 import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
