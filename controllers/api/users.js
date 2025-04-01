@@ -17,7 +17,7 @@ async function create(req, res) {
         console.log('User creation error:', error);
         
         if (error.code === 11000) {
-            // MongoDB duplicate key error
+            // mongoDB duplicate key error
             const field = Object.keys(error.keyPattern)[0];
             return res.status(400).json({
                 error: `This ${field} is already in use`,

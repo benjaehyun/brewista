@@ -483,9 +483,9 @@ async function getSavedRecipes(req, res) {
 
         // Fetch base recipe data
         const recipes = await Recipe.find({ 
-            _id: { $in: recipeIds },
-            isArchived: false
-        })
+                _id: { $in: recipeIds },
+                isArchived: false
+            })
             .populate('userID', 'username')
             .populate('coffeeBean')
             .sort({ createdAt: -1 })

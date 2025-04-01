@@ -10,7 +10,6 @@ import {
 import { 
   fetchRecipeById, 
   fetchVersionHistory,
-  compareVersions 
 } from '../../services/api/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import BookmarkButton from '../../components/RecipeIndex/BookmarkButton';

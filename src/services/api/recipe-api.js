@@ -159,37 +159,3 @@ export function calculateRecipeChanges(oldRecipe, newRecipe) {
     return changes;
 }
 
-// Helper function to see if recipe has changed
-export function hasRecipeChanged(oldRecipe, newRecipe) {
-    return calculateRecipeChanges(oldRecipe, newRecipe).length > 0;
-}
-
-// version comparison and formatting
-export function compareVersions(v1, v2) {
-    const [major1, minor1] = v1.split('.').map(Number);
-    const [major2, minor2] = v2.split('.').map(Number);
-    
-    if (major1 !== major2) return major1 - major2;
-    return minor1 - minor2;
-}
-
-export function isMainVersion(version) {
-    return version.endsWith('.0');
-}
-
-export function isBranchVersion(version) {
-    return !isMainVersion(version);
-}
-
-export function getNextMainVersion(currentVersion) {
-    const [major] = currentVersion.split('.');
-    return `${parseInt(major) + 1}.0`;
-}
-
-export function formatVersionNumber(version) {
-    return `v${version}`;
-}
-
-export function getVersionType(version) {
-    return isMainVersion(version) ? 'Main Version' : 'Branch Version';
-}
