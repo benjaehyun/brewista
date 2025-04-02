@@ -88,12 +88,7 @@ const recipeVersionSchema = new mongoose.Schema({
 recipeVersionSchema.index({ recipeId: 1, version: 1 }, { unique: true });
 recipeVersionSchema.index({ recipeId: 1, createdAt: -1 });
 
-// middleware to validate version format for now 
-// Determine if this is a main version (x.0)
-recipeVersionSchema.virtual('isMainVersion').get(function() {
-    return this.version.endsWith('.0');
-});
-  
+
   // Static method to get the next version number based on versioning rules
 recipeVersionSchema.statics.getNextVersion = async function(recipeId, parentVersion = null) {
     const Recipe = mongoose.model('Recipe');

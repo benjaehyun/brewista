@@ -30,7 +30,14 @@ export default function RecipesDetailsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     
     const [recipe, setRecipe] = useState(null);
-    const [versions, setVersions] = useState([]);
+    // const [versions, setVersions] = useState([]);
+    const [versions, setVersions] = useState({
+        versions: [],
+        versionTree: {},
+        currentVersion: '',
+        originalRecipe: null,
+        originalVersion: ''
+    });
     const [isLoading, setIsLoading] = useState(true);
     const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
     const [isVersionHistoryLoading, setIsVersionHistoryLoading] = useState(false);
@@ -77,28 +84,38 @@ export default function RecipesDetailsPage() {
     // load version history separately when explicitly called
     const loadVersionHistory = useCallback(async () => {
         // stop fetch call if already loaded
-        if (versions.length > 0) return;
+        if (versions.versions?.length > 0) {
+            console.log('breaking from loadversionhistory with ', versions.versions.length)
+            return;
+        }
         
         try {
             setIsVersionHistoryLoading(true);
             const versionHistory = await fetchVersionHistory(id);
-            setVersions(versionHistory.versions || []);
+            // setVersions(versionHistory.versions || []);
+            setVersions(versionHistory || {
+                versions: [],
+                versionTree: {},
+                currentVersion: '',
+                originalRecipe: null,
+                originalVersion: ''
+            });
         } catch (err) {
             console.error('Error loading version history:', err);
         } finally {
             setIsVersionHistoryLoading(false);
         }
-    }, [id, versions.length]);
+    }, [id, versions.versions?.length]);
 
     const toggleVersionHistory = useCallback(() => {
         const newState = !isVersionHistoryOpen;
         setIsVersionHistoryOpen(newState);
         
         // load version history if opening and not loaded yet
-        if (newState && versions.length === 0) {
+        if (newState && versions.versions?.length === 0) {
             loadVersionHistory();
         }
-    }, [isVersionHistoryOpen, versions.length, loadVersionHistory]);
+    }, [isVersionHistoryOpen, versions.versions?.length, loadVersionHistory]);
 
     // Handle version selection  with safeguards against redundant fetches
     const handleVersionSelect = useCallback(async (version) => {
@@ -173,11 +190,11 @@ export default function RecipesDetailsPage() {
     const isOwner = user && userID._id === user._id;
 
     // recipe has version history
-    const hasVersionHistory = versions.length > 0 || versionInfo || currentVersion;
+    const hasVersionHistory = versions.versions?.length > 0 || versionInfo || currentVersion;
     
     // get current version information
-    const currentVersionInfo = versionParam || versionInfo?.version || currentVersion || '1.0';
-    const isMainVersion = currentVersionInfo.endsWith('.0');
+    const selectedVersion = versionParam || versionInfo?.version || currentVersion || '1.0';
+    const isMainVersion = selectedVersion.endsWith('.0');
 
     // calculate brew volume
     const brewVolume = steps.reduce((total, step) => {
@@ -223,12 +240,12 @@ export default function RecipesDetailsPage() {
             )}
 
             {/* loading versions or current version selected */}
-            {isVersionLoading && (
+            {/* {isVersionLoading && (
                 <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-center">
                     <Loader className="animate-spin text-blue-500 mr-2" size={16} />
                     <span className="text-blue-700">Loading version data...</span>
                 </div>
-            )}
+            )} */}
 
             {/* bar with version info */}
             {hasVersionHistory && (
@@ -236,7 +253,7 @@ export default function RecipesDetailsPage() {
                     <div className="flex items-center gap-2">
                         <Tag size={16} className="text-blue-500" />
                         <span className="text-sm text-gray-600">Version:</span>
-                        <span className="font-medium">v{currentVersionInfo}</span>
+                        <span className="font-medium">v{selectedVersion}</span>
                         {!isMainVersion && (
                             <GitBranch className="h-4 w-4 text-green-500" />
                         )}
@@ -267,17 +284,20 @@ export default function RecipesDetailsPage() {
                         </div>
                     ) : (
                         <VersionHistory
-                            versions={versions}
-                            currentVersion={versionParam || currentVersion || versionInfo?.version}
+                            versions={versions.versions}
+                            versionTree={versions.versionTree}
+                            selectedVersion={selectedVersion} 
+                            // currentVersion={versionParam || currentVersion || versionInfo?.version}
+                            currentVersion={recipe?.currentVersion || recipe?.versionInfo?.version}
                             onVersionSelect={handleVersionSelect}
                         />
                     )}
                 </div>
             )}
 
-            {/* Recipe Title Section */}
+            {/* Recipe Top Section */}
             <div className="min-h-[48px] relative flex items-start mb-2">
-                {/* Left spacer - only when authenticated */}
+                {/* left spacer for when authenticated for alignment */}
                 {user && <div className="w-[44px] flex-shrink-0" />}
                 
                 {/* Title  */}
