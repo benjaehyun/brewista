@@ -66,9 +66,9 @@ export default function RecipesDetailsPage() {
                 lastFetchedVersionRef.current = versionParam;
                 
                 // open version history by default if URL has version parameter ie. we're not on the current vers
-                if (versionParam) {
-                    setIsVersionHistoryOpen(true);
-                }
+                // if (versionParam) {
+                //     setIsVersionHistoryOpen(true);
+                // }
             } catch (err) {
                 console.error('Error loading recipe data:', err);
                 setError('Failed to load recipe data');
