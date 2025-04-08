@@ -155,18 +155,20 @@ recipeVersionSchema.statics.getNextMainVersion = async function(recipeId) {
   // Get the version tree for visualization
 recipeVersionSchema.statics.getVersionTree = async function(recipeId) {
     const versions = await this.find({ recipeId })
-      .sort({ version: 1 })
-      .populate('createdBy', 'username')
-      .lean();
+        .sort({ version: 1 })
+        .populate('createdBy', 'username')
+        .populate('recipeData.gear')
+        .populate('recipeData.coffeeBean')
+        .lean();
     
     // Group by major version
     const versionTree = {};
     versions.forEach(version => {
-      const [major] = version.version.split('.');
-      if (!versionTree[major]) {
-        versionTree[major] = [];
-      }
-      versionTree[major].push(version);
+        const [major] = version.version.split('.');
+        if (!versionTree[major]) {
+            versionTree[major] = [];
+        }
+        versionTree[major].push(version);
     });
     
     return versionTree;

@@ -22,6 +22,8 @@ async function getVersionHistory(req, res) {
         const versions = await RecipeVersion.find({ recipeId })
             .sort({ createdAt: -1 })
             .populate('createdBy', 'username')
+            .populate('recipeData.gear')
+            .populate('recipeData.coffeeBean')
             .lean();
 
         // Build version tree structure

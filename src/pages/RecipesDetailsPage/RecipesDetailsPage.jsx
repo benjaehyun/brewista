@@ -30,7 +30,6 @@ export default function RecipesDetailsPage() {
     const [searchParams, setSearchParams] = useSearchParams();
     
     const [recipe, setRecipe] = useState(null);
-    // const [versions, setVersions] = useState([]);
     const [versions, setVersions] = useState({
         versions: [],
         versionTree: {},
@@ -59,16 +58,13 @@ export default function RecipesDetailsPage() {
                 setIsLoading(true);
                 setError(null);
                 
+                console.log('initial loading')
                 const recipeData = await fetchRecipeById(id, versionParam);
                 setRecipe(recipeData);
                 
                 // tracj the version we just fetched
                 lastFetchedVersionRef.current = versionParam;
                 
-                // open version history by default if URL has version parameter ie. we're not on the current vers
-                // if (versionParam) {
-                //     setIsVersionHistoryOpen(true);
-                // }
             } catch (err) {
                 console.error('Error loading recipe data:', err);
                 setError('Failed to load recipe data');
@@ -79,20 +75,19 @@ export default function RecipesDetailsPage() {
         }
         
         initialLoad();
-    }, [id]); // only load with id since subsequent calls are handled for versions
+    }, [id]); // only load with id since we're using local data for version swapping
 
     // load version history separately when explicitly called
     const loadVersionHistory = useCallback(async () => {
         // stop fetch call if already loaded
         if (versions.versions?.length > 0) {
-            console.log('breaking from loadversionhistory with ', versions.versions.length)
             return;
         }
         
         try {
             setIsVersionHistoryLoading(true);
             const versionHistory = await fetchVersionHistory(id);
-            // setVersions(versionHistory.versions || []);
+            // maintain state structure even with undefined responses for potentially throwing errors when looking for properties later 
             setVersions(versionHistory || {
                 versions: [],
                 versionTree: {},
@@ -117,7 +112,7 @@ export default function RecipesDetailsPage() {
         }
     }, [isVersionHistoryOpen, versions.versions?.length, loadVersionHistory]);
 
-    // Handle version selection  with safeguards against redundant fetches
+    // Handle version selection by updating recipe state with version tree data 
     const handleVersionSelect = useCallback(async (version) => {
         if (!recipe) return;
         
@@ -127,26 +122,76 @@ export default function RecipesDetailsPage() {
         try {
             setIsVersionLoading(true);
             
+            const versionToFetch = version;
+            
+            // Fetch the specific version directly (only if it's different from current)
+            // const versionToFetch = version === selectedVersion ? null : version;
+            // const versionToFetch = version === recipe.currentVersion ? null : version;
+            let versionData
+            if (versionToFetch) {
+                // need to change to int since we refactored version history component to change keys to int for proper sorting
+                const majorKey = parseInt(versionToFetch.split('.')[0]);
+                // const [majorKey] = versionToFetch.split('.')[0];
+                // Check if the version tree has this major version group
+                console.log(typeof majorKey)
+                const majorVersions = versions.versionTree[majorKey];
+                console.log("Major versions array:", majorVersions);
+                if (majorVersions) {
+                    // Find the specific version in the array
+                    versionData = majorVersions.find(v => v.version === versionToFetch);
+                }
+                console.log("Found version data:", versionData.recipeData);
+                console.log("versiontofetch", versionToFetch);
+            }
+            if (versionToFetch && versionData?.recipeData) {
+                console.log('compiling recipe')
+                const compositeRecipe = {
+                    ...recipe,
+                    // userID: recipe.userID, 
+                    userID: versionData.createdBy, 
+                    ...versionData.recipeData, 
+                    versionInfo: {
+                        version: versionData.version, 
+                        createdAt: versionData.createdAt,
+                        createdBy: versionData.createdBy,
+                        changes: versionData.changes
+                    }
+                }
+                setRecipe(compositeRecipe)
+                lastFetchedVersionRef.current = versionToFetch
+            } else if (versionToFetch) {
+                // Fallback to API call if version not in tree or tree is incomplete
+                console.log('Version not found in local data, fetching from API...');
+                try {
+                    // Make API call as fallback
+                    const recipeData = await fetchRecipeById(id, version);
+                    if (recipeData) {
+                        setRecipe(recipeData);
+                        lastFetchedVersionRef.current = version;
+                    }
+                } catch (apiError) {
+                    console.error("API fallback failed:", apiError);
+                    setError("Could not load recipe version data");
+                }
+            }
+            // const recipeData = await fetchRecipeById(id, versionToFetch);
+            
+            // setRecipe(recipeData);
             // update URL parameter without WITH the refs so that we can conditionally fetch
             if (version === recipe.currentVersion) {
                 setSearchParams({});
-                lastFetchedVersionRef.current = null;
+                // lastFetchedVersionRef.current = null;
             } else {
                 setSearchParams({ version });
-                lastFetchedVersionRef.current = version;
+                // lastFetchedVersionRef.current = version;
             }
-            
-            // Fetch the specific version directly (only if it's different from current)
-            const versionToFetch = version === recipe.currentVersion ? null : version;
-            const recipeData = await fetchRecipeById(id, versionToFetch);
-            setRecipe(recipeData);
         } catch (err) {
             console.error('Error loading version:', err);
             setError('Failed to load version data');
         } finally {
             setIsVersionLoading(false);
         }
-    }, [recipe, id, setSearchParams]);
+    }, [setSearchParams, versions.versionTree]);
     
   
     const isViewingOldVersion = versionParam && recipe && versionParam !== (recipe.currentVersion || recipe.versionInfo?.version);
@@ -229,7 +274,7 @@ export default function RecipesDetailsPage() {
                         <p className="text-amber-800">
                             You're viewing an older version of this recipe. 
                             <button 
-                                onClick={() => handleVersionSelect(currentVersion || versionInfo?.version)}
+                                onClick={() => handleVersionSelect(currentVersion || versions.currentVersion || versionInfo?.version )}
                                 className="ml-2 text-blue-600 hover:text-blue-800 underline"
                             >
                                 View current version
@@ -287,8 +332,8 @@ export default function RecipesDetailsPage() {
                             versions={versions.versions}
                             versionTree={versions.versionTree}
                             selectedVersion={selectedVersion} 
-                            // currentVersion={versionParam || currentVersion || versionInfo?.version}
-                            currentVersion={recipe?.currentVersion || recipe?.versionInfo?.version}
+                            currentVersion={currentVersion || versionInfo?.version}
+                            // currentVersion={recipe?.currentVersion || recipe?.versionInfo?.version}
                             onVersionSelect={handleVersionSelect}
                         />
                     )}
