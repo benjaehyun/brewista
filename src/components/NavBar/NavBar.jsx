@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faChevronRight } from '@fortawesome/free-solid-svg-icons';
@@ -8,20 +8,44 @@ import ProtectedLink from '../../pages/App/ProtectedLink';
 
 export default function NavBar () {
     const [isDrawerOpen, setIsDrawerOpen] = useState(false);
+    const [isOverlayVisible, setIsOverlayVisible] = useState(false);
     const [isScrolled, setIsScrolled] = useState(false);
     const { user, logout } = useAuth();
     const { openLoginModal } = useAuthModal();
+    const animationTimeout = useRef(null);
 
     const handleLogOut = () => {
         logout();
         closeDrawer();
     };
 
-    const closeDrawer = () => {
-        setIsDrawerOpen(false);
+    const openDrawer = () => {
+        setIsOverlayVisible(true);
+        // Small delay for the overlay to become visible first
+        setTimeout(() => {
+            setIsDrawerOpen(true);
+        }, 10);
     };
 
-  // styling for scroll effect
+    const closeDrawer = () => {
+        setIsDrawerOpen(false);
+        // Wait for the drawer animation to finish before hiding the overlay
+        clearTimeout(animationTimeout.current);
+        animationTimeout.current = setTimeout(() => {
+            setIsOverlayVisible(false);
+        }, 50); 
+    };
+
+    // Clean up timeout on unmount
+    useEffect(() => {
+        return () => {
+            if (animationTimeout.current) {
+                clearTimeout(animationTimeout.current);
+            }
+        };
+    }, []);
+
+    // styling for scroll effect
     useEffect(() => {
         const handleScroll = () => {
             setIsScrolled(window.scrollY > 0);
@@ -30,7 +54,7 @@ export default function NavBar () {
         return () => window.removeEventListener('scroll', handleScroll);
     }, []);
 
-  // Handle click outside drawer
+    // Handle click outside drawer
     useEffect(() => {
         const handleClickOutside = (event) => {
             const drawer = document.getElementById('mobile-drawer');
@@ -50,7 +74,7 @@ export default function NavBar () {
         openLoginModal();
     };
 
-  // Shared link click handler
+    // Shared link click handler
     const handleLinkClick = () => {
         closeDrawer();
     };
@@ -135,7 +159,7 @@ export default function NavBar () {
                         <div className="flex items-center md:hidden">
                             <button
                                 id="menu-button"
-                                onClick={() => setIsDrawerOpen(true)}
+                                onClick={openDrawer}
                                 className={`p-2 rounded-md ${isScrolled ? 'text-gray-800' : 'text-white'}`}
                             >
                                 <FontAwesomeIcon icon={faBars} size="lg" />
@@ -148,14 +172,20 @@ export default function NavBar () {
             {/* Mobile Drawer Navigation */}
             <div 
                 className={`fixed inset-0 bg-black bg-opacity-50 z-30 transition-opacity duration-300 md:hidden ${
-                isDrawerOpen ? 'opacity-100 visible' : 'opacity-0 invisible'
+                isOverlayVisible ? 'opacity-100 visible' : 'opacity-0 invisible'
                 }`}
             >
                 <div
-                id="mobile-drawer"
-                className={`fixed inset-y-0 right-0 w-64 bg-white shadow-xl transform transition-transform duration-300 ease-in-out ${
-                    isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
-                }`}
+                    id="mobile-drawer"
+                    style={{
+                        // manually write style for transition to have different open/close speeds
+                        transition: isDrawerOpen 
+                          ? "transform 300ms ease-in-out" 
+                          : "transform 300ms ease-in-out" 
+                    }}
+                    className={`fixed inset-y-0 right-0 w-64 bg-white shadow-xl transform  ${
+                        isDrawerOpen ? 'translate-x-0' : 'translate-x-full'
+                    }`}
                 >
                     {/* Drawer Header */}
                     <div className="p-4 border-b border-gray-200 flex justify-between items-center">

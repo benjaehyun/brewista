@@ -286,12 +286,12 @@ export default function RecipesDetailsPage() {
                         {!isMainVersion && (
                             <GitBranch className="h-4 w-4 text-green-500" />
                         )}
-                        {versionInfo?.createdAt && (
+                        {/* {versionInfo?.createdAt && (
                             <span className="text-xs text-gray-500 flex items-center gap-1">
                                 <Clock className="h-3 w-3" />
                                 {new Date(versionInfo.createdAt).toLocaleDateString()}
                             </span>
-                        )}
+                        )} */}
                     </div>
                     <button
                         onClick={toggleVersionHistory}
