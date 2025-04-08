@@ -13,13 +13,13 @@ export const AuthProvider = ({ children }) => {
         const checkAuthStatus = async () => {
         if (user) {
             try {
-            await usersService.checkToken();
-            // Fetch profile data when user is authenticated
-            const profile = await profilesAPI.getProfile();
-            setUserProfile(profile);
+                await usersService.checkToken();
+                // Fetch profile data when user is authenticated
+                const profile = await profilesAPI.getProfile();
+                setUserProfile(profile);
             } catch (error) {
-            setUser(null);
-            setUserProfile(null);
+                setUser(null);
+                setUserProfile(null);
             }
         }
         setIsLoading(false);
