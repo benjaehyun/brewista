@@ -7,23 +7,18 @@ import StepProgressBar from './StepProgressBar';
 import { useWakeLock } from '../../hooks/useWakeLock';
 
 export default function BrewSteps({ step, onNextStep, onPreviousStep, steps, currentStepIndex, autoStartTimer, autoNextStep, onSetStep }) {
-    const { requestWakeLock, releaseWakeLock, error: wakeLockError } = useWakeLock();
+    const { isSupported, isActive, error: wakeLockError, requestWakeLock, releaseWakeLock } = useWakeLock();
 
-    // initialize wake lock
+    // Request wake lock when component mounts
     useEffect(() => {
-        let isSubscribed = true;
-
         const initializeWakeLock = async () => {
-            if (isSubscribed) {
-                await requestWakeLock();
-            }
+            await requestWakeLock();
         };
-
+        
         initializeWakeLock();
-
-        // release wake lock
+        
+        // Release when component unmounts
         return () => {
-            isSubscribed = false;
             releaseWakeLock();
         };
     }, [requestWakeLock, releaseWakeLock]);
@@ -42,7 +37,7 @@ export default function BrewSteps({ step, onNextStep, onPreviousStep, steps, cur
         <div className="flex flex-col min-h-[calc(100vh-10rem)]">
             {wakeLockError && (
             <div className="bg-yellow-50 text-yellow-800 p-2 text-sm text-center">
-                Your screen may turn off during brewing. Consider adjusting your device sleep settings.
+                Your screen may turn off during brewing.
             </div>
             )}
             <StepProgressBar />
