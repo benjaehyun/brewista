@@ -1,5 +1,6 @@
 import { useState } from 'react'; 
 import { useAuth } from '../../utilities/auth-context';
+import { Eye, EyeOff } from 'lucide-react';
 
 export default function SignUpForm({ onSuccess }) {
     const { signup } = useAuth();
@@ -11,6 +12,8 @@ export default function SignUpForm({ onSuccess }) {
     });
     const [errors, setErrors] = useState({});
     const [isSubmitting, setIsSubmitting] = useState(false);
+    const [showPassword, setShowPassword] = useState(false);
+    const [showConfirmPassword, setShowConfirmPassword] = useState(false);
 
     function handleChange(e) {
         setFormData({ ...formData, [e.target.name]: e.target.value });
@@ -51,6 +54,7 @@ export default function SignUpForm({ onSuccess }) {
             setIsSubmitting(false);
         }
     }
+    
     const isDisabled = !formData.username || !formData.email || !formData.password || formData.password !== formData.confirm;
 
     return (
@@ -74,6 +78,7 @@ export default function SignUpForm({ onSuccess }) {
                 <p className="mt-1 text-sm text-red-600">{errors.username}</p>
                 )}
             </div>
+            
             <div>
                 <label htmlFor="email" className="block text-sm font-medium text-gray-700">
                     Email
@@ -88,6 +93,7 @@ export default function SignUpForm({ onSuccess }) {
                     }`}
                     value={formData.email}
                     onChange={handleChange}
+                    disabled={isSubmitting}
                 />
                 {errors.email && (
                 <p className="mt-1 text-sm text-red-600">{errors.email}</p>
@@ -98,17 +104,32 @@ export default function SignUpForm({ onSuccess }) {
                 <label htmlFor="password" className="block text-sm font-medium text-gray-700">
                     Password
                 </label>
-                <input
-                    id="password"
-                    name="password"
-                    type="password"
-                    required
-                    className={`mt-1 block w-full px-3 py-2 bg-white border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        errors.password ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    value={formData.password}
-                    onChange={handleChange}
-                />
+                <div className="relative mt-1">
+                    <input
+                        id="password"
+                        name="password"
+                        type={showPassword ? "text" : "password"}
+                        required
+                        className={`block w-full px-3 py-2 pr-10 bg-white border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                            errors.password ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        value={formData.password}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                        disabled={isSubmitting}
+                    />
+                    <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowPassword(!showPassword)}
+                    >
+                        {showPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                        ) : (
+                            <Eye className="h-5 w-5" />
+                        )}
+                    </button>
+                </div>
                 {errors.password && (
                 <p className="mt-1 text-sm text-red-600">{errors.password}</p>
                 )}
@@ -118,17 +139,32 @@ export default function SignUpForm({ onSuccess }) {
                 <label htmlFor="confirm" className="block text-sm font-medium text-gray-700">
                     Confirm Password
                 </label>
-                <input
-                    id="confirm"
-                    name="confirm"
-                    type="password"
-                    required
-                    className={`mt-1 block w-full px-3 py-2 bg-white border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
-                        errors.confirm ? 'border-red-500' : 'border-gray-300'
-                    }`}
-                    value={formData.confirm}
-                    onChange={handleChange}
-                />
+                <div className="relative mt-1">
+                    <input
+                        id="confirm"
+                        name="confirm"
+                        type={showConfirmPassword ? "text" : "password"}
+                        required
+                        className={`block w-full px-3 py-2 pr-10 bg-white border rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 ${
+                            errors.confirm ? 'border-red-500' : 'border-gray-300'
+                        }`}
+                        value={formData.confirm}
+                        onChange={handleChange}
+                        autoComplete="new-password"
+                        disabled={isSubmitting}
+                    />
+                    <button
+                        type="button"
+                        className="absolute inset-y-0 right-0 flex items-center px-2 text-gray-500 hover:text-gray-700"
+                        onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                    >
+                        {showConfirmPassword ? (
+                            <EyeOff className="h-5 w-5" />
+                        ) : (
+                            <Eye className="h-5 w-5" />
+                        )}
+                    </button>
+                </div>
                 {errors.confirm && (
                 <p className="mt-1 text-sm text-red-600">{errors.confirm}</p>
                 )}
@@ -142,11 +178,11 @@ export default function SignUpForm({ onSuccess }) {
                 <button
                     type="submit"
                     className={`w-full flex justify-center py-2 px-4 border border-transparent rounded-md shadow-sm text-sm font-medium text-white
-                        ${!formData.username || !formData.email || !formData.password || formData.password !== formData.confirm
+                        ${ isDisabled
                         ? 'bg-gray-300 cursor-not-allowed'
                         : 'bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500'
                         }`}
-                    disabled={!formData.username || !formData.email || !formData.password || formData.password !== formData.confirm}
+                    disabled={isDisabled || isSubmitting}
                 >
                 Sign Up
                 </button>
