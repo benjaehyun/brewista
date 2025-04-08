@@ -44,7 +44,6 @@ export default function RecipesDetailsPage() {
 
     // Use refs to help prevent redundant API calls
     const lastFetchedVersionRef = useRef(null);
-    const isMountingRef = useRef(true);
 
     // version from URL query param or use null if its current version
     const versionParam = searchParams.get('version');
@@ -68,7 +67,6 @@ export default function RecipesDetailsPage() {
                 setError('Failed to load recipe data');
             } finally {
                 setIsLoading(false);
-                isMountingRef.current = false;
             }
         }
         
