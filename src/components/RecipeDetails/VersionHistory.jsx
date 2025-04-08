@@ -21,7 +21,7 @@ export function VersionHistory({ versions, versionTree, selectedVersion, current
     }, [selectedVersion, versions]);
 
 
-    // Refactor to use version 'tree' with fallback 
+    // Refactor to use version tree with fallback to version array 
     const groupedVersions = useMemo(() => {
         if (versionTree) return versionTree;
         
@@ -81,7 +81,7 @@ export function VersionHistory({ versions, versionTree, selectedVersion, current
             {/* scrollable container with ref to scroll into view // need to test responsiveness // */}
             <div ref={containerRef} className="space-y-4 overflow-y-auto md:max-h-[600px] max-h-[500px]">
                 {sortedMajorVersions.map(major => (
-                    <div key={major} className="border-l-2 border-gray-200 pl-4">
+                    <div key={major} className="border-l-2 border-gray-200 pl-4 mx-2">
                         {sortedGroupedVersions[major]?.map((version) => (
                             <div 
                                 key={version.version}
@@ -106,7 +106,6 @@ export function VersionHistory({ versions, versionTree, selectedVersion, current
 
                                 {/* content to render within the 'card' */}
                                 <div className="flex justify-between items-start">
-                                    <div>
                                         <div className="flex items-center gap-2">
                                             <span className="font-medium">v{version.version}</span>
                                             {/* {(version.isCurrent || version.version === currentVersion) && ( */}
@@ -117,11 +116,8 @@ export function VersionHistory({ versions, versionTree, selectedVersion, current
                                             )}
                                         </div>
                                         <div className="text-sm text-gray-600 mt-1">
-                                            {version.createdBy?.username} • {
-                                                new Date(version.createdAt).toLocaleDateString()
-                                            }
+                                            • { new Date(version.createdAt).toLocaleDateString() }
                                         </div>
-                                    </div>
                                 </div>
 
                                 {/* changes description without values, since step changes are massive  */}
