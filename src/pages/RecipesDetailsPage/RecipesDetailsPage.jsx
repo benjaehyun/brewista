@@ -13,7 +13,7 @@ import {
 } from '../../services/api/recipe-api';
 import AnimatedTimeline from '../../components/RecipeDetails/AnimatedTimeline';
 import BookmarkButton from '../../components/RecipeIndex/BookmarkButton';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { 
   GitBranch, 
   Clock, 

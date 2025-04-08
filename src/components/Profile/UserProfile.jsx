@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { Loader2 } from 'lucide-react';
 
 export default function UserProfile() {

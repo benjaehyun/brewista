@@ -1,6 +1,6 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
 import { Tag, GitBranch } from 'lucide-react';
 import { clearCalculatedRecipe } from '../../utilities/localStorageUtils';

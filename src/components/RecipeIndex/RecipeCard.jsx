@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
 import BookmarkButton from './BookmarkButton';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { GitBranch, GitCommit, Clock } from 'lucide-react'; // For showing version indicators
 
 export default function RecipeCard({ recipe }) {

@@ -1,6 +1,6 @@
 import React from 'react';
 import { Routes, Route } from "react-router-dom";
-import { AuthProvider, useAuth } from "../../utilities/auth-context";
+import { AuthProvider, useAuth } from "../../hooks/auth-context";
 import NavBar from "../../components/NavBar/NavBar";
 import NotFoundPage from "../NotFoundPage/NotFoundPage";
 import HomePageUnauthenticated from "../HomePage/HomePageUnauthenticated";
@@ -16,7 +16,7 @@ import CalculatePage from "../CalculatePage/CalculatePage";
 import TimerPage from "../TimerPage/TimerPage";
 import RecipesEditPage from "../RecipesEditPage/RecipesEditPage";
 import ProtectedRoute from "./ProtectedRoute";
-import { AuthModalProvider, useAuthModal } from '../../utilities/auth-modal-context';
+import { AuthModalProvider, useAuthModal } from '../../hooks/auth-modal-context';
 import LoginModal from "../../components/LoginModal/LoginModal";
 
 function AppContent() {

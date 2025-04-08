@@ -1,5 +1,5 @@
 import React from 'react';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { Bookmark, BookmarkCheck } from 'lucide-react';
 
 const BookmarkButton = ({ 

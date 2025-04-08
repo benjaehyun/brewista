@@ -1,7 +1,7 @@
 import React from 'react';
 import { Link } from 'react-router-dom';
-import { useAuth } from '../../utilities/auth-context';
-import { useAuthModal } from '../../utilities/auth-modal-context';
+import { useAuth } from '../../hooks/auth-context';
+import { useAuthModal } from '../../hooks/auth-modal-context';
 
 const ProtectedLink = ({ to, children, className, onClick }) => {
     const { user } = useAuth();

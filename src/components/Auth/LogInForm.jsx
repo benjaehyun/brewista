@@ -1,5 +1,5 @@
 import { useState } from 'react'; 
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 import { Eye, EyeOff } from 'lucide-react';
 
 export default function LogInForm({ onSuccess }) {

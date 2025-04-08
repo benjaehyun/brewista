@@ -2,8 +2,8 @@ import React, { useState, useEffect, useRef } from 'react';
 import { Link } from 'react-router-dom';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faBars, faTimes, faChevronRight } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../utilities/auth-context';
-import { useAuthModal } from '../../utilities/auth-modal-context';
+import { useAuth } from '../../hooks/auth-context';
+import { useAuthModal } from '../../hooks/auth-modal-context';
 import ProtectedLink from '../../pages/App/ProtectedLink';
 
 export default function NavBar () {

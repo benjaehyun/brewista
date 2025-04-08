@@ -1,7 +1,7 @@
 import React, { useEffect } from 'react';
 import { Navigate, useLocation } from 'react-router-dom';
-import { useAuth } from '../../utilities/auth-context';
-import { useAuthModal } from '../../utilities/auth-modal-context';
+import { useAuth } from '../../hooks/auth-context';
+import { useAuthModal } from '../../hooks/auth-modal-context';
 
 const ProtectedRoute = ({ children }) => {
   const { user, isLoading } = useAuth();

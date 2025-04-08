@@ -9,7 +9,7 @@ import {
   faBalanceScale,
   faCubesStacked
 } from '@fortawesome/free-solid-svg-icons';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 
 const getGearIcon = (gearType) => {
   switch (gearType) {
