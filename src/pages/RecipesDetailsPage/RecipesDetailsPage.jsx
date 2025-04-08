@@ -19,8 +19,7 @@ import {
   Clock, 
   AlertCircle, 
   History,
-  Tag,
-  Loader
+  Tag
 } from 'lucide-react';
 import { VersionHistory } from '../../components/RecipeDetails/VersionHistory';
 
@@ -40,7 +39,6 @@ export default function RecipesDetailsPage() {
     const [isLoading, setIsLoading] = useState(true);
     const [isVersionHistoryOpen, setIsVersionHistoryOpen] = useState(false);
     const [isVersionHistoryLoading, setIsVersionHistoryLoading] = useState(false);
-    const [isVersionLoading, setIsVersionLoading] = useState(false);
     const [error, setError] = useState(null);
     const { user } = useAuth();
 
@@ -120,35 +118,29 @@ export default function RecipesDetailsPage() {
         if (version === lastFetchedVersionRef.current) return;
         
         try {
-            setIsVersionLoading(true);
             
-            const versionToFetch = version;
             
             // Fetch the specific version directly (only if it's different from current)
-            // const versionToFetch = version === selectedVersion ? null : version;
-            // const versionToFetch = version === recipe.currentVersion ? null : version;
+            // const versionToFetch = version;
+            const versionToFetch = version === selectedVersion ? null : version;
+
             let versionData
             if (versionToFetch) {
                 // need to change to int since we refactored version history component to change keys to int for proper sorting
                 const majorKey = parseInt(versionToFetch.split('.')[0]);
-                // const [majorKey] = versionToFetch.split('.')[0];
-                // Check if the version tree has this major version group
-                console.log(typeof majorKey)
+                
+                // Get versions by this major version key 
                 const majorVersions = versions.versionTree[majorKey];
-                console.log("Major versions array:", majorVersions);
                 if (majorVersions) {
                     // Find the specific version in the array
                     versionData = majorVersions.find(v => v.version === versionToFetch);
                 }
-                console.log("Found version data:", versionData.recipeData);
-                console.log("versiontofetch", versionToFetch);
             }
             if (versionToFetch && versionData?.recipeData) {
-                console.log('compiling recipe')
                 const compositeRecipe = {
                     ...recipe,
                     // userID: recipe.userID, 
-                    userID: versionData.createdBy, 
+                    userID: versionData.createdBy, // should be the same as the recipe.userID, but this is more accurate 
                     ...versionData.recipeData, 
                     versionInfo: {
                         version: versionData.version, 
@@ -160,10 +152,10 @@ export default function RecipesDetailsPage() {
                 setRecipe(compositeRecipe)
                 lastFetchedVersionRef.current = versionToFetch
             } else if (versionToFetch) {
-                // Fallback to API call if version not in tree or tree is incomplete
+                // Fallback to API call if version not in tree or tree is partial or has some other issue 
                 console.log('Version not found in local data, fetching from API...');
                 try {
-                    // Make API call as fallback
+                    // API call as fallback
                     const recipeData = await fetchRecipeById(id, version);
                     if (recipeData) {
                         setRecipe(recipeData);
@@ -174,23 +166,18 @@ export default function RecipesDetailsPage() {
                     setError("Could not load recipe version data");
                 }
             }
-            // const recipeData = await fetchRecipeById(id, versionToFetch);
-            
-            // setRecipe(recipeData);
-            // update URL parameter without WITH the refs so that we can conditionally fetch
+
+            // update URL parameter AFTER getting relevant data and updating state. (ran into sync issues otherwise)
             if (version === recipe.currentVersion) {
                 setSearchParams({});
-                // lastFetchedVersionRef.current = null;
             } else {
                 setSearchParams({ version });
-                // lastFetchedVersionRef.current = version;
             }
         } catch (err) {
             console.error('Error loading version:', err);
+            lastFetchedVersionRef.current = null;
             setError('Failed to load version data');
-        } finally {
-            setIsVersionLoading(false);
-        }
+        } 
     }, [setSearchParams, versions.versionTree]);
     
   
@@ -202,15 +189,21 @@ export default function RecipesDetailsPage() {
     }, [navigate, id, versionParam]);
 
     if (isLoading && !recipe) {
-        return <div className="flex justify-center p-8">Loading...</div>;
-    }
+        return (
+            <div className="flex justify-center p-8">
+                {/* <Loader className="animate-spin text-blue-500 mr-2" size={32} /> */}
+                <div className="animate-spin h-8 w-8 border-4 border-blue-500 border-t-transparent rounded-full mr-2"></div>
+                <span className="text-blue-700">Loading ...</span>
+            </div>
+        );
+    };
     
     if (error) {
         return <div className="text-red-500 p-4 bg-red-50 rounded-lg">{error}</div>;
     }
     
     if (!recipe) {
-        return <div>Recipe not found</div>;
+        return <div className="text-red-500 p-4 bg-red-50 rounded-lg">Recipe not found</div>;
     }
 
     const {
@@ -284,13 +277,6 @@ export default function RecipesDetailsPage() {
                 </div>
             )}
 
-            {/* loading versions or current version selected */}
-            {/* {isVersionLoading && (
-                <div className="mb-4 bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-center justify-center">
-                    <Loader className="animate-spin text-blue-500 mr-2" size={16} />
-                    <span className="text-blue-700">Loading version data...</span>
-                </div>
-            )} */}
 
             {/* bar with version info */}
             {hasVersionHistory && (
@@ -342,7 +328,7 @@ export default function RecipesDetailsPage() {
 
             {/* Recipe Top Section */}
             <div className="min-h-[48px] relative flex items-start mb-2">
-                {/* left spacer for when authenticated for alignment */}
+                {/* left spacer for when authenticated to compensate alignment for bookmark button */}
                 {user && <div className="w-[44px] flex-shrink-0" />}
                 
                 {/* Title  */}
