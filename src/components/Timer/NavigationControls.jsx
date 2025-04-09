@@ -4,10 +4,10 @@ import { faStepBackward, faPlay, faPause, faRedo, faStepForward } from '@fortawe
 import { useBrewStep } from './BrewStepContext';
 
 export default function NavigationControls() {
-  const { timerState, toggleTimer, restartStep, onNextStep, onPreviousStep, currentStepIndex, stepsToUse } = useBrewStep();
+  const { timerState, toggleTimer, restartStep, onNextStep, onPreviousStep, currentStepIndex, steps } = useBrewStep();
 
   const isFirstStep = currentStepIndex === 0;
-  const isLastStep = currentStepIndex === stepsToUse.length;
+  const isLastStep = currentStepIndex === steps.length;
 
   return (
     <div className={`flex justify-between items-center h-16 px-4 bg-gray-100 rounded-lg`}>

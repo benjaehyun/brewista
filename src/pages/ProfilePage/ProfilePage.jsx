@@ -1,6 +1,5 @@
 import React, { useState } from 'react';
-import { useAuth } from '../../utilities/auth-context';
-import { Loader2 } from 'lucide-react';
+import { useAuth } from '../../hooks/auth-context';
 
 import UserProfile from '../../components/Profile/UserProfile';
 import GearSection from '../../components/Profile/GearSection';

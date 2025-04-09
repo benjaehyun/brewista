@@ -16,6 +16,8 @@ export default function TemperatureInput({ waterTemp, setWaterTemp, waterTempUni
                     <label className="block text-sm font-medium text-gray-700">Water Temperature</label>
                     <input
                         type="number"
+                        inputMode="numeric"
+                        pattern="[0-9]*"
                         name="waterTemp"
                         value={waterTemp}
                         onChange={handleTempChange}

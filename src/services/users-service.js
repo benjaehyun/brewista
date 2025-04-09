@@ -1,5 +1,5 @@
-import * as usersAPI from './users-api'
-import * as profilesAPI from './profiles-api'
+import * as usersAPI from './api/users-api'
+import * as profilesAPI from './api/profiles-api'
 
 export async function signUp (userData) {  // need to refactor to handle errors thrown by the backend to identify which field is a duplicate, which also needs to be refactored
     try {
@@ -9,10 +9,7 @@ export async function signUp (userData) {  // need to refactor to handle errors 
         return getUser();
       } catch (error) {
         // Pass through the error details from the API
-        if (error.response?.data) {
-            throw error.response.data;
-        }
-        throw { error: 'Signup failed', details: error.message };
+        throw error;
     }
 }
 
@@ -23,10 +20,10 @@ export async function login(credentials) {
         return getUser();
       } catch (error) {
         // Improve error message for login failures
-        if (error.response?.status === 400) {
-          throw { error: 'Invalid email or password' };
-        }
-        throw { error: 'Login failed', details: error.message };
+        console.error('Login error in service:', error);
+        // Forward structured errors or create new ones
+        if (error.error) throw error;
+        throw { error: 'Login failed. Please try again.' };
     }
 }
 

@@ -6,43 +6,59 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewSteps from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
-import { clearCalculatedRecipe } from '../../services/localStorageUtils';
+import { clearCalculatedRecipe, getCalculatedRecipe } from '../../utilities/localStorageUtils';
 
 export default function TimerPage() {
     const { id } = useParams();
     const location = useLocation();
     const navigate = useNavigate();
-    const { recipe, coffeeAmount, brewVolume, stepsToUse, scalingFactor } = location.state || {};
+    
 
-    const calculatedRecipe = {
-        ...recipe, 
-        coffeeAmount: coffeeAmount,
-        steps: stepsToUse,
-        type: "Explicit"
-    }
+    const getRecipeData = () => {
+        // First try from route state
+        if (location.state?.calculatedRecipe) {
+            return location.state.calculatedRecipe;
+        }
+        
+        // Fall back to localStorage if available
+        const storedRecipe = getCalculatedRecipe();
+        if (storedRecipe?.recipe) {
+            return storedRecipe.recipe;
+        }
+        
+        return null;
+    };
+
+    // if we navigate back from the edit page, try to get the relevant state so they go back to finalization component
+    const locationState = location.state || {};
+    const initialIsBrewStarted = locationState.isBrewStarted || false;
+    const initialIsBrewFinished = locationState.isBrewFinished || false;
+
+    // Create the calculated recipe 
+    const calculatedRecipe = getRecipeData()
 
     const [currentStep, setCurrentStep] = useState(0);
-    const [isBrewStarted, setIsBrewStarted] = useState(false);
-    const [isBrewFinished, setIsBrewFinished] = useState(false);
+    const [isBrewStarted, setIsBrewStarted] = useState(initialIsBrewStarted);
+    const [isBrewFinished, setIsBrewFinished] = useState(initialIsBrewFinished);
     const [autoStartTimer, setAutoStartTimer] = useState(true);
     const [autoNextStep, setAutoNextStep] = useState(true);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
 
     useEffect(() => {
-        if (!recipe || !stepsToUse) {
+        if (!calculatedRecipe || !calculatedRecipe.steps || calculatedRecipe.steps.length === 0) {
             navigate(`/calculate/${id}`, { 
                 state: { error: "Missing recipe information. Please recalculate." }
             });
         }
-    }, [recipe, stepsToUse, navigate, id]);
+    }, [calculatedRecipe, navigate, id]);
 
     const handleStartBrew = () => {
-        clearCalculatedRecipe()
+        clearCalculatedRecipe();    //be sure to clear previous calculations when starting ne wbrew 
         setIsBrewStarted(true);
     };
 
     const handleNextStep = () => {
-        if (currentStep < stepsToUse.length - 1) {
+        if (currentStep < calculatedRecipe.steps.length - 1) {
             setCurrentStep(currentStep + 1);
         } else {
             setIsBrewFinished(true);
@@ -56,18 +72,18 @@ export default function TimerPage() {
     };
 
     const handleSetStep = (stepIndex) => {
-        if (stepIndex >= 0 && stepIndex < stepsToUse.length) {
+        if (stepIndex >= 0 && stepIndex < calculatedRecipe.steps.length) {
             setCurrentStep(stepIndex);
         }
     };
 
-    if (!recipe || !stepsToUse) {
+    if (!calculatedRecipe) {
         return null; // Avoid rendering if redirected
     }
 
     return (
         <div className="max-w-4xl mx-auto p-4">
-            <div className="mb-4">
+            <div className="mb-2">
                 <button
                     onClick={() => setIsSettingsOpen(!isSettingsOpen)}
                     className="w-full flex justify-between items-center bg-gray-100 p-3 rounded-lg shadow-sm hover:bg-gray-200 transition-colors duration-200"
@@ -123,23 +139,20 @@ export default function TimerPage() {
 
             {!isBrewStarted ? (
                 <PreparationOverview
-                    recipe={recipe}
-                    coffeeAmount={coffeeAmount}
-                    brewVolume={brewVolume}
+                    calculatedRecipe={calculatedRecipe}
                     onStartBrew={handleStartBrew}
                 />
             ) : isBrewFinished ? (
                 <FinalizationComponent
-                    recipe={recipe}
                     calculatedRecipe={calculatedRecipe}
                 />
             ) : (
                 <BrewSteps
-                    step={stepsToUse[currentStep]}
+                    step={calculatedRecipe.steps[currentStep]}
                     onNextStep={handleNextStep}
                     onPreviousStep={handlePreviousStep}
                     onSetStep={handleSetStep}
-                    stepsToUse={stepsToUse}
+                    steps={calculatedRecipe.steps}
                     currentStepIndex={currentStep}
                     autoStartTimer={autoStartTimer}
                     autoNextStep={autoNextStep}

@@ -1,6 +1,6 @@
 import { useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { useAuth } from '../../utilities/auth-context';
+import { useAuth } from '../../hooks/auth-context';
 
 export function useProtectedNavigation() {
     const [isLoginModalOpen, setLoginModalOpen] = useState(false);

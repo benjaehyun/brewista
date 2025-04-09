@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as relationApi from "../../services/relation-api"
+import * as relationApi from "../../services/api/relation-api"
 
 export default function FollowersModal({ isOpen, onClose, profileId }) {
   const [followers, setFollowers] = useState([]);
@@ -11,7 +11,6 @@ export default function FollowersModal({ isOpen, onClose, profileId }) {
         setIsLoading(true);
         try {
             const followerList = await relationApi.getFollowers(profileId)
-            console.log(followerList)
             setFollowers(followerList);
         } catch (error) {
             console.error("Failed to fetch followers", error);

@@ -35,7 +35,6 @@ const AnimatedTimeline = React.memo(function AnimatedTimeline({ steps }) {
     }, []);
 
     useEffect(() => {
-        console.log('AnimatedTimeline effect running, steps:', steps);
         if (animationRef.current) {
             animationRef.current.kill();
         }
@@ -77,13 +76,14 @@ const AnimatedTimeline = React.memo(function AnimatedTimeline({ steps }) {
             </div>
             <div className="relative flex items-center my-4">
                 <div
-                    className="timeline-line"
-                    style={{
-                        height: `${calculateLineHeight(step.time)}px`,
-                        width: '4px',
-                        backgroundColor: 'rgba(59, 130, 246, 1)',
-                    }}
-                ></div>
+                className="timeline-line"
+                style={{
+                    height: `${calculateLineHeight(step.time)}px`,
+                    width: '4px',
+                    backgroundColor: 'rgba(59, 130, 246, 1)',
+                }}
+                >                    
+                </div>
                 {step.time !== undefined && (
                     <p className="timeline-time absolute left-8 text-xs text-gray-600 whitespace-nowrap">
                         {`${step.time} sec`}

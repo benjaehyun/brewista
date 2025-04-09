@@ -35,6 +35,7 @@ app.use('/api/relation', require('./routes/api/relation'))
 app.use('/api/gear', require('./routes/api/gear'))
 app.use('/api/coffee-bean', require('./routes/api/coffeeBean'))
 app.use('/api/recipe', require('./routes/api/recipe'))
+app.use('/api/recipe/version', require('./routes/api/recipeVersion'));
 
 // The following "catch all" route (note the *) is necessary
 // to return the index.html on all non-AJAX requests

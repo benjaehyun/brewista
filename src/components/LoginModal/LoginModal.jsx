@@ -1,32 +1,14 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Switch from 'react-switch';
-import { useAuth } from '../../utilities/auth-context';
 import LogInForm from '../Auth/LogInForm';
 import SignUpForm from '../Auth/SignUpForm';
 
 const LoginModal = ({ isOpen, onClose }) => {
   const [isLogin, setIsLogin] = useState(true);
-  const { login, signup } = useAuth();
   const navigate = useNavigate()
 
-  const handleLogin = async (credentials) => {
-    try {
-      await login(credentials);
-      handleSuccessfulAuth();
-    } catch (error) {
-      console.error('Failed to login:', error);
-    }
-  };
 
-  const handleSignup = async (userData) => {
-    try {
-      await signup(userData);
-      handleSuccessfulAuth();
-    } catch (error) {
-      console.error('Failed to sign up:', error);
-    }
-  };
 
   const handleClose = () => {
     onClose();
@@ -74,9 +56,9 @@ const LoginModal = ({ isOpen, onClose }) => {
           </div>
           <div className="mt-2">
             {isLogin ? (
-              <LogInForm onSubmit={handleLogin} />
+              <LogInForm onSuccess={handleSuccessfulAuth} />
             ) : (
-              <SignUpForm onSubmit={handleSignup} />
+              <SignUpForm onSuccess={handleSuccessfulAuth} />
             )}
           </div>
           <div className="mt-4">

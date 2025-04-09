@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { Link } from 'react-router-dom';
 import { Loader2 } from 'lucide-react';
-import { fetchCurrentUserRecipes, fetchSavedRecipes } from '../../services/recipe-api';
+import { fetchCurrentUserRecipes, fetchSavedRecipes } from '../../services/api/recipe-api';
 import BookmarkButton from "../../components/RecipeIndex/BookmarkButton"
 
 const RECIPES_PER_PAGE = 12;

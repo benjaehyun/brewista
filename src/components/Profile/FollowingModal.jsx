@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react';
-import * as relationApi from "../../services/relation-api"
+import * as relationApi from "../../services/api/relation-api"
 
 export default function FollowingModal({ isOpen, onClose, profileId }) {
   const [following, setFollowing] = useState([]);
@@ -11,7 +11,6 @@ export default function FollowingModal({ isOpen, onClose, profileId }) {
         setIsLoading(true);
         try {
             const followingList = await relationApi.getFollowing(profileId)
-            console.log(followingList)
             setFollowing(followingList);
         } catch (error) {
             console.error("Failed to fetch following list", error);

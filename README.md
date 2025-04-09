@@ -1,10 +1,15 @@
 # Brewista: Coffee Brewing Companion
 
-## Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
+### Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
+### What's being worked on now: Refactoring front to back handling of recipes to include recipe versions 
+- This way users can make changes to a recipe and keep track of them 
+- For ex. If I got a new coffee bean that I've recorded a recipe for before, I can go back and use that particular version of the recipe
 
-## Live App Link
+## Links
 
-🔗 [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
+🔗 Live deployment: [brewista](https://brewista-9c2f976eb426.herokuapp.com/)
+<br>
+🔗 Read more about the project's challenges, implementation details, and more! [Project Details](https://www.benjaelee.com/projects/brewista/)
 
 ## Project Overview
 
@@ -44,20 +49,28 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - Optimistic UI updates for seamless interaction
 - Efficient data flow patterns for real-time calculations
 
-### Animation System
-- GSAP-powered timeline animations
-- React Spring for interactive transitions
-- Optimized performance on mobile devices
-- Smooth visual feedback for user actions
-
 ### Complex Calculations
 - Non-linear time scaling for different brewing methods
-- Real-time recipe parameter adjustments
+- Real-time recipe parameter adjustments using debounced updates
 - Preservation of critical ratios during scaling
 - Separate handling of bloom phases
+- Built flexible support for multiple recipe types
+
+### Interactive Timeline System
+- Custom timeline visualization with GSAP animations
+- Dynamic step management with drag-and-drop reordering
+- React Spring for interactive transitions
+- Responsive design adapting to recipe complexity
+
+### Mobile Experience
+- Implemented touch-friendly brewing controls
+- Created custom bottom sheets for step details
+- Optimized animations for mobile performance
+- Built responsive layouts for all screen sizes
 
 ### Timer Reliability
-- Wake Lock API implementation for preventing device sleep
+- Wake Lock API implementation for preventing device sleep (except for a known issue on ios devices)
+    - Issue: ios does not honor the wake lock api when PWA's are added to the home screen. 
 - Cross-platform sleep prevention strategies
 
 ### Performance Optimization
@@ -74,36 +87,20 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 - React Context API
 - GSAP and React Spring for animations
 - Lodash and FontAwesome utilities
-- Screen Wake Lock API for 
+- Screen Wake Lock API 
 
 ### Backend
 - Node.js with Express
 - MongoDB database
 - JWT authentication
 
-## Technical Details
+## Currently
+- Working on update to recipe storage and handling to track changes to recipes and display versioning history with the ability to brew with past versions. 
 
-### Recipe Engine
-- Developed scaling algorithms for precise measurements
-- Implemented real-time calculation updates with debouncing
-- Built flexible support for multiple recipe types
-
-### Interactive Timeline System
-- Custom timeline visualization with GSAP animations
-- Dynamic step management with drag-and-drop reordering
-- Responsive design adapting to recipe complexity
-- Optimized performance for mobile devices
-
-### Mobile Experience
-- Implemented touch-friendly brewing controls
-- Created custom bottom sheets for step details
-- Optimized animations for mobile performance
-- Built responsive layouts for all screen sizes
 
 ## Future Development
 
-- Smart device integration
-- Advanced recipe recommendations
+- Share Recipes via post or link sharing 
 - Support for more brewing types beyond pour-overs
 - Enhanced analytics and insights
 - Offline mode support
@@ -124,6 +121,7 @@ npm start
 # In a new terminal, start the backend server
 node server.js
 ```
+
 
 ## Environment Setup
 Create a `.env` file with the following variables:

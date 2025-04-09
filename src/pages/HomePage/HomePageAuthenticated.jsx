@@ -4,9 +4,14 @@ import { Link } from 'react-router-dom';
 export default function HomePageAuthenticated() {
     return (
         <div className="mx-auto">
-            <div className="relative mb-6">
-                <img src="/images/brew-img-4.jpg" alt="Coffee Brewing" className="w-full object-cover opacity-80" style={{ height: '400px' }} />
-                <div className="absolute inset-0 flex flex-col justify-center items-center">
+            <div className="relative mb-6 -mt-16 md:-mt-[4.75rem]">
+                <img 
+                    src="/images/brew-img-4.jpg" 
+                    alt="Coffee Brewing" 
+                    className="w-full object-cover opacity-80" 
+                    style={{ height: 'calc(400px + 4rem)', minHeight: '100%' }} 
+                />
+                <div className="absolute inset-0 flex flex-col justify-center items-center pt-16 md:pt-[4.75rem]">
                     <h1 className="text-4xl font-bold text-white">welcome to brewista</h1>
                     <p className="text-lg text-white">your personal coffee brewing companion</p>
                 </div>

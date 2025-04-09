@@ -13,6 +13,8 @@ export default function GrindSizeInput({ grindSize, setGrindSize }) {
                 <label className="block text-sm font-medium text-gray-700">Steps</label>
                 <input
                     type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     step="0.1"  
                     name="steps"
                     value={grindSize.steps}
@@ -25,6 +27,8 @@ export default function GrindSizeInput({ grindSize, setGrindSize }) {
                 <label className="block text-sm font-medium text-gray-700">Microsteps (optional)</label>
                 <input
                     type="number"
+                    inputMode="numeric"
+                    pattern="[0-9]*"
                     step="0.1"  
                     name="microsteps"
                     value={grindSize.microsteps}

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react';
-import { fetchUserGear } from '../../services/gear-api';
-import { fetchCoffeeBeans } from '../../services/coffeeBean-api';
-import { addRecipe } from '../../services/recipe-api';
+import { fetchUserGear } from '../../services/api/gear-api';
+import { fetchCoffeeBeans } from '../../services/api/coffeeBean-api';
+import { addRecipe } from '../../services/api/recipe-api';
 import GearSelector from '../../components/RecipeCreation/GearSelector';
 import RecipeStepForm from '../../components/RecipeCreation/RecipeStepForm';
 import TemperatureInput from '../../components/RecipeCreation/TemperatureInput';
@@ -124,23 +124,30 @@ export default function RecipeCreationPage() {
             coffeeBean: selectedBean._id,
             grindSize,
             coffeeAmount,
-            waterTemperature: waterTemp ?  waterTemp : null,
+            waterTemperature: waterTemp ? waterTemp : null,
             waterTemperatureUnit: waterTemp ? waterTempUnit : null,
             flowRate: flowRate ? flowRate : null,
             steps,
             tastingNotes,
             journal,
             type: isRatio ? 'Ratio' : 'Explicit',
+            // Initial version information
+            versionInfo: {
+                changes: [{
+                    field: 'recipe',
+                    description: 'Initial recipe creation'
+                }]
+            }
         };
 
         try {
-            console.log('Submitting recipe:', recipeData);
             const result = await addRecipe(recipeData);
             if (result.success && result.recipeId) {
-                navigate(`/recipes/${result.recipeId}`)
+                navigate(`/recipes/${result.recipeId}`);
             }
         } catch (error) {
             console.error('Error submitting recipe:', error);
+            // maybe maybe need to add error handling ui later
         }
     };
 
@@ -194,6 +201,8 @@ export default function RecipeCreationPage() {
                             <label className="block text-sm font-medium text-gray-700">Coffee Amount (Ratio)</label>
                             <input
                                 type="number"
+                                inputMode="numeric"
+                                pattern="[0-9]*"
                                 value={coffeeAmount}
                                 onChange={(e) => setCoffeeAmount(parseFloat(e.target.value) || '')}
                                 className="mt-1 block w-full px-3 py-2 border border-gray-300 rounded-md shadow-sm focus:outline-none focus:ring-blue-500 focus:border-blue-500 sm:text-sm"

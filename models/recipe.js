@@ -90,9 +90,23 @@ const recipeSchema = new Schema ({
     tastingNotes: [{
         type: String 
     }],
+    originalRecipeId: {
+        type: mongoose.Schema.Types.ObjectId,
+        ref: 'Recipe'
+      },
+      originalVersion: String,
+      currentVersion: {
+        type: String,
+        default: '1.0'
+      },
+      isArchived: {
+        type: Boolean,
+        default: false
+      }
 }, {
     timestamps: true 
 });
+
 
 
 module.exports = mongoose.model('Recipe', recipeSchema);
