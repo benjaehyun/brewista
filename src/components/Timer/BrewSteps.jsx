@@ -34,19 +34,22 @@ export default function BrewSteps({ step, onNextStep, onPreviousStep, steps, cur
         autoNextStep={autoNextStep}
         onSetStep={onSetStep}
         >
-        <div className="flex flex-col min-h-[calc(100vh-10rem)]">
+        <div className="flex flex-col">
+
             {wakeLockError && (
-            <div className="bg-yellow-50 text-yellow-800 p-2 text-sm text-center">
+                <div className="bg-yellow-50 text-yellow-800 p-2 mb-2 text-sm text-center">
                 Your screen may turn off during brewing.
-            </div>
+                </div>
             )}
             <StepProgressBar />
-            <div className="flex-1 flex flex-col">
+            
+            <div className="flex-1 flex flex-col overflow-auto pb-24"> 
                 <TimerDisplay />
                 <StepInstructions />
             </div>
-            <div>
-                <NavigationControls className="mt-auto pt-4 pb-4"/>
+            
+            <div className="fixed bottom-0 left-0 right-0 p-4 bg-transparent">
+                <NavigationControls />
             </div>
         </div>
         </BrewStepProvider>
