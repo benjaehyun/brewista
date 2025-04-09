@@ -4,28 +4,28 @@ import { useAuth } from '../../hooks/auth-context';
 import { useAuthModal } from '../../hooks/auth-modal-context';
 
 const ProtectedRoute = ({ children }) => {
-  const { user, isLoading } = useAuth();
-  const { openLoginModal } = useAuthModal();
-  const location = useLocation();
+    const { user, isLoading } = useAuth();
+    const { openLoginModal } = useAuthModal();
+    const location = useLocation();
 
-  useEffect(() => {
-    // Only open the login modal if the user is not authenticated and not currently loading
-    if (!user && !isLoading) {
-      openLoginModal();
-      // Store the attempted location
-      sessionStorage.setItem('intendedPath', location.pathname);
+    useEffect(() => {
+        // Only open the login modal if the user is not authenticated and not currently loading
+        if (!user && !isLoading) {
+            openLoginModal();
+            // Store the attempted location
+            sessionStorage.setItem('intendedPath', location.pathname);
+        }
+    }, [user, isLoading, openLoginModal, location.pathname]);
+
+    if (isLoading) {
+        return <div>Loading...</div>;
     }
-  }, [user, isLoading, openLoginModal, location.pathname]);
 
-  if (isLoading) {
-    return <div>Loading...</div>;
-  }
+    if (!user) {
+        return <Navigate to="/" state={{ from: location }} replace />;
+    }
 
-  if (!user) {
-    return <Navigate to="/" state={{ from: location }} replace />;
-  }
-
-  return children;
+    return children;
 };
 
 export default ProtectedRoute;

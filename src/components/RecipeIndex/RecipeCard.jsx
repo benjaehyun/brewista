@@ -2,7 +2,7 @@ import React from 'react';
 import { Link } from 'react-router-dom';
 import BookmarkButton from './BookmarkButton';
 import { useAuth } from '../../hooks/auth-context';
-import { GitBranch, GitCommit, Clock } from 'lucide-react'; // For showing version indicators
+import { GitBranch, GitCommit, Clock } from 'lucide-react'; 
 
 export default function RecipeCard({ recipe }) {
     const { user, userProfile } = useAuth();
@@ -33,17 +33,17 @@ export default function RecipeCard({ recipe }) {
     const isBranchVersion = hasVersionInfo && !isMainVersion;
     const isCurrentVersion = hasVersionInfo && versionInfo.isCurrent;
     
-    // Check if this recipe has multiple versions
+    // if this recipe has multiple versions
     const hasMultipleVersions = 
         (versionInfo?.stats?.totalVersions > 1) || 
         (versionInfo?.hasOtherVersions);
         
-    // Determine if user is owner
+    //  if user is owner
     const isOwner = user && userID && user._id === userID._id;
 
     return (
         <div className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow duration-200 flex flex-col justify-between" style={{ minHeight: '260px' }}>
-            {/* Header section with title and version info */}
+            {/* Header  with title and version info */}
             <div className="min-h-[40px] relative flex items-start">
                 {user && userProfile && <div className="w-[44px] flex-shrink-0" />}
                 
@@ -96,7 +96,7 @@ export default function RecipeCard({ recipe }) {
                     <p className="text-sm text-gray-500 mb-4">Type: {type}</p>
                     <p className="text-lg font-semibold mb-2">Coffee & Brew: {coffeeBrewDisplay}</p>
                     
-                    {/* Version statistics - simplified and more intuitive */}
+                    {/* Version statistics  */}
                     {hasMultipleVersions && (
                         <p className="text-xs text-gray-500 mb-2">
                             {versionInfo?.stats?.mainVersions > 0 && (

@@ -17,7 +17,7 @@ export default function FinalizationComponent({ calculatedRecipe }) {
     const currentUser = user;
     const isAuthenticated = !!currentUser;
     
-    // Extract metadata from calculatedRecipe
+    //  metadata from calculatedRecipe
     const {
         _id: recipeId,
         userID,

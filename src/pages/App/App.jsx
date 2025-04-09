@@ -20,74 +20,74 @@ import { AuthModalProvider, useAuthModal } from '../../hooks/auth-modal-context'
 import LoginModal from "../../components/LoginModal/LoginModal";
 
 function AppContent() {
-  const { user } = useAuth();
-  const { isLoginModalOpen, closeLoginModal} = useAuthModal()
+    const { user } = useAuth();
+    const { isLoginModalOpen, closeLoginModal} = useAuthModal()
 
-  return (
-    <main className="App text-center">
-      <ScrollToTop />
-      <NavBar />
-      <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
-      <div className="mt-16 md:mt-[4.75rem]">
-        <Routes>
-          <Route path="/" element={user ? <HomePageAuthenticated /> : <HomePageUnauthenticated />} />
-          <Route path="/recipes" element={<RecipesIndexPage />} />
-          <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
-          <Route 
-            path="/recipes/edit/:id" 
-            element={
-              <ProtectedRoute >
-                <RecipesEditPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="/calculate/:id" element={<CalculatePage />} />
-          <Route path="/timer/:id" element={<TimerPage />} />
-          <Route 
-            path="/myrecipes" 
-            element={
-              <ProtectedRoute>
-                <MyRecipesPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/savedrecipes" 
-            element={
-              <ProtectedRoute>
-                <SavedRecipesIndex />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/profile" 
-            element={
-              <ProtectedRoute>
-                <ProfilePage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route 
-            path="/recipes/create" 
-            element={
-              <ProtectedRoute>
-                <RecipeCreationPage />
-              </ProtectedRoute>
-            } 
-          />
-          <Route path="*" element={<NotFoundPage />} />
-        </Routes>
-      </div>
-    </main>
-  );
+    return (
+        <main className="App text-center">
+            <ScrollToTop />
+            <NavBar />
+            <LoginModal isOpen={isLoginModalOpen} onClose={closeLoginModal} />
+            <div className="mt-16 md:mt-[4.75rem]">
+                <Routes>
+                    <Route path="/" element={user ? <HomePageAuthenticated /> : <HomePageUnauthenticated />} />
+                    <Route path="/recipes" element={<RecipesIndexPage />} />
+                    <Route path="/recipes/:id" element={<RecipesDetailsPage />} />
+                    <Route 
+                    path="/recipes/edit/:id" 
+                    element={
+                    <ProtectedRoute >
+                        <RecipesEditPage />
+                    </ProtectedRoute>
+                    } 
+                    />
+                    <Route path="/calculate/:id" element={<CalculatePage />} />
+                    <Route path="/timer/:id" element={<TimerPage />} />
+                    <Route 
+                    path="/myrecipes" 
+                    element={
+                    <ProtectedRoute>
+                        <MyRecipesPage />
+                    </ProtectedRoute>
+                    } 
+                    />
+                    <Route 
+                    path="/savedrecipes" 
+                    element={
+                    <ProtectedRoute>
+                        <SavedRecipesIndex />
+                    </ProtectedRoute>
+                    } 
+                    />
+                    <Route 
+                    path="/profile" 
+                    element={
+                        <ProtectedRoute>
+                            <ProfilePage />
+                        </ProtectedRoute>
+                    } 
+                    />
+                    <Route 
+                    path="/recipes/create" 
+                    element={
+                        <ProtectedRoute>
+                            <RecipeCreationPage />
+                        </ProtectedRoute>
+                    } 
+                    />
+                    <Route path="*" element={<NotFoundPage />} />
+                </Routes>
+            </div>
+        </main>
+    );
 }
 
 export default function App() {
-  return (
-    <AuthProvider>
-      <AuthModalProvider>
-        <AppContent />
-      </AuthModalProvider>
-    </AuthProvider>
-  );
+    return (
+        <AuthProvider>
+            <AuthModalProvider>
+                <AppContent />
+            </AuthModalProvider>
+        </AuthProvider>
+    );
 }
