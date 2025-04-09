@@ -16,7 +16,6 @@ import BookmarkButton from '../../components/RecipeIndex/BookmarkButton';
 import { useAuth } from '../../hooks/auth-context';
 import { 
   GitBranch, 
-  Clock, 
   AlertCircle, 
   History,
   Tag
@@ -55,7 +54,6 @@ export default function RecipesDetailsPage() {
                 setIsLoading(true);
                 setError(null);
                 
-                console.log('initial loading')
                 const recipeData = await fetchRecipeById(id, versionParam);
                 setRecipe(recipeData);
                 

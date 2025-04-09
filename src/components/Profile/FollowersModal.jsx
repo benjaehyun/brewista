@@ -11,7 +11,6 @@ export default function FollowersModal({ isOpen, onClose, profileId }) {
         setIsLoading(true);
         try {
             const followerList = await relationApi.getFollowers(profileId)
-            console.log(followerList)
             setFollowers(followerList);
         } catch (error) {
             console.error("Failed to fetch followers", error);

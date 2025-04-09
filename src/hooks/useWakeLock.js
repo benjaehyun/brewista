@@ -21,7 +21,6 @@ export function useWakeLock() {
 
         try {
             setError(null);
-            console.log('requesting wake lock ')
             
             // wake lock request with optional parameter for screen (unnecessary as this is the only supported request but may change so manually passing)
             const lock = await navigator.wakeLock.request('screen');
@@ -29,7 +28,6 @@ export function useWakeLock() {
             
             // listener for the release handler 
             lock.addEventListener('release', () => {
-                console.log('Wake lock was released');
                 if (wakeLockRef.current === lock) {
                     wakeLockRef.current = null;
                     
@@ -84,7 +82,6 @@ export function useWakeLock() {
         const handleVisibilityChange = async () => {
         // Only try to reacquire wake lock if we previously had an active wake lock and we have returned to a visible state
             if (document.visibilityState === 'visible' && shouldReacquireRef.current && !wakeLockRef.current) {
-                console.log('Page became visible again, reacquiring wake lock');
                 await requestWakeLock();
             }
         };

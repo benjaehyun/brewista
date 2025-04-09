@@ -35,7 +35,6 @@ const AnimatedTimeline = React.memo(function AnimatedTimeline({ steps }) {
     }, []);
 
     useEffect(() => {
-        console.log('AnimatedTimeline effect running, steps:', steps);
         if (animationRef.current) {
             animationRef.current.kill();
         }

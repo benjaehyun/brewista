@@ -13,9 +13,7 @@ module.exports = {
 async function create (req, res) {
     try {
         req.body.user = req.user._id 
-        console.log(`req.body: ${req.body}`)
         const profile = await Profile.findOneAndUpdate({user: req.user._id}, req.body, {new: true, upsert: true})
-        console.log(`profile: ${profile}`)
         res.json(profile)
     } catch (err) {
         console.log(err)

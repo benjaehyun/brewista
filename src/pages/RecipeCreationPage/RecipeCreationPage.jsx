@@ -141,7 +141,6 @@ export default function RecipeCreationPage() {
         };
 
         try {
-            console.log('Submitting recipe:', recipeData);
             const result = await addRecipe(recipeData);
             if (result.success && result.recipeId) {
                 navigate(`/recipes/${result.recipeId}`);

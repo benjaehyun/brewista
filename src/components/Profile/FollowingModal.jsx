@@ -11,7 +11,6 @@ export default function FollowingModal({ isOpen, onClose, profileId }) {
         setIsLoading(true);
         try {
             const followingList = await relationApi.getFollowing(profileId)
-            console.log(followingList)
             setFollowing(followingList);
         } catch (error) {
             console.error("Failed to fetch following list", error);
