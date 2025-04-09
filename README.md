@@ -1,9 +1,13 @@
 # Brewista: Coffee Brewing Companion
 
 ### Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
-### What's being worked on now: Refactoring front to back handling of recipes to include recipe versions 
-- This way users can make changes to a recipe and keep track of them 
-- For ex. If I got a new coffee bean that I've recorded a recipe for before, I can go back and use that particular version of the recipe
+### Recent Updates: Refactoring front to back handling of recipes to include recipe versions 
+- All changes to recipes are now tracked as versions with major and minor versions
+- Each recipe has a version history and the version can be easily switched on the recipe details page
+- Adjusted wake lock api implementation to reinitialize lock when focus changes if the user changes window focus 
+- Wake Lock API now supported on PWA version on IOS 14+
+- Refactored database queries to use MongoDB Aggregation Pipelines to reduce API responses by ~85% for previous actions that required compounding queries following Recipe Version feature addition. 
+
 
 ## Links
 
@@ -71,6 +75,7 @@ Brewista is a sophisticated coffee brewing companion application that changes th
 ### Timer Reliability
 - Wake Lock API implementation for preventing device sleep (except for a known issue on ios devices)
     - Issue: ios does not honor the wake lock api when PWA's are added to the home screen. 
+    - This issue should be resolved on ios version 14+! If issues persist, please try to upgrade software version for browser, operating system, or try a different browser. 
 - Cross-platform sleep prevention strategies
 
 ### Performance Optimization
