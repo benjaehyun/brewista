@@ -93,7 +93,11 @@ const recipeSchema = new Schema ({
     originalRecipeId: {
         type: mongoose.Schema.Types.ObjectId,
         ref: 'Recipe'
-      },
+    },
+    currentVersionCreatedAt: {
+        type: Date,
+        default: Date.now // default to creation time
+    },
       originalVersion: String,
       currentVersion: {
         type: String,

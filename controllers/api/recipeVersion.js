@@ -124,10 +124,13 @@ async function createVersion(req, res) {
         // Get next main version number
         const nextVersion = await RecipeVersion.getNextMainVersion(id);
 
+        const now = new Date();
+
         const versionDoc = new RecipeVersion({
             recipeId: id,
             version: nextVersion,
             createdBy: req.user._id,
+            createdAt: now,
             changes,
             recipeData
         });
@@ -136,6 +139,7 @@ async function createVersion(req, res) {
 
         // Update recipe's current version
         recipe.currentVersion = nextVersion;
+        recipe.currentVersionCreatedAt = now;
         await recipe.save();
 
         res.status(201).json({
@@ -209,13 +213,16 @@ async function copyRecipe(req, res) {
             return res.status(404).json({ error: 'Source recipe or version not found' });
         }
 
+        const now = new Date();
+
         // Create new recipe with version data
         const newRecipe = new Recipe({
             ...sourceVersionDoc.recipeData,
             userID: req.user._id,
             originalRecipeId: sourceRecipeId,
             originalVersion: sourceVersion,
-            currentVersion: '1.0'
+            currentVersion: '1.0',
+            currentVersionCreatedAt: now
         });
 
         await newRecipe.save();
@@ -225,6 +232,7 @@ async function copyRecipe(req, res) {
             recipeId: newRecipe._id,
             version: '1.0',
             createdBy: req.user._id,
+            createdAt: now,
             recipeData: sourceVersionDoc.recipeData,
             changes: [{
                 field: 'recipe',

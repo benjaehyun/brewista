@@ -4,7 +4,7 @@ const Profile = require('../../models/profile')
 const CoffeeBean = require('../../models/coffeeBean')
 const Gear = require ('../../models/gear')
 const RecipeVersion = require('../../models/recipeVersion');
-
+const { ObjectId } = require('mongodb');
 
 const MAX_USER_RECIPES_PAGES = 200;
 const RECIPES_PER_PAGE = 10;
@@ -56,7 +56,8 @@ async function addRecipe(req, res) {
             tastingNotes,
             journal,
             type,
-            currentVersion: '1.0'
+            currentVersion: '1.0',
+            currentVersionCreatedAt: new Date()
         });
 
         const savedRecipe = await newRecipe.save();
@@ -66,6 +67,7 @@ async function addRecipe(req, res) {
             recipeId: savedRecipe._id,
             version: '1.0',
             createdBy: userID,
+            createdAt: savedRecipe.currentVersionCreatedAt,
             recipeData: {
                 name,
                 gear,
@@ -111,7 +113,7 @@ async function getCurrentUserRecipes(req, res) {
             userID: userId,
             isArchived: false 
         });
-        
+
         if (skip >= totalRecipes) {
             return res.status(200).json({
                 recipes: [],
@@ -120,79 +122,105 @@ async function getCurrentUserRecipes(req, res) {
             });
         }
 
-        const recipes = await Recipe.find({ 
-            userID: userId,
-            isArchived: false
-        })
-            .populate('userID', 'username')
-            .populate('coffeeBean')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit + 1)
-            .lean();
+        const aggregatedRecipes = await Recipe.aggregate([
+            // Filter for user's non-archived recipes
+            { $match: { 
+                userID: new ObjectId(userId),
+                isArchived: false 
+            }},
+            
+            // Sort by creation date
+            { $sort: { currentVersionCreatedAt: -1 } },
+            
+            // Pagination
+            { $skip: skip },
+            { $limit: limit + 1 },
 
-        const hasMore = recipes.length > limit;
-        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
-
-        // Fetch current version data and version stats
-        const recipesWithVersions = await Promise.all(
-            recipesToSend.map(async recipe => {
-                const versionDoc = await RecipeVersion.findOne({
-                    recipeId: recipe._id,
-                    version: recipe.currentVersion
-                })
-                .populate('recipeData.coffeeBean') 
-                .populate('recipeData.gear') 
-                .lean();
-
-                const versionStats = await RecipeVersion.aggregate([
-                    { $match: { recipeId: recipe._id } },
-                    {
-                        $group: {
-                            _id: null,
-                            totalVersions: { $sum: 1 },
-                            mainVersions: {
-                                $sum: {
-                                    $cond: [
-                                        { $regexMatch: { input: "$version", regex: /\.0$/ } },
-                                        1,
-                                        0
-                                    ]
-                                }
-                            },
-                            branches: {
-                                $sum: {
-                                    $cond: [
-                                        { $regexMatch: { input: "$version", regex: /\.[1-9][0-9]*$/ } },
-                                        1,
-                                        0
-                                    ]
-                                }
-                            }
+            // Lookup user information (username)
+            { $lookup: {
+                from: 'users',
+                localField: 'userID',
+                foreignField: '_id',
+                pipeline: [{ $project: { username: 1 } }],
+                as: 'userDetails'
+            }},
+            
+            // Lookup current version data
+            { $lookup: {
+                from: 'recipeversions',
+                let: { recipeId: '$_id', version: '$currentVersion' },
+                pipeline: [
+                    { $match: { 
+                        $expr: { 
+                            $and: [
+                                { $eq: ['$recipeId', '$$recipeId'] },
+                                { $eq: ['$version', '$$version'] }
+                            ]
                         }
-                    }
-                ]);
+                    }},
+                    // Only select what we need from recipeData
+                    { $project: {
+                        version: 1,
+                        createdAt: 1,
+                        createdBy: 1,
+                        changes: 1,
+                        'recipeData.name': 1,
+                        'recipeData.type': 1,
+                        'recipeData.coffeeAmount': 1,
+                        'recipeData.coffeeBean': 1,
+                        'recipeData.tastingNotes': 1,
+                        'recipeData.steps.waterAmount': 1, // Only need waterAmount from steps
+                    }},
+                ],
+                as: 'versionData'
+            }},
+            
+            // Lookup coffee bean data
+            { $lookup: {
+                from: 'coffeebeans',
+                let: { beanId: { $arrayElemAt: ['$versionData.recipeData.coffeeBean', 0] } },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$_id', '$$beanId'] } }},
+                    { $project: {
+                        roaster: 1,
+                        origin: 1,
+                        roastLevel: 1,
+                        process: 1
+                    }}
+                ],
+                as: 'coffeeBeanData'
+            }},
+            
+            
+            // Reshape for final output
+            { $project: {
+                _id: 1,
+                createdAt: 1,
+                userID: { $arrayElemAt: ['$userDetails', 0] },
+                
+                // Recipe data
+                name: { $arrayElemAt: ['$versionData.recipeData.name', 0] },
+                type: { $arrayElemAt: ['$versionData.recipeData.type', 0] },
+                coffeeAmount: { $arrayElemAt: ['$versionData.recipeData.coffeeAmount', 0] },
+                coffeeBean: { $arrayElemAt: ['$coffeeBeanData', 0] },
+                tastingNotes: { $arrayElemAt: ['$versionData.recipeData.tastingNotes', 0] },
+                steps: { $arrayElemAt: ['$versionData.recipeData.steps', 0] },
+                
+                // Version info
+                versionInfo: {
+                    version: { $arrayElemAt: ['$versionData.version', 0] },
+                    createdAt: { $arrayElemAt: ['$versionData.createdAt', 0] },
+                    createdBy: { $arrayElemAt: ['$versionData.createdBy', 0] },
+                    changes: { $arrayElemAt: ['$versionData.changes', 0] },
+                }
+            }}
+        ]);
 
-                return {
-                    ...recipe,
-                    ...versionDoc.recipeData,
-                    versionInfo: {
-                        version: versionDoc.version,
-                        createdAt: versionDoc.createdAt,
-                        createdBy: versionDoc.createdBy,
-                        changes: versionDoc.changes,
-                        stats: versionStats[0] || {
-                            totalVersions: 1,
-                            mainVersions: 1,
-                            branches: 0
-                        }
-                    }
-                };
-            })
-        );
+        const hasMore = aggregatedRecipes.length > limit;
+        const recipes = hasMore ? aggregatedRecipes.slice(0, -1) : aggregatedRecipes;
 
         res.status(200).json({
-            recipes: recipesWithVersions,
+            recipes,
             hasMore,
             total: totalRecipes
         });
@@ -316,11 +344,13 @@ async function updateRecipe(req, res) {
         // Get next version number
         const nextVersion = await RecipeVersion.getNextVersion(recipe._id);
 
+        const now = new Date();
         // Create new version
         const newVersion = new RecipeVersion({
             recipeId: recipe._id,
             version: nextVersion,
             createdBy: req.user._id,
+            createdAt: now,
             changes,
             recipeData: req.body
         });
@@ -329,6 +359,7 @@ async function updateRecipe(req, res) {
 
         // Update recipe's current version
         recipe.currentVersion = nextVersion;
+        recipe.currentVersionCreatedAt = now;
         await recipe.save();
 
         res.json({
@@ -402,47 +433,102 @@ async function getAllRecipes(req, res) {
             });
         }
 
-        // Fetch base recipe data
-        const recipes = await Recipe.find({ isArchived: false })
-            .populate('userID', 'username')
-            .populate('coffeeBean')
-            .sort({ createdAt: -1 })
-            .skip(skip)
-            .limit(limit + 1)
-            .lean();
+        // new aggregation pipeline
+        const aggregatedRecipes = await Recipe.aggregate([
+            // Filter for non-archived recipes
+            { $match: { isArchived: false } },
+            
+            // Sort by creation date
+            { $sort: { currentVersionCreatedAt: -1 } },
+            
+            // pagination
+            { $skip: skip },
+            { $limit: limit + 1 },
+            
+            // Look up user information (just username)
+            { $lookup: {
+                from: 'users',
+                localField: 'userID',
+                foreignField: '_id',
+                pipeline: [{ $project: { username: 1 } }],
+                as: 'userDetails'
+            }},
+            
+            // Look up current version with minimal fields
+            { $lookup: {
+                from: 'recipeversions',
+                let: { recipeId: '$_id', version: '$currentVersion' },
+                pipeline: [
+                    { $match: { 
+                        $expr: { 
+                            $and: [
+                                { $eq: ['$recipeId', '$$recipeId'] },
+                                { $eq: ['$version', '$$version'] }
+                            ]
+                        }
+                    }},
+                    // Only select what we need from recipeData
+                    { $project: {
+                        version: 1,
+                        createdAt: 1,
+                        createdBy: 1,
+                        changes: 1,
+                        'recipeData.name': 1,
+                        'recipeData.type': 1,
+                        'recipeData.coffeeAmount': 1,
+                        'recipeData.coffeeBean': 1,
+                        'recipeData.tastingNotes': 1,
+                        'recipeData.steps.waterAmount': 1 // Only need waterAmount from steps
+                    }},
+                ],
+                as: 'versionData'
+            }},
+            
+            // Look up coffee bean data (only what's needed)
+            { $lookup: {
+                from: 'coffeebeans',
+                let: { beanId: { $arrayElemAt: ['$versionData.recipeData.coffeeBean', 0] } },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$_id', '$$beanId'] } }},
+                    { $project: {
+                        roaster: 1,
+                        origin: 1,
+                        roastLevel: 1,
+                        process: 1
+                    }}
+                ],
+                as: 'coffeeBeanData'
+            }},
+            
+            // Reshape for final output
+            { $project: {
+                _id: 1,
+                createdAt: 1,
+                userID: { $arrayElemAt: ['$userDetails', 0] },
+                
+                // Recipe data
+                name: { $arrayElemAt: ['$versionData.recipeData.name', 0] },
+                type: { $arrayElemAt: ['$versionData.recipeData.type', 0] },
+                coffeeAmount: { $arrayElemAt: ['$versionData.recipeData.coffeeAmount', 0] },
+                coffeeBean: { $arrayElemAt: ['$coffeeBeanData', 0] },
+                tastingNotes: { $arrayElemAt: ['$versionData.recipeData.tastingNotes', 0] },
+                steps: { $arrayElemAt: ['$versionData.recipeData.steps', 0] },
+                
+                // Version info
+                versionInfo: {
+                    version: { $arrayElemAt: ['$versionData.version', 0] },
+                    createdAt: { $arrayElemAt: ['$versionData.createdAt', 0] },
+                    createdBy: { $arrayElemAt: ['$versionData.createdBy', 0] },
+                    changes: { $arrayElemAt: ['$versionData.changes', 0] },
+                }
+            }}
+        ]);
 
-        const hasMore = recipes.length > limit;
-        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
-
-        // Fetch current version data for each recipe
-        const recipesWithVersions = await Promise.all(
-            recipesToSend.map(async recipe => {
-                const versionDoc = await RecipeVersion.findOne({
-                    recipeId: recipe._id,
-                    version: recipe.currentVersion
-                })
-                .populate('recipeData.coffeeBean') 
-                .populate('recipeData.gear') 
-                .lean();
-
-                return {
-                    ...recipe,
-                    ...versionDoc.recipeData,
-                    versionInfo: {
-                        version: versionDoc.version,
-                        createdAt: versionDoc.createdAt,
-                        createdBy: versionDoc.createdBy,
-                        changes: versionDoc.changes,
-                        hasOtherVersions: await RecipeVersion.countDocuments({
-                            recipeId: recipe._id
-                        }) > 1
-                    }
-                };
-            })
-        );
+        const hasMore = aggregatedRecipes.length > limit;
+        const recipes = hasMore ? aggregatedRecipes.slice(0, -1) : aggregatedRecipes;
 
         res.status(200).json({
-            recipes: recipesWithVersions,
+            recipes,
             hasMore,
             total: totalRecipes
         });
@@ -478,51 +564,104 @@ async function getSavedRecipes(req, res) {
             });
         }
 
-        // Get the set of recipe IDs for this page
+        // Get the set of recipe IDs for this page || maybe refactor pagination method
         const recipeIds = profile.savedRecipes.slice(skip, skip + limit + 1);
 
-        // Fetch base recipe data
-        const recipes = await Recipe.find({ 
+        const aggregatedRecipes = await Recipe.aggregate([
+            // Match saved recipes for this page
+            { $match: { 
                 _id: { $in: recipeIds },
-                isArchived: false
-            })
-            .populate('userID', 'username')
-            .populate('coffeeBean')
-            .sort({ createdAt: -1 })
-            .lean();
+                isArchived: false 
+            }},
+            
+            // Sort by creation date
+            { $sort: { currentVersionCreatedAt: -1 } },
+            
+            // Lookup user information (username)
+            { $lookup: {
+                from: 'users',
+                localField: 'userID',
+                foreignField: '_id',
+                pipeline: [{ $project: { username: 1 } }],
+                as: 'userDetails'
+            }},
+            
+            // Lookup current version data
+            { $lookup: {
+                from: 'recipeversions',
+                let: { recipeId: '$_id', version: '$currentVersion' },
+                pipeline: [
+                    { $match: { 
+                        $expr: { 
+                            $and: [
+                                { $eq: ['$recipeId', '$$recipeId'] },
+                                { $eq: ['$version', '$$version'] }
+                            ]
+                        }
+                    }},
+                    // Only select what we need from recipeData
+                    { $project: {
+                        version: 1,
+                        createdAt: 1,
+                        createdBy: 1,
+                        changes: 1,
+                        'recipeData.name': 1,
+                        'recipeData.type': 1,
+                        'recipeData.coffeeAmount': 1,
+                        'recipeData.coffeeBean': 1,
+                        'recipeData.tastingNotes': 1,
+                        'recipeData.steps.waterAmount': 1, // Only need waterAmount from steps
+                    }},
+                ],
+                as: 'versionData'
+            }},
+            
+            // Lookup coffee bean data
+            { $lookup: {
+                from: 'coffeebeans',
+                let: { beanId: { $arrayElemAt: ['$versionData.recipeData.coffeeBean', 0] } },
+                pipeline: [
+                    { $match: { $expr: { $eq: ['$_id', '$$beanId'] } }},
+                    { $project: {
+                        roaster: 1,
+                        origin: 1,
+                        roastLevel: 1,
+                        process: 1
+                    }}
+                ],
+                as: 'coffeeBeanData'
+            }},
+            
+            
+            // Reshape for final output
+            { $project: {
+                _id: 1,
+                createdAt: 1,
+                userID: { $arrayElemAt: ['$userDetails', 0] },
+                
+                // Recipe data
+                name: { $arrayElemAt: ['$versionData.recipeData.name', 0] },
+                type: { $arrayElemAt: ['$versionData.recipeData.type', 0] },
+                coffeeAmount: { $arrayElemAt: ['$versionData.recipeData.coffeeAmount', 0] },
+                coffeeBean: { $arrayElemAt: ['$coffeeBeanData', 0] },
+                tastingNotes: { $arrayElemAt: ['$versionData.recipeData.tastingNotes', 0] },
+                steps: { $arrayElemAt: ['$versionData.recipeData.steps', 0] },
+                
+                // Version info
+                versionInfo: {
+                    version: { $arrayElemAt: ['$versionData.version', 0] },
+                    createdAt: { $arrayElemAt: ['$versionData.createdAt', 0] },
+                    createdBy: { $arrayElemAt: ['$versionData.createdBy', 0] },
+                    changes: { $arrayElemAt: ['$versionData.changes', 0] },
+                }
+            }}
+        ]);
 
-        const hasMore = recipes.length > limit;
-        const recipesToSend = hasMore ? recipes.slice(0, -1) : recipes;
-
-        // Fetch current version data for each recipe
-        const recipesWithVersions = await Promise.all(
-            recipesToSend.map(async recipe => {
-                const versionDoc = await RecipeVersion.findOne({
-                    recipeId: recipe._id,
-                    version: recipe.currentVersion
-                })
-                .populate('recipeData.coffeeBean') 
-                .populate('recipeData.gear') 
-                .lean();
-
-                return {
-                    ...recipe,
-                    ...versionDoc.recipeData,
-                    versionInfo: {
-                        version: versionDoc.version,
-                        createdAt: versionDoc.createdAt,
-                        createdBy: versionDoc.createdBy,
-                        changes: versionDoc.changes,
-                        hasOtherVersions: await RecipeVersion.countDocuments({
-                            recipeId: recipe._id
-                        }) > 1
-                    }
-                };
-            })
-        );
+        const hasMore = aggregatedRecipes.length > limit;
+        const recipes = hasMore ? aggregatedRecipes.slice(0, -1) : aggregatedRecipes;
 
         res.status(200).json({
-            recipes: recipesWithVersions,
+            recipes,
             hasMore,
             total: totalRecipes
         });

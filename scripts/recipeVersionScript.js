@@ -1,4 +1,3 @@
-// scripts/migrateRecipeVersions.js
 require('dotenv').config();
 const mongoose = require('mongoose');
 const Recipe = require('../models/recipe');

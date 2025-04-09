@@ -33,13 +33,13 @@ export default function RecipeCard({ recipe }) {
     const isBranchVersion = hasVersionInfo && !isMainVersion;
     const isCurrentVersion = hasVersionInfo && versionInfo.isCurrent;
     
-    // if this recipe has multiple versions
-    const hasMultipleVersions = 
-        (versionInfo?.stats?.totalVersions > 1) || 
-        (versionInfo?.hasOtherVersions);
+    // if this recipe has multiple versions || wondering if this is necessary 
+    // const hasMultipleVersions = 
+    //     (versionInfo?.stats?.totalVersions > 1) || 
+    //     (versionInfo?.hasOtherVersions);
         
-    //  if user is owner
-    const isOwner = user && userID && user._id === userID._id;
+    //  if user is owner || useful if we want to add edit button later 
+    // const isOwner = user && userID && user._id === userID._id;
 
     return (
         <div className="bg-white rounded-lg shadow p-4 hover:shadow-lg transition-shadow duration-200 flex flex-col justify-between" style={{ minHeight: '260px' }}>
@@ -62,11 +62,7 @@ export default function RecipeCard({ recipe }) {
                                 <span className={`text-sm ${isCurrentVersion ? 'text-blue-600 font-medium' : 'text-gray-600'}`}>
                                     v{versionInfo.version}
                                 </span>
-                                {isCurrentVersion && (
-                                    <span className="text-xs bg-blue-100 text-blue-800 px-1.5 py-0.5 rounded-full">
-                                        current
-                                    </span>
-                                )}
+                                
                                 {versionInfo.createdAt && (
                                     <span className="hidden sm:flex items-center text-xs text-gray-500">
                                         <Clock className="h-3 w-3 ml-1 mr-0.5" />
@@ -85,7 +81,7 @@ export default function RecipeCard({ recipe }) {
 
             <div>
                 <Link to={`/recipes/${_id}`} className="block">
-                    <p className="text-sm text-gray-500">Author: {recipe.userID.username}</p>
+                    <p className="text-sm text-gray-500">Author: {userID.username}</p>
                     <p className="text-sm text-gray-500">
                         <span className="block">Bean: {coffeeBean.roaster}, {coffeeBean.origin}</span>
                         <span className="block">
@@ -97,7 +93,7 @@ export default function RecipeCard({ recipe }) {
                     <p className="text-lg font-semibold mb-2">Coffee & Brew: {coffeeBrewDisplay}</p>
                     
                     {/* Version statistics  */}
-                    {hasMultipleVersions && (
+                    {/* {hasMultipleVersions && (
                         <p className="text-xs text-gray-500 mb-2">
                             {versionInfo?.stats?.mainVersions > 0 && (
                                 <span className="inline-flex items-center gap-0.5">
@@ -112,7 +108,7 @@ export default function RecipeCard({ recipe }) {
                                 </span>
                             )}
                         </p>
-                    )}
+                    )} */}
                     
                     <div className="flex flex-wrap gap-2 overflow-hidden" style={{ maxHeight: '24px' }}>
                         {tastingNotes.map((note, index) => (
