@@ -165,9 +165,9 @@ export default function RecipesDetailsPage() {
 
             // update URL parameter AFTER getting relevant data and updating state. (ran into sync issues otherwise)
             if (version === recipe.currentVersion) {
-                setSearchParams({});
+                setSearchParams({}, { replace: true });
             } else {
-                setSearchParams({ version });
+                setSearchParams({ version }, { replace: true });
             }
         } catch (err) {
             console.error('Error loading version:', err);
