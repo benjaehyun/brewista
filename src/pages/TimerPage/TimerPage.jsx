@@ -6,7 +6,7 @@ import { faChevronDown, faChevronUp } from '@fortawesome/free-solid-svg-icons';
 import PreparationOverview from '../../components/Timer/PreparationOverview';
 import BrewSteps from '../../components/Timer/BrewSteps';
 import FinalizationComponent from '../../components/Timer/Finalization';
-import { clearCalculatedRecipe, getCalculatedRecipe } from '../../utilities/localStorageUtils';
+import { clearCalculatedRecipe, getCalculatedRecipe } from '../../utilities/sessionStorageUtils';
 
 export default function TimerPage() {
     const { id } = useParams();
@@ -20,7 +20,7 @@ export default function TimerPage() {
             return location.state.calculatedRecipe;
         }
         
-        // Fall back to localStorage if available
+        // Fall back to sessionStorage if available
         const storedRecipe = getCalculatedRecipe();
         if (storedRecipe?.recipe) {
             return storedRecipe.recipe;
@@ -34,23 +34,30 @@ export default function TimerPage() {
     const initialIsBrewStarted = locationState.isBrewStarted || false;
     const initialIsBrewFinished = locationState.isBrewFinished || false;
 
-    // Create the calculated recipe 
-    const calculatedRecipe = getRecipeData()
 
+    const [calculatedRecipe, setCalculatedRecipe] = useState(null);
     const [currentStep, setCurrentStep] = useState(0);
     const [isBrewStarted, setIsBrewStarted] = useState(initialIsBrewStarted);
     const [isBrewFinished, setIsBrewFinished] = useState(initialIsBrewFinished);
     const [autoStartTimer, setAutoStartTimer] = useState(true);
     const [autoNextStep, setAutoNextStep] = useState(true);
     const [isSettingsOpen, setIsSettingsOpen] = useState(false);
+    const [isLoading, setIsLoading] = useState(true);
 
     useEffect(() => {
-        if (!calculatedRecipe || !calculatedRecipe.steps || calculatedRecipe.steps.length === 0) {
-            navigate(`/calculate/${id}`, { 
+        const recipeData = getRecipeData();
+        setCalculatedRecipe(recipeData);
+        setIsLoading(false)
+    }, []);
+
+    useEffect(() => {
+        if (!isLoading && (!calculatedRecipe || !calculatedRecipe.steps || calculatedRecipe.steps.length === 0)) {
+            console.log('No recipe, going back to calculate page')
+            navigate(`/calculate/${id}`, { replace: true, 
                 state: { error: "Missing recipe information. Please recalculate." }
             });
         }
-    }, [calculatedRecipe, navigate, id]);
+    }, [calculatedRecipe, navigate, id, isLoading]);
 
     const handleStartBrew = () => {
         clearCalculatedRecipe();    //be sure to clear previous calculations when starting ne wbrew 
@@ -79,6 +86,12 @@ export default function TimerPage() {
 
     if (!calculatedRecipe) {
         return null; // Avoid rendering if redirected
+    }
+
+    if (isLoading) {
+        return <div className="flex justify-center items-center min-h-[50vh]">
+            <div className="animate-spin rounded-full h-10 w-10 border-t-2 border-b-2 border-blue-500"></div>
+        </div>;
     }
 
     return (

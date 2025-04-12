@@ -6,7 +6,7 @@ import debounce from 'lodash.debounce';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome';
 import { faCoffee, faTint, faEquals } from '@fortawesome/free-solid-svg-icons';
 import Switch from 'react-switch';
-import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
+import { saveCalculatedRecipe } from '../../utilities/sessionStorageUtils';
 
 const MemoizedAnimatedTimeline = React.memo(AnimatedTimeline);
 

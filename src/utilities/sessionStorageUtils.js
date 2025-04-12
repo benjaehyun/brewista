@@ -18,15 +18,15 @@ export const saveCalculatedRecipe = (recipe, versionInfo = null) => {
           },
           timestamp: Date.now()
       };
-      localStorage.setItem(CALC_RECIPE_KEY, JSON.stringify(recipeWithMeta));
+      sessionStorage.setItem(CALC_RECIPE_KEY, JSON.stringify(recipeWithMeta));
   } catch (error) {
-      console.error('Error saving calculated recipe to local storage:', error);
+      console.error('Error saving calculated recipe to session storage:', error);
   }
 };
 
 export const getCalculatedRecipe = () => {
   try {
-      const storedData = localStorage.getItem(CALC_RECIPE_KEY);
+      const storedData = sessionStorage.getItem(CALC_RECIPE_KEY);
       if (storedData) {
           const parsedData = JSON.parse(storedData);
           
@@ -54,16 +54,16 @@ export const getCalculatedRecipe = () => {
       }
       return null;
   } catch (error) {
-      console.error('Error retrieving calculated recipe from local storage:', error);
+      console.error('Error retrieving calculated recipe from session storage:', error);
       return null;
   }
 };
 
 export const clearCalculatedRecipe = () => {
   try {
-      localStorage.removeItem(CALC_RECIPE_KEY);
+    sessionStorage.removeItem(CALC_RECIPE_KEY);
   } catch (error) {
-      console.error('Error clearing calculated recipe from local storage:', error);
+      console.error('Error clearing calculated recipe from session storage:', error);
   }
 };
 
@@ -77,7 +77,7 @@ export const saveBrewingVersionInfo = (recipeId, version, changes = []) => {
           changes,
           timestamp: Date.now()
       };
-      localStorage.setItem(RECIPE_VERSION_KEY, JSON.stringify(versionInfo));
+      sessionStorage.setItem(RECIPE_VERSION_KEY, JSON.stringify(versionInfo));
   } catch (error) {
       console.error('Error saving brewing version info:', error);
   }
@@ -85,7 +85,7 @@ export const saveBrewingVersionInfo = (recipeId, version, changes = []) => {
 
 export const getBrewingVersionInfo = () => {
   try {
-      const storedInfo = localStorage.getItem(RECIPE_VERSION_KEY);
+      const storedInfo = sessionStorage.getItem(RECIPE_VERSION_KEY);
       if (storedInfo) {
           const parsedInfo = JSON.parse(storedInfo);
           
@@ -106,7 +106,7 @@ export const getBrewingVersionInfo = () => {
 
 export const clearBrewingVersionInfo = () => {
   try {
-      localStorage.removeItem(RECIPE_VERSION_KEY);
+    sessionStorage.removeItem(RECIPE_VERSION_KEY);
   } catch (error) {
       console.error('Error clearing brewing version info:', error);
   }

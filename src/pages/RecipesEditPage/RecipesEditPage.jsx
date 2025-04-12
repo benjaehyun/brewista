@@ -4,8 +4,8 @@ import { useAuth } from '../../hooks/auth-context';
 import { 
   getCalculatedRecipe, 
   clearCalculatedRecipe,
-  getBrewingVersionInfo
-} from '../../utilities/localStorageUtils';
+  saveCalculatedRecipe
+} from '../../utilities/sessionStorageUtils';
 import { 
   fetchRecipeById, 
   updateRecipe, 
@@ -55,6 +55,7 @@ const RecipeEditPage = () => {
     const [versionActionType, setVersionActionType] = useState(null);
     const [hasChanges, setHasChanges] = useState(false);
     const [initialRecipeData, setInitialRecipeData] = useState(null);
+    const [originalTimerRecipe, setOriginalTimerRecipe] = useState(null);
 
     // form state for recipe fields from recipe creation
     const [name, setName] = useState('');
@@ -95,6 +96,28 @@ const RecipeEditPage = () => {
         }
     }, []);
 
+    const handleCancel = () => {
+        const timerPageId = sessionStorage.getItem('cameFromTimerPage');
+        console.log(timerPageId)
+        
+        if (timerPageId) {
+            // Clear the flag
+            sessionStorage.removeItem('cameFromTimerPage');
+            console.log(originalTimerRecipe)
+            saveCalculatedRecipe(originalTimerRecipe)
+            navigate(`/timer/${timerPageId}`, { 
+                state: {
+                    calculatedRecipe: originalTimerRecipe,
+                    isBrewStarted: true,
+                    isBrewFinished: true
+                },
+                replace: true
+            });
+        } else {
+            navigate(-1);
+        }
+    };
+
     useEffect(() => {
         const loadRecipeAndResources = async () => {
         setIsLoading(true);
@@ -102,11 +125,12 @@ const RecipeEditPage = () => {
 
             let loadedRecipe;
             let calculatedData = null;
+            let sessionStorageRecipe = getCalculatedRecipe();
+            setOriginalTimerRecipe(sessionStorageRecipe.recipe)
             
             if (fromBrew && isCalculated) {
                 // try to get calculated recipe from local storage 
-                let localStorageRecipe = getCalculatedRecipe();
-                calculatedData = localStorageRecipe.recipe
+                calculatedData = sessionStorageRecipe.recipe
                 if (calculatedData) {
                     loadedRecipe = calculatedData;
                     setIsCalculatedRecipe(true);
@@ -128,9 +152,9 @@ const RecipeEditPage = () => {
                 // warning banner for non-current versions
                 if (!isCurrent) {
                     setVersionBanner({
-                    show: true,
-                    type: 'warning',
-                    message: `You're editing an older version (v${sourceVersion}). Changes will create a branch.`
+                        show: true,
+                        type: 'warning',
+                        message: `You're editing an older version (v${sourceVersion}). Changes will create a branch.`
                     });
                 }
             }
@@ -192,7 +216,7 @@ const RecipeEditPage = () => {
             
             // Clear calculated recipe now that we've used it
             if (calculatedData) {
-            clearCalculatedRecipe();
+                clearCalculatedRecipe();
             }
         } catch (err) {
             console.error('Failed to load recipe or resources:', err);
@@ -338,6 +362,7 @@ const RecipeEditPage = () => {
                         changes
                     );
                     
+                    clearCalculatedRecipe();
                     navigate(`/recipes/${recipe._id}`);
                     break;
                     
@@ -354,6 +379,7 @@ const RecipeEditPage = () => {
                         changes
                     );
                     
+                    clearCalculatedRecipe();
                     navigate(`/recipes/${recipe._id}?version=${result.version}`);
                     break;
                     
@@ -364,6 +390,7 @@ const RecipeEditPage = () => {
                         sourceVersion || recipe.versionInfo?.version || recipe.currentVersion
                     );
                     
+                    clearCalculatedRecipe();
                     navigate(`/recipes/${result.recipe._id}`);
                     break;
                     
@@ -519,17 +546,7 @@ const RecipeEditPage = () => {
                         {/* Cancel button */}
                         <button
                         type="button"
-                        onClick={() => {
-                            // go back to timer page WITH state
-                            navigate(`/timer/${id}`, { 
-                            state: {
-                                calculatedRecipe: recipe,
-                                isBrewStarted: true,
-                                isBrewFinished: true
-                            },
-                            replace: true // replace entry in history to prevent loops
-                            });
-                        }}
+                        onClick={() => handleCancel()}
                         className="py-2 px-4 border border-gray-300 rounded-md text-sm font-medium text-gray-700 bg-white hover:bg-gray-50"
                         >
                             Cancel

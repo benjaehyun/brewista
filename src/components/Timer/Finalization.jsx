@@ -1,9 +1,9 @@
 import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../hooks/auth-context';
-import { saveCalculatedRecipe } from '../../utilities/localStorageUtils';
+import { saveCalculatedRecipe } from '../../utilities/sessionStorageUtils';
 import { Tag, GitBranch } from 'lucide-react';
-import { clearCalculatedRecipe } from '../../utilities/localStorageUtils';
+import { clearCalculatedRecipe } from '../../utilities/sessionStorageUtils';
 
 export default function FinalizationComponent({ calculatedRecipe }) {
     const navigate = useNavigate();
@@ -33,8 +33,12 @@ export default function FinalizationComponent({ calculatedRecipe }) {
     const didCalculate = calculationMetadata?.didCalculate || false;
 
     const handleEditOrSave = () => {
+        sessionStorage.setItem('cameFromTimerPage', recipeId);
+        // make sure that the calculated recipe is in session storage so user can navigate back to this page with the original data they brewed with 
+        // regardless of changes made on the edit page 
+        saveCalculatedRecipe(calculatedRecipe);
         if (selectedRecipe === 'original') {
-            clearCalculatedRecipe();
+            // clearCalculatedRecipe();
             if (isAuthor) {
                 // author editing original recipe
                 navigate(`/recipes/edit/${recipeId}?from=brew&version=${sourceVersion}`);
@@ -43,8 +47,6 @@ export default function FinalizationComponent({ calculatedRecipe }) {
                 navigate(`/recipes/edit/${recipeId}?from=brew&copy=true&version=${sourceVersion}`);
             }
         } else {
-            // Using calculated recipe, make sure it's in localStorage for retrieval on next page
-            saveCalculatedRecipe(calculatedRecipe);
             
             if (isAuthor) {
                 // author saving calculated version
@@ -57,6 +59,7 @@ export default function FinalizationComponent({ calculatedRecipe }) {
     };
 
     const handleReturnHome = () => {
+        clearCalculatedRecipe(); 
         navigate('/');
     };
 
