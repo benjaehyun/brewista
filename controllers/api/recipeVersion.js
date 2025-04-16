@@ -200,24 +200,33 @@ async function createBranch(req, res) {
 
 async function copyRecipe(req, res) {
     try {
-        const { sourceRecipeId, sourceVersion } = req.body;
+        const { sourceRecipeId, sourceVersion, recipeData, changes } = req.body;
 
         // Get source recipe and version
         const sourceRecipe = await Recipe.findById(sourceRecipeId);
-        const sourceVersionDoc = await RecipeVersion.findOne({
-            recipeId: sourceRecipeId,
-            version: sourceVersion
-        });
-
-        if (!sourceRecipe || !sourceVersionDoc) {
-            return res.status(404).json({ error: 'Source recipe or version not found' });
+        if (!sourceRecipe) {
+            return res.status(404).json({ error: 'Source recipe not found' });
+        }
+        const newRecipeData = recipeData || {};
+        if (!recipeData && sourceVersion) {
+            const sourceVersionDoc = await RecipeVersion.findOne({
+                recipeId: sourceRecipeId,
+                version: sourceVersion
+            });
+            
+            if (!sourceVersionDoc) {
+                return res.status(404).json({ error: 'Source version not found' });
+            }
+            
+            // Use the form's data
+            Object.assign(newRecipeData, sourceVersionDoc.recipeData);
         }
 
         const now = new Date();
 
         // Create new recipe with version data
         const newRecipe = new Recipe({
-            ...sourceVersionDoc.recipeData,
+            ...newRecipeData,
             userID: req.user._id,
             originalRecipeId: sourceRecipeId,
             originalVersion: sourceVersion,
@@ -227,17 +236,29 @@ async function copyRecipe(req, res) {
 
         await newRecipe.save();
 
+        let versionChanges = changes && changes.length > 0 ? changes : [];
+        
+        // Always include the copied from message (if not already present)
+        const hasCopyMessage = versionChanges.some(
+            change => change.field === 'recipe' && 
+                     change.description.includes(`Copied from ${sourceRecipe.name}`)
+        );
+        
+        if (!hasCopyMessage) {
+            versionChanges.push({
+                field: 'recipe',
+                description: `Copied from ${sourceRecipe.name} v${sourceVersion}`
+            });
+        }
+
         // Create initial version for the copy
         const initialVersion = new RecipeVersion({
             recipeId: newRecipe._id,
             version: '1.0',
             createdBy: req.user._id,
             createdAt: now,
-            recipeData: sourceVersionDoc.recipeData,
-            changes: [{
-                field: 'recipe',
-                description: `Copied from ${sourceRecipe.name} v${sourceVersion}`
-            }]
+            recipeData: newRecipeData,
+            changes: versionChanges
         });
 
         await initialVersion.save();

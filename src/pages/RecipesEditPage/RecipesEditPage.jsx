@@ -387,7 +387,9 @@ const RecipeEditPage = () => {
                     // create copy (for anyone)
                     result = await copyRecipeWithVersion(
                         recipe._id, 
-                        sourceVersion || recipe.versionInfo?.version || recipe.currentVersion
+                        sourceVersion || recipe.versionInfo?.version || recipe.currentVersion,
+                        recipeData,
+                        changes
                     );
                     
                     clearCalculatedRecipe();

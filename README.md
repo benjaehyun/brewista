@@ -1,7 +1,7 @@
 # Brewista: Coffee Brewing Companion
 
 ### Note: Application is under active development, please refer to production branch for most recent stable version (deployed version). 
-### Recent Updates: Refactoring front to back handling of recipes to include recipe versions 
+### Recent Updates: Refactoring front to back implementation of recipes to include recipe versions 
 - All changes to recipes are now tracked as versions with major and minor versions
 - Each recipe has a version history and the version can be easily switched on the recipe details page
 - Adjusted wake lock api implementation to reinitialize lock when focus changes if the user changes window focus 
@@ -19,18 +19,34 @@
 
 Brewista is a sophisticated coffee brewing companion application that changes the home brewing experience through precise calculations, interactive guidance, and community features. It combines brewing precision with an intuitive user interface to help coffee enthusiasts achieve consistent, high-quality results while being able to track and share them.
 
+
 ## Key Features
+
+### Advanced Recipe Management
+- Versioning system with main versions and branches
+- Visual version history with branching visualization
+- Change tracking between recipe iterations
+- Support for copying and forking public recipes
+- Personal recipe collections with bookmarking functionality
 
 ### Dynamic Recipe Scaling 
 - Real-time recipe adjustments with scaling algorithms
 - Support for both ratio-based and explicit measurements
 - Precision to 0.1g for coffee and water measurements
+- Intelligent scaling of bloom phases and brewing times
 
 ### Interactive Brewing Process
 - Step-by-step guided brewing with real-time timers
 - Visual timeline with GSAP-powered animations
 - Smart time scaling for different brew sizes
 - Equipment-specific brewing instructions
+
+### Equipment & Bean Management
+- Comprehensive coffee gear tracking with categorization
+- Typeahead search for quick equipment selection
+- Coffee bean database with roaster, origin, and processing details
+- Personalized gear collections for streamlined recipe creation
+- Intelligent validation and suggestion system
 
 ### Mobile-First Design
 - Intuitive touch interfaces for brewing controls

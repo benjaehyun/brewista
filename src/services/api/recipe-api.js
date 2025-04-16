@@ -56,10 +56,12 @@ export async function createBranchVersion(recipeId, recipeData, parentVersion, c
     });
 }
 
-export async function copyRecipeWithVersion(sourceRecipeId, sourceVersion) {
+export async function copyRecipeWithVersion(sourceRecipeId, sourceVersion, recipeData, changes) {
     return sendRequest(`${VERSION_URL}/copy`, 'POST', {
         sourceRecipeId,
-        sourceVersion
+        sourceVersion,
+        recipeData,
+        changes
     });
 }
 
