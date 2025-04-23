@@ -44,7 +44,7 @@ export default function CoffeeBeanAdditionModal({ isOpen, onClose, updateCoffeeB
                 {/* Modal content */}
                 <div 
                 ref={modalRef}
-                className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 sm:w-full sm:max-w-lg"
+                className="relative transform overflow-hidden rounded-lg bg-white text-left shadow-xl transition-all sm:my-8 w-full sm:max-w-lg"
                 >
                     {/* Header */}
                     <div className="bg-white px-4 pt-5 pb-4 sm:p-6">
